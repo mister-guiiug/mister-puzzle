@@ -1,35 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { Socket } from 'socket.io-client';
 import { Camera, CheckCircle, Clock, Image as ImageIcon, Users } from 'lucide-react';
 import { differenceInMinutes } from 'date-fns';
-
-interface Checkpoint {
-  id: string;
-  name: string;
-  completed: boolean;
-}
-
-interface HistoryEntry {
-  timestamp: number;
-  placedPieces: number;
-}
-
-interface PuzzleState {
-  id: string;
-  name: string;
-  totalPieces: number;
-  placedPieces: number;
-  checkpoints: Checkpoint[];
-  photos: string[];
-  history: HistoryEntry[];
-}
+import { type PuzzleState, updatePieces, toggleCheckpoint, addPhoto } from '../hooks/useSocket';
 
 interface DashboardProps {
-  socket: Socket;
   puzzle: PuzzleState;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ socket, puzzle }) => {
+const Dashboard: React.FC<DashboardProps> = ({ puzzle }) => {
   const [newPieces, setNewPieces] = useState(puzzle.placedPieces);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,7 +47,7 @@ const Dashboard: React.FC<DashboardProps> = ({ socket, puzzle }) => {
   const estimates = calculateEstimates();
 
   const handlePiecesUpdate = () => {
-    socket.emit('updatePieces', { roomCode: puzzle.id, placedPieces: newPieces });
+    updatePieces(puzzle.id, newPieces);
   };
 
   const resizeImage = (file: File): Promise<string> => {
@@ -97,7 +75,7 @@ const Dashboard: React.FC<DashboardProps> = ({ socket, puzzle }) => {
     const file = e.target.files?.[0];
     if (file) {
       const compressed = await resizeImage(file);
-      socket.emit('addPhoto', { roomCode: puzzle.id, photo: compressed });
+      addPhoto(puzzle.id, compressed);
     }
   };
 
@@ -193,7 +171,7 @@ const Dashboard: React.FC<DashboardProps> = ({ socket, puzzle }) => {
                 <div
                   key={cp.id}
                   className={`flex items-center p-3 rounded-xl border cursor-pointer transition ${cp.completed ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-100 hover:border-indigo-200'}`}
-                  onClick={() => socket.emit('toggleCheckpoint', { roomCode: puzzle.id, checkpointId: cp.id })}
+                  onClick={() => toggleCheckpoint(puzzle.id, cp.id, cp.completed)}
                 >
                   <div className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center transition-colors ${cp.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 bg-white'}`}>
                     {cp.completed && <CheckCircle size={14} />}

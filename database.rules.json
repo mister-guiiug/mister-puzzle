@@ -1,0 +1,46 @@
+{
+  "rules": {
+    "puzzles": {
+      "$roomCode": {
+        // Lecture : toujours autorisée (partage par code)
+        ".read": true,
+
+        // Écriture globale refusée — on descend au niveau des champs
+        ".write": false,
+
+        // Création d'un nouveau puzzle uniquement si n'existe pas encore
+        ".write": "!data.exists()",
+
+        "placedPieces": {
+          // Doit être un nombre entre 0 et totalPieces
+          ".write": "data.parent().exists()",
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= data.parent().child('totalPieces').val()"
+        },
+
+        "checkpoints": {
+          "$checkpointId": {
+            ".write": "data.parent().parent().exists()",
+            "completed": {
+              ".validate": "newData.isBoolean()"
+            }
+          }
+        },
+
+        "history": {
+          "$entry": {
+            ".write": "data.parent().parent().exists()",
+            ".validate": "newData.hasChildren(['timestamp', 'placedPieces']) && newData.child('timestamp').isNumber() && newData.child('placedPieces').isNumber()"
+          }
+        },
+
+        "photos": {
+          "$photoId": {
+            // Limite : ~1,5 Mo par photo (base64)
+            ".write": "data.parent().parent().exists()",
+            ".validate": "newData.isString() && newData.val().length < 2000000"
+          }
+        }
+      }
+    }
+  }
+}
