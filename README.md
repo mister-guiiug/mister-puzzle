@@ -11,6 +11,14 @@
 - **Icône principale** : `public/logo.svg` — marque vectorielle (grille 3×3 sur dégradé indigo / violet), utilisée sur l’accueil, dans la barre du haut et comme favicon. Les balises `<img>` utilisent `import.meta.env.BASE_URL` pour rester correctes avec le `base` Vite (`/mister-puzzle/`).
 - **PWA** : le manifeste référence `logo.svg` ainsi que les PNG `pwa-192x192.png` et `pwa-512x512.png` à la racine de `public/` (install / écran d’accueil). Ajoutez ou régénérez ces PNG si besoin pour un rendu optimal sur toutes les plateformes.
 
+## SEO et GEO (référencement classique + moteurs génératifs)
+
+- **Balises** (`index.html`, injectées au build) : `canonical`, `hreflang` (fr, en, x-default), Open Graph (`og:*`), Twitter Card, `meta description` / `keywords` / `robots`, `theme-color`.
+- **Données structurées** : JSON-LD [Schema.org](https://schema.org) `WebApplication` + `FAQPage` pour aider Google et les assistants à résumer l’outil fidèlement.
+- **Fichiers générés dans `dist/` au build** : `robots.txt`, `sitemap.xml` (URL d’accueil), `llms.txt` (résumé factuel, limites du produit, lien dépôt — format utile aux crawlers « IA » et outils type Perplexity). Le plugin est `vite-plugin-seo.ts`.
+- **Variable d’environnement** : `VITE_PUBLIC_SITE_ORIGIN` (sans slash final), ex. `https://votre-compte.github.io`. Le workflow GitHub Actions la définit à partir du propriétaire du dépôt. En local, sans variable, une origine par défaut est utilisée (voir `vite-plugin-seo.ts`).
+- **Titre dynamique** : en salle ouverte, le titre du document inclut le nom du puzzle (`useDocumentRoomTitle`). Les cartes Open Graph restent celles de la page d’accueil (pas de SSR par salle) : pour des aperçus sociaux par puzzle, il faudrait un prérendu ou un endpoint dédié.
+
 ## Fonctionnalités
 
 - **Collaboration en temps réel** : synchronisation via Firebase Realtime Database entre appareils.
@@ -22,7 +30,10 @@
 - **Checkpoints** : ajout rapide (progression, modèles, libellé libre), drapeau sur l’étape courante, tout décocher, suppression individuelle.
 - **Internationalisation** : français et anglais (accueil et tableau de bord).
 - **Présence** : membres « en ligne » avec rafraîchissement et filtre d’activité récente.
-- **Historique** : entrées limitées automatiquement côté base.
+- **Historique** : entrées limitées automatiquement côté base ; export **CSV** / **JSON** et journal des dernières mises à jour dans le tableau de bord.
+- **Raccourcis pièces** : pas rapide ±1 / ±10 (complément des pas 1–100) ; vibration légère sur mobile après enregistrement réussi ; annonce `aria-live` quand le compteur change côté serveur.
+- **Invitation** : paramètre d’URL `?join=CODE` (ou `room` / `code`) pour pré-remplir « Rejoindre » ; partage enrichi depuis le tableau de bord. Menu latéral : tri des puzzles publics (avancement, nom).
+- **Build** : découpage Vite (`firebase`, `lucide`, `date-fns`, `motion`, `vendor`) pour de meilleurs caches navigateur.
 - **PWA** : installable, mises à jour via bannière interne (`prompt`).
 
 ### Installer la PWA (téléphone / ordinateur)

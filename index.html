@@ -24,7 +24,98 @@
       name="description"
       content="Mister Puzzle — suivi collaboratif de puzzles : pièces en direct, photos, checkpoints, graphique, PWA. Partagez un code et avancez à plusieurs."
     />
+    <meta
+      name="keywords"
+      content="puzzle, jigsaw, progression, collaboratif, temps réel, PWA, Firebase, photos, checkpoints, suivi pièces"
+    />
+    <meta name="application-name" content="Mister Puzzle" />
+    <meta name="author" content="Mister Puzzle" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="__SEO_HOME_URL__" />
+    <link rel="alternate" hreflang="fr" href="__SEO_HOME_URL__" />
+    <link rel="alternate" hreflang="en" href="__SEO_HOME_URL__" />
+    <link rel="alternate" hreflang="x-default" href="__SEO_HOME_URL__" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Mister Puzzle" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:url" content="__SEO_HOME_URL__" />
+    <meta property="og:title" content="Mister Puzzle — progression collaborative" />
+    <meta
+      property="og:description"
+      content="Suivez un puzzle à plusieurs : pièces placées ou restantes, historique, photos, checkpoints. Web app installable (PWA), français et anglais."
+    />
+    <meta property="og:image" content="__SEO_LOGO_URL__" />
+    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image:alt" content="Mister Puzzle — icône grille" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mister Puzzle — progression collaborative" />
+    <meta
+      name="twitter:description"
+      content="Suivez un puzzle à plusieurs en temps réel : progression, photos, checkpoints, PWA."
+    />
+    <meta name="twitter:image" content="__SEO_LOGO_URL__" />
+
     <title>Mister Puzzle — progression collaborative</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Mister Puzzle",
+        "url": "__SEO_HOME_URL__",
+        "description": "Application web progressive pour le suivi collaboratif de puzzles : pièces en temps réel, historique graphique, photos, checkpoints, présence en ligne. Interface français et anglais.",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "browserRequirements": "Requires JavaScript. Requires HTML5.",
+        "inLanguage": ["fr", "en"],
+        "image": "__SEO_LOGO_URL__",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EUR"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "Mister Puzzle",
+          "url": "https://github.com/mister-guiiug/mister-puzzle"
+        },
+        "isAccessibleForFree": true
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Comment rejoindre une partie sur Mister Puzzle ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Sur la page d'accueil, saisissez le code de salle fourni par l'hôte puis validez. Si le puzzle est privé, un mot de passe peut être demandé."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Mister Puzzle est-il une application installable ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Oui : c'est une PWA (Progressive Web App). En HTTPS, le navigateur peut proposer d'ajouter l'application à l'écran d'accueil ou au bureau. Une bannière propose de recharger lorsqu'une mise à jour est disponible."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Quelles données sont synchronisées ?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Le nombre de pièces (placées ou restantes selon la vue), l'historique, les checkpoints, les photos ajoutées dans la salle et la présence des membres. L'image du puzzle physique n'est pas fournie par l'application."
+            }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

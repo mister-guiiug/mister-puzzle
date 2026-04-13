@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { seoInjectPlugin } from './vite-plugin-seo';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -11,8 +12,22 @@ export default defineConfig({
   base: '/mister-puzzle/',
   build: {
     sourcemap: true,
+    chunkSizeWarningLimit: 720,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          if (id.includes('firebase')) return 'firebase';
+          if (id.includes('lucide-react')) return 'lucide';
+          if (id.includes('date-fns')) return 'date-fns';
+          if (id.includes('framer-motion')) return 'motion';
+          return 'vendor';
+        },
+      },
+    },
   },
   plugins: [
+    seoInjectPlugin(),
     react(),
     tailwindcss(),
     VitePWA({

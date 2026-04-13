@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import {
   X,
   Home,
@@ -9,6 +9,7 @@ import {
   Lock,
   Eye,
   EyeOff,
+  ArrowDownUp,
 } from 'lucide-react';
 import { joinPuzzle, getPublicPuzzles, hashPassword, type PuzzleState } from '../hooks/useSocket';
 import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
@@ -34,6 +35,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   const [history, setHistory] = useState<HistoryPuzzle[]>([]);
   const [publicPuzzles, setPublicPuzzles] = useState<PuzzleState[]>([]);
   const [publicSearch, setPublicSearch] = useState('');
+  const [publicSort, setPublicSort] = useState<'nameAsc' | 'nameDesc' | 'progressDesc' | 'progressAsc'>('progressDesc');
   const [loadingPublic, setLoadingPublic] = useState(false);
   const [publicLoaded, setPublicLoaded] = useState(false);
   const [joining, setJoining] = useState(false);
@@ -196,6 +198,26 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
       p.id.toLowerCase().includes(publicSearch.toLowerCase()),
   );
 
+  const sortedFilteredPublic = useMemo(() => {
+    const arr = [...filteredPublic];
+    const pct = (p: (typeof arr)[0]) =>
+      p.totalPieces > 0 ? p.placedPieces / p.totalPieces : 0;
+    arr.sort((a, b) => {
+      switch (publicSort) {
+        case 'nameAsc':
+          return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+        case 'nameDesc':
+          return b.name.localeCompare(a.name, undefined, { sensitivity: 'base' });
+        case 'progressAsc':
+          return pct(a) - pct(b);
+        case 'progressDesc':
+        default:
+          return pct(b) - pct(a);
+      }
+    });
+    return arr;
+  }, [filteredPublic, publicSort]);
+
   return (
     <>
       <div
@@ -299,13 +321,30 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                     autoCorrect="off"
                   />
                 </div>
+                <div className="mb-2 flex items-center gap-2">
+                  <ArrowDownUp size={14} className="shrink-0 text-gray-400" aria-hidden />
+                  <label htmlFor="nav-public-sort" className="sr-only">
+                    {t('nav.publicSort')}
+                  </label>
+                  <select
+                    id="nav-public-sort"
+                    value={publicSort}
+                    onChange={(e) => setPublicSort(e.target.value as typeof publicSort)}
+                    className="min-h-9 flex-1 rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-medium text-gray-800 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+                  >
+                    <option value="progressDesc">{t('nav.publicSortProgressDesc')}</option>
+                    <option value="progressAsc">{t('nav.publicSortProgressAsc')}</option>
+                    <option value="nameAsc">{t('nav.publicSortNameAsc')}</option>
+                    <option value="nameDesc">{t('nav.publicSortNameDesc')}</option>
+                  </select>
+                </div>
                 {filteredPublic.length === 0 ? (
                   <p className="text-sm text-gray-400 py-2">
                     {publicSearch ? t('home.noResults') : t('home.noPublic')}
                   </p>
                 ) : (
                   <ul className="space-y-1 max-h-[min(40vh,14rem)] sm:max-h-56 overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch]">
-                    {filteredPublic.map((p) => (
+                    {sortedFilteredPublic.map((p) => (
                       <li key={p.id}>
                         <button
                           type="button"

@@ -9,6 +9,7 @@ import { usePullToRefresh } from './hooks/usePullToRefresh';
 import PullToRefreshIndicator from './components/PullToRefreshIndicator';
 import { useI18n } from './i18n/I18nContext';
 import { getPseudo, isPseudoLocked } from './utils/pseudo';
+import { useDocumentRoomTitle } from './hooks/useDocumentRoomTitle';
 
 const getHashCode = () => {
   const hash = window.location.hash.slice(1).toUpperCase();
@@ -19,6 +20,7 @@ function App() {
   const { t } = useI18n();
   const [roomCode, setRoomCode] = useState<string | null>(getHashCode);
   const { puzzle, loading, loadError } = usePuzzle(roomCode);
+  useDocumentRoomTitle(puzzle ?? undefined, loading);
   const savedRef = useRef<string | null>(null);
   const [online, setOnline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine);
 
@@ -83,7 +85,10 @@ function App() {
         onNavigateToPuzzle={handleJoin}
         onPseudoCommit={handlePseudoCommit}
       />
-      <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+      <main
+        id="contenu-principal"
+        className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100"
+      >
         {!online && (
           <div
             className="bg-amber-50 border-b border-amber-200 text-amber-950 text-sm px-4 py-3 text-center dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-100"
@@ -143,7 +148,7 @@ function App() {
         ) : (
           <Home onJoin={handleJoin} pseudo={pseudo} />
         )}
-      </div>
+      </main>
       <UpdateBanner />
     </>
   );
