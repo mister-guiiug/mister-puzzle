@@ -18,49 +18,63 @@ export interface PuzzleState {
   name: string;
   totalPieces: number;
   placedPieces: number;
+  rows?: number;
+  cols?: number;
   checkpoints: Checkpoint[];
   photos: string[];
   history: HistoryEntry[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const normalizePuzzle = (data: any): PuzzleState => ({
+  ...data,
+  checkpoints: data.checkpoints ? Object.values(data.checkpoints) : [],
+  photos: data.photos ? Object.values(data.photos) : [],
+  history: data.history ? Object.values(data.history) : [],
+});
+
 /** Subscribe to live updates for a puzzle room. */
 export const usePuzzle = (roomCode: string | null) => {
   const [puzzle, setPuzzle] = useState<PuzzleState | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!roomCode) {
       setPuzzle(null);
+      setLoading(false);
       return;
     }
 
+    setLoading(true);
     const puzzleRef = ref(db, `puzzles/${roomCode}`);
     const unsubscribe = onValue(puzzleRef, (snapshot) => {
+      setLoading(false);
       const data = snapshot.val();
       if (data) {
-        setPuzzle({
-          ...data,
-          checkpoints: data.checkpoints ? Object.values(data.checkpoints) : [],
-          photos: data.photos ? Object.values(data.photos) : [],
-          history: data.history ? Object.values(data.history) : [],
-        });
+        setPuzzle(normalizePuzzle(data));
+      } else {
+        setPuzzle(null);
       }
     });
 
     return () => {
       off(puzzleRef, 'value', unsubscribe);
       setPuzzle(null);
+      setLoading(false);
     };
   }, [roomCode]);
 
-  return puzzle;
+  return { puzzle, loading };
 };
 
-export const createPuzzle = async (name: string, totalPieces: number): Promise<string> => {
+export const createPuzzle = async (name: string, rows: number, cols: number): Promise<string> => {
   const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
   await set(ref(db, `puzzles/${roomCode}`), {
     id: roomCode,
     name,
-    totalPieces,
+    rows,
+    cols,
+    totalPieces: rows * cols,
     placedPieces: 0,
     checkpoints: {
       '1': { id: '1', name: 'Contour fini', completed: false },
@@ -76,13 +90,7 @@ export const createPuzzle = async (name: string, totalPieces: number): Promise<s
 export const joinPuzzle = async (roomCode: string): Promise<PuzzleState | null> => {
   const snapshot = await get(ref(db, `puzzles/${roomCode}`));
   if (!snapshot.exists()) return null;
-  const data = snapshot.val();
-  return {
-    ...data,
-    checkpoints: data.checkpoints ? Object.values(data.checkpoints) : [],
-    photos: data.photos ? Object.values(data.photos) : [],
-    history: data.history ? Object.values(data.history) : [],
-  };
+  return normalizePuzzle(snapshot.val());
 };
 
 export const updatePieces = async (roomCode: string, placedPieces: number): Promise<void> => {
@@ -101,6 +109,23 @@ export const toggleCheckpoint = async (
   await set(ref(db, `puzzles/${roomCode}/checkpoints/${checkpointId}/completed`), !currentCompleted);
 };
 
+export const addCheckpoint = async (roomCode: string, name: string): Promise<void> => {
+  const newKey = push(ref(db, `puzzles/${roomCode}/checkpoints`)).key!;
+  await set(ref(db, `puzzles/${roomCode}/checkpoints/${newKey}`), {
+    id: newKey,
+    name,
+    completed: false,
+  });
+};
+
 export const addPhoto = async (roomCode: string, photo: string): Promise<void> => {
   await push(ref(db, `puzzles/${roomCode}/photos`), photo);
+};
+
+export const updateGridSize = async (roomCode: string, rows: number, cols: number): Promise<void> => {
+  await update(ref(db, `puzzles/${roomCode}`), {
+    rows,
+    cols,
+    totalPieces: rows * cols,
+  });
 };

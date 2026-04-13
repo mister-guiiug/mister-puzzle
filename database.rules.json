@@ -5,6 +5,21 @@
         ".read": true,
         ".write": "!data.exists()",
 
+        "rows": {
+          ".write": "data.parent().exists()",
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+
+        "cols": {
+          ".write": "data.parent().exists()",
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+
+        "totalPieces": {
+          ".write": "data.parent().exists()",
+          ".validate": "newData.isNumber() && newData.val() > 0"
+        },
+
         "placedPieces": {
           ".write": "data.parent().exists()",
           ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= newData.parent().child('totalPieces').val()"
@@ -15,6 +30,12 @@
             ".write": "data.parent().parent().exists()",
             "completed": {
               ".validate": "newData.isBoolean()"
+            },
+            "name": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 100"
+            },
+            "id": {
+              ".validate": "newData.isString()"
             }
           }
         },

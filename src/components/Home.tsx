@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, Grid, Hash, ArrowRight } from 'lucide-react';
 import { createPuzzle, joinPuzzle } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
 import { getHistory, saveToHistory, type HistoryPuzzle } from '../utils/history';
@@ -10,11 +10,14 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ onJoin }) => {
   const [name, setName] = useState('');
-  const [totalPieces, setTotalPieces] = useState(1000);
+  const [rows, setRows] = useState(20);
+  const [cols, setCols] = useState(50);
   const [roomCode, setRoomCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryPuzzle[]>([]);
+
+  const totalPieces = rows * cols;
 
   useEffect(() => {
     setHistory(getHistory());
@@ -25,14 +28,13 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
       setError('Veuillez donner un nom à votre puzzle.');
       return;
     }
-    if (totalPieces <= 0) {
-      setError('Le nombre de pièces doit être supérieur à 0.');
+    if (rows <= 0 || cols <= 0) {
+      setError('Le nombre de lignes et colonnes doit être supérieur à 0.');
       return;
     }
-
     setLoading(true);
     try {
-      const code = await createPuzzle(name, totalPieces);
+      const code = await createPuzzle(name, rows, cols);
       saveToHistory(code, name);
       onJoin(code);
     } catch (err) {
@@ -73,22 +75,57 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
       <img src="/mister-puzzle/logo.png" alt="Puzzle Tracker" className="w-32 h-32 mb-4 drop-shadow-lg" />
       <h1 className="text-4xl font-bold mb-8 text-indigo-600">Puzzle Tracker</h1>
 
+      {/* Create */}
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md mb-6">
         <h2 className="text-xl font-semibold mb-4">Créer un nouveau puzzle</h2>
         <input
           type="text"
           placeholder="Nom du puzzle"
-          className="w-full p-2 border rounded mb-2"
+          className="w-full p-2 border rounded mb-4"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <input
-          type="number"
-          placeholder="Nombre total de pièces"
-          className="w-full p-2 border rounded mb-4"
-          value={totalPieces}
-          onChange={(e) => setTotalPieces(parseInt(e.target.value))}
-        />
+
+        {/* Grid calculator */}
+        <div className="bg-indigo-50 rounded-xl p-4 mb-4 border border-indigo-100">
+          <p className="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-3 flex items-center gap-1">
+            <Grid size={12} /> Grille de pièces
+          </p>
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <label className="block text-xs text-gray-500 mb-1">Lignes</label>
+              <input
+                type="number"
+                min={1}
+                value={rows}
+                onChange={(e) => setRows(Math.max(1, parseInt(e.target.value) || 1))}
+                className="w-full p-2 border border-indigo-200 rounded-lg text-center text-lg font-bold focus:ring-2 focus:ring-indigo-400 outline-none bg-white"
+              />
+            </div>
+            <span className="text-2xl text-indigo-300 font-light mt-4">×</span>
+            <div className="flex-1">
+              <label className="block text-xs text-gray-500 mb-1">Colonnes</label>
+              <input
+                type="number"
+                min={1}
+                value={cols}
+                onChange={(e) => setCols(Math.max(1, parseInt(e.target.value) || 1))}
+                className="w-full p-2 border border-indigo-200 rounded-lg text-center text-lg font-bold focus:ring-2 focus:ring-indigo-400 outline-none bg-white"
+              />
+            </div>
+            <span className="text-2xl text-indigo-300 font-light mt-4">=</span>
+            <div className="flex-1">
+              <label className="block text-xs text-gray-500 mb-1">Total</label>
+              <div className="w-full p-2 bg-indigo-600 text-white rounded-lg text-center text-lg font-bold mt-0">
+                {totalPieces.toLocaleString('fr-FR')}
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-indigo-400 mt-2 text-center">
+            Ajustable plus tard depuis le tableau de bord
+          </p>
+        </div>
+
         <button
           onClick={handleCreate}
           disabled={loading}
@@ -98,24 +135,32 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         </button>
       </div>
 
+      {/* Join */}
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md mb-6">
         <h2 className="text-xl font-semibold mb-4">Rejoindre un puzzle</h2>
-        <input
-          type="text"
-          placeholder="Code du puzzle (ex: AB12CD)"
-          className="w-full p-2 border rounded mb-4"
-          value={roomCode}
-          onChange={(e) => setRoomCode(e.target.value)}
-        />
-        <button
-          onClick={() => handleJoin()}
-          disabled={loading}
-          className="w-full bg-green-600 text-white p-2 rounded font-bold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Recherche...' : 'Rejoindre'}
-        </button>
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Hash size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Code (ex: AB12CD)"
+              className="w-full pl-8 p-2 border rounded uppercase tracking-widest font-mono"
+              value={roomCode}
+              onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
+            />
+          </div>
+          <button
+            onClick={() => handleJoin()}
+            disabled={loading}
+            className="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+          >
+            {loading ? '...' : <><span>Rejoindre</span><ArrowRight size={16} /></>}
+          </button>
+        </div>
       </div>
 
+      {/* History */}
       {history.length > 0 && (
         <div className="w-full max-w-md">
           <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
@@ -134,10 +179,14 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
                     {item.name}
                   </p>
                   <p className="text-xs font-mono text-gray-400">{item.code}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {new Date(item.timestamp).toLocaleString('fr-FR', {
+                      day: '2-digit', month: '2-digit', year: '2-digit',
+                      hour: '2-digit', minute: '2-digit',
+                    })}
+                  </p>
                 </div>
-                <div className="text-indigo-100 group-hover:text-indigo-500 transition">
-                  <Clock size={20} />
-                </div>
+                <ArrowRight size={18} className="text-gray-200 group-hover:text-indigo-500 transition" />
               </button>
             ))}
           </div>
