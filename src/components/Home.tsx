@@ -134,7 +134,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] bg-gray-50 flex flex-col items-center justify-center p-4 pt-8">
+    <div className="min-h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px))] bg-gray-50 flex flex-col items-center justify-center p-4 pt-6 sm:pt-8 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
       <ErrorModal message={error} onClose={() => setError(null)} />
 
       {/* Deleted puzzle popup */}
