@@ -83,10 +83,10 @@ function App() {
         onNavigateToPuzzle={handleJoin}
         onPseudoCommit={handlePseudoCommit}
       />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
         {!online && (
           <div
-            className="bg-amber-50 border-b border-amber-200 text-amber-950 text-sm px-4 py-3 text-center"
+            className="bg-amber-50 border-b border-amber-200 text-amber-950 text-sm px-4 py-3 text-center dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-100"
             role="alert"
           >
             <strong className="font-semibold">{t('app.offlineTitle')}</strong> — {t('app.offlineDetail')}
@@ -95,11 +95,11 @@ function App() {
         {roomCode ? (
           loading ? (
             <div className="flex items-center justify-center min-h-[50vh]">
-              <p className="text-gray-400 text-lg animate-pulse">{t('app.loading')}</p>
+              <p className="text-gray-400 dark:text-gray-500 text-lg animate-pulse">{t('app.loading')}</p>
             </div>
           ) : loadError ? (
             <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4 max-w-md mx-auto text-center">
-              <p className="text-gray-700">{t('app.loadError')}</p>
+              <p className="text-gray-700 dark:text-gray-300">{t('app.loadError')}</p>
               <button
                 type="button"
                 onClick={() => window.location.reload()}
@@ -110,7 +110,7 @@ function App() {
               <button
                 type="button"
                 onClick={handleBack}
-                className="text-indigo-600 underline text-sm focus:outline-none focus-visible:ring-2 rounded"
+                className="text-indigo-600 dark:text-indigo-400 underline text-sm focus:outline-none focus-visible:ring-2 rounded"
               >
                 {t('app.backHome')}
               </button>
@@ -124,11 +124,13 @@ function App() {
             />
           ) : (
             <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4 max-w-md mx-auto text-center">
-              <p className="text-lg font-semibold text-gray-800">{t('app.notFound')}</p>
+              <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">{t('app.notFound')}</p>
               {roomCode && (
-                <p className="text-sm font-mono text-gray-500 bg-gray-100 px-3 py-1 rounded-lg">{roomCode}</p>
+                <p className="text-sm font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-lg">
+                  {roomCode}
+                </p>
               )}
-              <p className="text-gray-600 text-sm leading-relaxed">{t('app.notFoundDetail')}</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{t('app.notFoundDetail')}</p>
               <button
                 type="button"
                 onClick={handleBack}

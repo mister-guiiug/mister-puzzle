@@ -1,6 +1,19 @@
 <!doctype html>
 <html lang="fr">
   <head>
+    <script>
+      (function () {
+        try {
+          var k = 'mister_puzzle_theme';
+          var t = localStorage.getItem(k);
+          var sys = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var dark = t === 'dark' || ((t === 'system' || t === null) && sys);
+          if (t === 'light') dark = false;
+          if (dark) document.documentElement.classList.add('dark');
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/mister-puzzle/pwa-192x192.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />

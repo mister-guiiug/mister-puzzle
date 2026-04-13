@@ -465,7 +465,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const lastHistory = puzzle.history.length > 0 ? puzzle.history[puzzle.history.length - 1] : null;
 
   return (
-    <div className="min-h-dvh bg-gray-50 p-4 md:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
+    <div className="min-h-dvh bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-4 md:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
       <ErrorModal message={error} onClose={() => setError(null)} />
 
       <div className="max-w-4xl mx-auto">
@@ -524,7 +524,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 </div>
               ) : (
                 <div className="flex items-center gap-2 group/name">
-                  <h1 className="text-3xl font-bold text-gray-800">{puzzle.name}</h1>
+                  <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{puzzle.name}</h1>
                   <button
                     type="button"
                     onClick={() => !readOnly && setEditingName(true)}
@@ -555,7 +555,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             </div>
             <div className="flex items-center gap-2 flex-wrap lg:justify-end shrink-0 w-full lg:w-auto">
             {activeMembers.length > 0 ? (
-              <div className="flex items-center gap-1 bg-white px-3 py-2 min-h-11 rounded-full shadow-sm border border-gray-100">
+              <div className="flex items-center gap-1 bg-white dark:bg-gray-900 px-3 py-2 min-h-11 rounded-full shadow-sm border border-gray-100 dark:border-gray-800">
                 {activeMembers.slice(0, 5).map((member) => (
                   <div
                     key={`${member.pseudo}-${member.lastSeen}`}
@@ -571,7 +571,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 <span className="text-xs text-gray-500 ml-1">{t('dashboard.online')}</span>
               </div>
             ) : (
-              <div className="flex items-center space-x-2 text-gray-500 bg-white px-4 py-2 min-h-11 rounded-full shadow-sm border border-gray-100">
+              <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 px-4 py-2 min-h-11 rounded-full shadow-sm border border-gray-100 dark:border-gray-800">
                 <Users size={20} aria-hidden />
                 <span className="text-sm font-medium">{t('dashboard.collaborative')}</span>
               </div>
@@ -589,7 +589,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             <button
               type="button"
               onClick={handleExportPng}
-              className="flex items-center justify-center gap-2 min-h-11 bg-white text-indigo-600 border border-indigo-200 px-4 py-2.5 rounded-full shadow-sm hover:bg-indigo-50 active:bg-indigo-100/80 transition font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="flex items-center justify-center gap-2 min-h-11 bg-white dark:bg-gray-900 text-indigo-600 border border-indigo-200 dark:border-indigo-800 px-4 py-2.5 rounded-full shadow-sm hover:bg-indigo-50 active:bg-indigo-100/80 dark:hover:bg-indigo-950/50 dark:active:bg-indigo-950 transition font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               aria-label={t('dashboard.exportPng')}
             >
               <Download size={16} aria-hidden />
@@ -599,7 +599,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               <button
                 type="button"
                 onClick={() => setActionsOpen((o) => !o)}
-                className={`inline-flex items-center justify-center min-h-11 min-w-11 rounded-full shadow-sm border transition active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${actionsOpen ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100'}`}
+                className={`inline-flex items-center justify-center min-h-11 min-w-11 rounded-full shadow-sm border transition active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${actionsOpen ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-800 dark:active:bg-gray-700'}`}
                 aria-expanded={actionsOpen}
                 aria-haspopup="true"
                 title={t('nav.moreActions')}
@@ -609,7 +609,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               </button>
               {actionsOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-[min(calc(100vw-2rem),14rem)] sm:w-56 rounded-xl border border-gray-100 bg-white shadow-xl py-1 z-50 max-h-[min(50dvh,20rem)] overflow-y-auto overscroll-y-contain"
+                  className="absolute right-0 mt-2 w-[min(calc(100vw-2rem),14rem)] sm:w-56 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl py-1 z-50 max-h-[min(50dvh,20rem)] overflow-y-auto overscroll-y-contain"
                   role="menu"
                 >
                   <button
@@ -619,9 +619,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       setShowSettings((s) => !s);
                       setActionsOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 min-h-12 px-4 py-3 text-base sm:text-sm text-gray-800 hover:bg-gray-50 active:bg-gray-100 text-left"
+                    className="w-full flex items-center gap-3 min-h-12 px-4 py-3 text-base sm:text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-50 active:bg-gray-100 dark:hover:bg-gray-800 dark:active:bg-gray-700 text-left"
                   >
-                    <Settings size={18} aria-hidden className="text-gray-500 shrink-0" />
+                    <Settings size={18} aria-hidden className="text-gray-500 dark:text-gray-400 shrink-0" />
                     {t('nav.puzzleSettings')}
                   </button>
                   <button
@@ -634,7 +634,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         setActionsOpen(false);
                       }
                     }}
-                    className="w-full flex items-center gap-3 min-h-12 px-4 py-3 text-base sm:text-sm text-red-600 hover:bg-red-50 active:bg-red-100/80 text-left disabled:opacity-40 disabled:pointer-events-none"
+                    className="w-full flex items-center gap-3 min-h-12 px-4 py-3 text-base sm:text-sm text-red-600 hover:bg-red-50 active:bg-red-100/80 dark:hover:bg-red-950/40 dark:active:bg-red-950/60 text-left disabled:opacity-40 disabled:pointer-events-none"
                   >
                     <Trash2 size={18} aria-hidden className="shrink-0" />
                     {t('nav.deletePuzzle')}
@@ -658,7 +658,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
-                className="bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-bold border border-gray-200 hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2"
+                className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-full text-sm font-bold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition focus:outline-none focus-visible:ring-2"
               >
                 {t('dashboard.no')}
               </button>
@@ -667,7 +667,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
         </header>
 
         {showSettings && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 mb-8">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Settings size={18} aria-hidden /> {t('dashboard.settingsTitle')}
             </h2>
@@ -678,14 +678,14 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   <button
                     type="button"
                     onClick={() => setLocale('fr')}
-                    className={`px-4 py-2 text-sm font-medium transition ${locale === 'fr' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                    className={`px-4 py-2 text-sm font-medium transition ${locale === 'fr' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'}`}
                   >
                     FR
                   </button>
                   <button
                     type="button"
                     onClick={() => setLocale('en')}
-                    className={`px-4 py-2 text-sm font-medium transition ${locale === 'en' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                    className={`px-4 py-2 text-sm font-medium transition ${locale === 'en' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'}`}
                   >
                     EN
                   </button>
@@ -712,7 +712,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     type="button"
                     onClick={() => handleUpdateVisibility(true)}
                     disabled={readOnly}
-                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition disabled:opacity-40 ${puzzle.isPublic ? 'bg-green-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition disabled:opacity-40 ${puzzle.isPublic ? 'bg-green-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'}`}
                   >
                     <Globe size={14} aria-hidden /> {t('common.public')}
                   </button>
@@ -720,7 +720,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     type="button"
                     onClick={() => handleUpdateVisibility(false)}
                     disabled={readOnly}
-                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition disabled:opacity-40 ${!puzzle.isPublic ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition disabled:opacity-40 ${!puzzle.isPublic ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'}`}
                   >
                     <Lock size={14} aria-hidden /> {t('common.private')}
                   </button>
@@ -780,22 +780,22 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
         )}
 
         <div className="grid grid-cols-1 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
             <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
               <h2 className="text-xl font-semibold">{t('dashboard.progressTitle')}</h2>
               <button
                 type="button"
                 onClick={() => setHelpOpen((o) => !o)}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 px-2 py-1.5 rounded-lg border border-indigo-100 hover:bg-indigo-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 px-2 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
                 aria-expanded={helpOpen}
               >
                 <CircleHelp size={16} aria-hidden />
                 {t('dashboard.helpToggle')}
               </button>
             </div>
-            <p className="text-xs text-gray-400 mb-4">{t('dashboard.progressViewHint')}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">{t('dashboard.progressViewHint')}</p>
             {helpOpen && (
-              <p className="text-sm text-gray-700 mb-4 p-3 rounded-xl bg-gray-50 border border-gray-100 whitespace-pre-line">
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700 whitespace-pre-line">
                 {t('dashboard.helpBody')}
               </p>
             )}
@@ -805,7 +805,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 type="button"
                 onClick={() => handleSetInputMode('placed')}
                 disabled={readOnly}
-                className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'placed' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-100 bg-gray-50 hover:border-indigo-200'}`}
+                className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'placed' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 dark:border-indigo-400' : 'border-gray-100 bg-gray-50 hover:border-indigo-200 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-indigo-700'}`}
                 aria-pressed={inputMode === 'placed'}
               >
                 <p className="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-1">{t('dashboard.placed')}</p>
@@ -818,7 +818,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 type="button"
                 onClick={() => handleSetInputMode('remaining')}
                 disabled={readOnly}
-                className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'remaining' ? 'border-orange-400 bg-orange-50' : 'border-gray-100 bg-gray-50 hover:border-orange-200'}`}
+                className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'remaining' ? 'border-orange-400 bg-orange-50 dark:bg-orange-950/30 dark:border-orange-500' : 'border-gray-100 bg-gray-50 hover:border-orange-200 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-orange-800'}`}
                 aria-pressed={inputMode === 'remaining'}
               >
                 <p className="text-xs font-bold uppercase tracking-wider text-orange-800 mb-1">{t('dashboard.remaining')}</p>
@@ -913,7 +913,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     type="button"
                     onClick={() => setStep(s)}
                     disabled={readOnly}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition disabled:opacity-40 ${step === s ? (inputMode === 'placed' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-orange-500 text-white border-orange-500') : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'}`}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition disabled:opacity-40 ${step === s ? (inputMode === 'placed' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-orange-500 text-white border-orange-500') : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400 dark:bg-gray-900 dark:text-gray-400 dark:border-gray-700 dark:hover:border-gray-500'}`}
                     aria-pressed={step === s}
                   >
                     {s}
@@ -1093,7 +1093,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <h2 className="text-xl font-semibold flex items-center">
                 <CheckCircle className="mr-2" size={20} aria-hidden /> {t('dashboard.checkpointsTitle')}
@@ -1123,7 +1123,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   }}
                 >
                   <div
-                    className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center transition-colors ${cp.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 bg-white'}`}
+                    className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center transition-colors ${cp.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-900'}`}
                   >
                     {cp.completed && <CheckCircle size={14} aria-hidden />}
                   </div>
@@ -1145,7 +1145,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   type="button"
                   onClick={() => handlePresetCheckpoint(label)}
                   disabled={readOnly}
-                  className="text-xs px-3 py-1 rounded-full border bg-white text-gray-700 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 disabled:opacity-40 focus:outline-none focus-visible:ring-2"
+                  className="text-xs px-3 py-1 rounded-full border bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 disabled:opacity-40 focus:outline-none focus-visible:ring-2"
                 >
                   {label}
                 </button>
@@ -1189,7 +1189,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold flex items-center">
                 <ImageIcon className="mr-2" size={20} aria-hidden /> {t('dashboard.photosTitle')}
@@ -1244,7 +1244,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         type="button"
                         onClick={() => movePhoto(photo.id, -1)}
                         disabled={readOnly || idx === 0}
-                        className="bg-white/90 text-gray-800 p-2 rounded-full hover:bg-white transition disabled:opacity-30"
+                        className="bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-100 p-2 rounded-full hover:bg-white dark:hover:bg-gray-800 transition disabled:opacity-30"
                         aria-label={t('dashboard.moveLeft')}
                       >
                         <ChevronLeft size={16} aria-hidden />
@@ -1253,7 +1253,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         type="button"
                         onClick={() => rotatePhoto(puzzle.id, photo.id, (photo.rotation + 90) % 360)}
                         disabled={readOnly}
-                        className="bg-white/90 text-gray-800 p-2 rounded-full hover:bg-white transition disabled:opacity-30"
+                        className="bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-100 p-2 rounded-full hover:bg-white dark:hover:bg-gray-800 transition disabled:opacity-30"
                         aria-label={t('dashboard.rotate')}
                       >
                         <RotateCw size={16} aria-hidden />
@@ -1262,7 +1262,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         type="button"
                         onClick={() => movePhoto(photo.id, 1)}
                         disabled={readOnly || idx >= puzzle.photos.length - 1}
-                        className="bg-white/90 text-gray-800 p-2 rounded-full hover:bg-white transition disabled:opacity-30"
+                        className="bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-100 p-2 rounded-full hover:bg-white dark:hover:bg-gray-800 transition disabled:opacity-30"
                         aria-label={t('dashboard.moveRight')}
                       >
                         <ChevronRight size={16} aria-hidden />
@@ -1291,7 +1291,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         updatePhoto(puzzle.id, photo.id, { caption: v.length ? v : null }).catch(console.error);
                       }
                     }}
-                    className="w-full text-xs p-2 border-t border-gray-100 bg-gray-50 outline-none focus:bg-white focus:ring-1 focus:ring-indigo-300 disabled:opacity-50"
+                    className="w-full text-xs p-2 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/80 outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-1 focus:ring-indigo-300 text-gray-800 dark:text-gray-200 disabled:opacity-50"
                   />
                   {photo.addedAt && (
                     <p className="text-[10px] text-gray-400 px-2 pb-1">

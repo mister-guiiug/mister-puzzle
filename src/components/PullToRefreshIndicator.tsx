@@ -29,7 +29,7 @@ const PullToRefreshIndicator: React.FC<PullToRefreshIndicatorProps> = ({
             ? 'bg-indigo-600 text-white'
             : ready
             ? 'bg-indigo-500 text-white'
-            : 'bg-white text-indigo-500 border border-indigo-200'
+            : 'bg-white dark:bg-gray-900 text-indigo-500 border border-indigo-200 dark:border-indigo-800'
         }`}
       >
         <RefreshCw

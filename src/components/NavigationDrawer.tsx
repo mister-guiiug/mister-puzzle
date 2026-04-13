@@ -199,23 +199,23 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   return (
     <>
       <div
-        className={`fixed inset-0 z-[60] bg-black/40 transition-opacity duration-200 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 z-[60] bg-black/40 dark:bg-black/60 transition-opacity duration-200 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         aria-hidden={!open}
         onClick={onClose}
       />
       <aside
         ref={panelRef}
         id="app-navigation-drawer"
-        className={`fixed left-0 top-0 z-[70] h-full max-h-dvh w-full min-w-0 max-w-[min(100vw,24rem)] bg-white shadow-2xl border-r border-gray-100 flex flex-col transition-transform duration-200 ease-out pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] touch-pan-y ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed left-0 top-0 z-[70] h-full max-h-dvh w-full min-w-0 max-w-[min(100vw,24rem)] bg-white dark:bg-gray-900 shadow-2xl border-r border-gray-100 dark:border-gray-800 flex flex-col transition-transform duration-200 ease-out pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] touch-pan-y ${open ? 'translate-x-0' : '-translate-x-full'}`}
         aria-hidden={!open}
         aria-label={t('nav.drawerTitle')}
       >
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:p-4 border-b border-gray-100 shrink-0 min-h-[3.25rem]">
-          <h2 className="text-lg font-bold text-gray-800 truncate pr-2">{t('nav.drawerTitle')}</h2>
+        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:p-4 border-b border-gray-100 dark:border-gray-800 shrink-0 min-h-[3.25rem]">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 truncate pr-2">{t('nav.drawerTitle')}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center min-h-11 min-w-11 rounded-full text-gray-500 hover:bg-gray-100 active:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 shrink-0"
+            className="inline-flex items-center justify-center min-h-11 min-w-11 rounded-full text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-800 dark:active:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 shrink-0"
             aria-label={t('nav.closeDrawer')}
           >
             <X size={22} aria-hidden />
@@ -226,18 +226,18 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
           <button
             type="button"
             onClick={goHome}
-            className="w-full flex items-center gap-3 min-h-12 px-4 py-3 rounded-xl bg-indigo-50 text-indigo-800 font-semibold hover:bg-indigo-100 active:bg-indigo-200/80 transition text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            className="w-full flex items-center gap-3 min-h-12 px-4 py-3 rounded-xl bg-indigo-50 text-indigo-800 font-semibold hover:bg-indigo-100 active:bg-indigo-200/80 dark:bg-indigo-950/50 dark:text-indigo-200 dark:hover:bg-indigo-900/60 transition text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             <Home size={20} aria-hidden />
             {t('nav.home')}
           </button>
 
           <section>
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+            <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
               <Clock size={14} aria-hidden /> {t('nav.recent')}
             </h3>
             {history.length === 0 ? (
-              <p className="text-sm text-gray-400 py-2">{t('nav.noRecent')}</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 py-2">{t('nav.noRecent')}</p>
             ) : (
               <ul className="space-y-1">
                 {history.map((item) => (
@@ -246,9 +246,9 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                       type="button"
                       disabled={joining}
                       onClick={() => tryJoin(item.code)}
-                      className="flex-1 min-h-12 text-left px-3 py-2.5 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-200 active:bg-gray-100 transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                      className="flex-1 min-h-12 text-left px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-600 active:bg-gray-100 dark:active:bg-gray-700 transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
                     >
-                      <p className="font-semibold text-gray-800 text-sm truncate">{item.name}</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm truncate">{item.name}</p>
                       <p className="text-xs font-mono text-gray-400">{item.code}</p>
                     </button>
                     <button
@@ -270,8 +270,8 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
           </section>
 
           <section>
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-              <Globe size={14} className="text-green-600" aria-hidden /> {t('nav.public')}
+            <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+              <Globe size={14} className="text-green-600 dark:text-green-400" aria-hidden /> {t('nav.public')}
             </h3>
             {loadingPublic && !publicLoaded ? (
               <div
@@ -281,7 +281,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                 aria-label={t('nav.publicLoadingSkeleton')}
               >
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="h-12 rounded-xl bg-gray-100 animate-pulse" />
+                  <div key={i} className="h-12 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
                 ))}
               </div>
             ) : (
@@ -293,7 +293,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                     value={publicSearch}
                     onChange={(e) => setPublicSearch(e.target.value)}
                     placeholder={t('home.searchPh')}
-                    className="w-full min-h-11 pl-10 pr-3 py-2 text-base sm:text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-400 outline-none"
+                    className="w-full min-h-11 pl-10 pr-3 py-2 text-base sm:text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-400 outline-none"
                     enterKeyHint="search"
                     autoCapitalize="none"
                     autoCorrect="off"
@@ -335,8 +335,8 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
         </nav>
 
         {pendingPrivate && (
-          <div className="border-t border-gray-100 p-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] bg-indigo-50 shrink-0">
-            <p className="text-sm font-semibold text-indigo-800 mb-3 flex items-center gap-2">
+          <div className="border-t border-gray-100 dark:border-gray-800 p-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] bg-indigo-50 dark:bg-indigo-950/40 shrink-0">
+            <p className="text-sm font-semibold text-indigo-800 dark:text-indigo-200 mb-3 flex items-center gap-2">
               <Lock size={14} aria-hidden />
               &quot;{pendingPrivate.name}&quot; {t('home.protectedPw')}
             </p>

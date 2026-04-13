@@ -8,9 +8,9 @@ export function UpdateBanner() {
   return (
     <div
       role="status"
-      className="fixed bottom-0 left-0 right-0 z-50 flex flex-wrap items-center justify-center gap-3 px-4 py-3 bg-white border-t border-gray-200 shadow-[0_-8px_32px_rgba(0,0,0,0.1)]"
+      className="fixed bottom-0 left-0 right-0 z-50 flex flex-wrap items-center justify-center gap-3 px-4 py-3 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-[0_-8px_32px_rgba(0,0,0,0.1)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.4)]"
     >
-      <p className="m-0 text-sm text-gray-700 text-center max-w-lg">
+      <p className="m-0 text-sm text-gray-700 dark:text-gray-300 text-center max-w-lg">
         Une nouvelle version de l'application est disponible.
       </p>
       <button
