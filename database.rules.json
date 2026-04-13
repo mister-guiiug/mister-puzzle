@@ -2,6 +2,7 @@
   "rules": {
     "puzzles": {
       ".indexOn": ["isPublic"],
+      ".read": true,
       "$roomCode": {
         ".read": true,
         ".write": "!data.exists() || newData.val() === null",
