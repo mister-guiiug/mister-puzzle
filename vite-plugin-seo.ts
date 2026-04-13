@@ -1,14 +1,25 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 
 const DEFAULT_ORIGIN = 'https://mister-guiiug.github.io';
 const BASE_PATH = '/mister-puzzle';
 
+const pkgDir = path.dirname(fileURLToPath(import.meta.url));
+
+/** Suffixe de cache pour favicon / PWA / Open Graph (incrémenter `version` dans package.json après changement d’icônes). */
+export function getPwaIconQuery(): string {
+  const raw = fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8');
+  const { version } = JSON.parse(raw) as { version: string };
+  return `?v=${encodeURIComponent(version)}`;
+}
+
 export function resolveSeoPublicUrls() {
   const origin = (process.env.VITE_PUBLIC_SITE_ORIGIN || DEFAULT_ORIGIN).replace(/\/$/, '');
   const homeUrl = `${origin}${BASE_PATH}/`;
-  const logoUrl = `${origin}${BASE_PATH}/logo.svg`;
+  const qs = getPwaIconQuery();
+  const logoUrl = `${origin}${BASE_PATH}/logo.svg${qs}`;
   return { origin, homeUrl, logoUrl };
 }
 
@@ -17,7 +28,11 @@ export function seoInjectPlugin(): Plugin {
     name: 'seo-inject',
     transformIndexHtml(html) {
       const { homeUrl, logoUrl } = resolveSeoPublicUrls();
-      return html.replaceAll('__SEO_HOME_URL__', homeUrl).replaceAll('__SEO_LOGO_URL__', logoUrl);
+      const iconQs = getPwaIconQuery();
+      return html
+        .replaceAll('__SEO_HOME_URL__', homeUrl)
+        .replaceAll('__SEO_LOGO_URL__', logoUrl)
+        .replaceAll('__PWA_ICON_QS__', iconQs);
     },
     closeBundle() {
       const { homeUrl } = resolveSeoPublicUrls();

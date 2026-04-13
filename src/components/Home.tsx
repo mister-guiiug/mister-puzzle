@@ -13,7 +13,7 @@ interface HomeProps {
 
 const HOME_TOUR_DISMISSED_KEY = 'mister_puzzle_home_tour_dismissed';
 
-const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
+const logoSrc = `${import.meta.env.BASE_URL}logo.svg${import.meta.env.VITE_PWA_ICON_QS}`;
 
 const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   const { t, numberLocale, locale, setLocale } = useI18n();

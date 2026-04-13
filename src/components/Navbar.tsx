@@ -9,7 +9,7 @@ import {
 } from '../utils/pseudo';
 import type { ThemePreference } from '../theme/themeStorage';
 
-const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
+const logoSrc = `${import.meta.env.BASE_URL}logo.svg${import.meta.env.VITE_PWA_ICON_QS}`;
 
 export type NavbarProps = {
   pseudo: string;
