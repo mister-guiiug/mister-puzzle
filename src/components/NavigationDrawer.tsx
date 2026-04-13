@@ -221,23 +221,23 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   return (
     <>
       <div
-        className={`fixed inset-0 z-[60] bg-black/40 dark:bg-black/60 transition-opacity duration-200 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 z-[60] bg-overlay transition-opacity duration-200 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         aria-hidden={!open}
         onClick={onClose}
       />
       <aside
         ref={panelRef}
         id="app-navigation-drawer"
-        className={`fixed left-0 top-0 z-[70] h-full max-h-dvh w-full min-w-0 max-w-[min(100vw,24rem)] bg-white dark:bg-gray-900 shadow-2xl border-r border-gray-100 dark:border-gray-800 flex flex-col transition-transform duration-200 ease-out pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] touch-pan-y ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed left-0 top-0 z-[70] h-full max-h-dvh w-full min-w-0 max-w-[min(100vw,24rem)] bg-surface shadow-2xl border-r border-divide flex flex-col transition-transform duration-200 ease-out pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] touch-pan-y ${open ? 'translate-x-0' : '-translate-x-full'}`}
         aria-hidden={!open}
         aria-label={t('nav.drawerTitle')}
       >
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:p-4 border-b border-gray-100 dark:border-gray-800 shrink-0 min-h-[3.25rem]">
-          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 truncate pr-2">{t('nav.drawerTitle')}</h2>
+        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:p-4 border-b border-divide shrink-0 min-h-[3.25rem]">
+          <h2 className="text-lg font-bold text-fg-heading truncate pr-2">{t('nav.drawerTitle')}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center min-h-11 min-w-11 rounded-full text-gray-500 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-800 dark:active:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 shrink-0"
+            className="inline-flex items-center justify-center min-h-11 min-w-11 rounded-full text-fg-muted hover:bg-surface-muted active:bg-surface-muted dark:hover:bg-surface-muted dark:active:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring shrink-0"
             aria-label={t('nav.closeDrawer')}
           >
             <X size={22} aria-hidden />
@@ -248,18 +248,18 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
           <button
             type="button"
             onClick={goHome}
-            className="w-full flex items-center gap-3 min-h-12 px-4 py-3 rounded-xl bg-indigo-50 text-indigo-800 font-semibold hover:bg-indigo-100 active:bg-indigo-200/80 dark:bg-indigo-950/50 dark:text-indigo-200 dark:hover:bg-indigo-900/60 transition text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            className="w-full flex items-center gap-3 min-h-12 px-4 py-3 rounded-xl bg-primary-soft text-primary-strong font-semibold hover:bg-primary-soft-hover active:bg-primary-soft-active transition text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
           >
             <Home size={20} aria-hidden />
             {t('nav.home')}
           </button>
 
           <section>
-            <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+            <h3 className="text-xs font-bold text-fg-faint uppercase tracking-wider mb-2 flex items-center gap-2">
               <Clock size={14} aria-hidden /> {t('nav.recent')}
             </h3>
             {history.length === 0 ? (
-              <p className="text-sm text-gray-400 dark:text-gray-500 py-2">{t('nav.noRecent')}</p>
+              <p className="text-sm text-fg-faint py-2">{t('nav.noRecent')}</p>
             ) : (
               <ul className="space-y-1">
                 {history.map((item) => (
@@ -268,10 +268,10 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                       type="button"
                       disabled={joining}
                       onClick={() => tryJoin(item.code)}
-                      className="flex-1 min-h-12 text-left px-3 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 border border-transparent hover:border-gray-200 dark:hover:border-gray-600 active:bg-gray-100 dark:active:bg-gray-700 transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                      className="flex-1 min-h-12 text-left px-3 py-2.5 rounded-xl hover:bg-surface-muted dark:hover:bg-surface-muted border border-transparent hover:border-border-ui dark:hover:border-border-ui active:bg-surface-muted dark:active:bg-surface-muted transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                     >
-                      <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm truncate">{item.name}</p>
-                      <p className="text-xs font-mono text-gray-400">{item.code}</p>
+                      <p className="font-semibold text-fg-heading text-sm truncate">{item.name}</p>
+                      <p className="text-xs font-mono text-fg-faint">{item.code}</p>
                     </button>
                     <button
                       type="button"
@@ -281,7 +281,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                         removeFromHistory(item.code);
                         refreshHistory();
                       }}
-                      className="inline-flex items-center justify-center shrink-0 min-h-12 min-w-12 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl active:bg-red-100/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                      className="inline-flex items-center justify-center shrink-0 min-h-12 min-w-12 text-fg-faint hover:text-danger-hover-text hover:bg-danger-soft-hover rounded-xl active:bg-danger-soft-active focus:outline-none focus-visible:ring-2 focus-visible:ring-danger-ring"
                     >
                       <X size={18} aria-hidden />
                     </button>
@@ -292,8 +292,8 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
           </section>
 
           <section>
-            <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-              <Globe size={14} className="text-green-600 dark:text-green-400" aria-hidden /> {t('nav.public')}
+            <h3 className="text-xs font-bold text-fg-faint uppercase tracking-wider mb-2 flex items-center gap-2">
+              <Globe size={14} className="text-success-fill" aria-hidden /> {t('nav.public')}
             </h3>
             {loadingPublic && !publicLoaded ? (
               <div
@@ -303,26 +303,26 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                 aria-label={t('nav.publicLoadingSkeleton')}
               >
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="h-12 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
+                  <div key={i} className="h-12 rounded-xl bg-surface-muted animate-pulse" />
                 ))}
               </div>
             ) : (
               <>
                 <div className="relative mb-2">
-                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" aria-hidden />
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-faint pointer-events-none" aria-hidden />
                   <input
                     type="search"
                     value={publicSearch}
                     onChange={(e) => setPublicSearch(e.target.value)}
                     placeholder={t('home.searchPh')}
-                    className="w-full min-h-11 pl-10 pr-3 py-2 text-base sm:text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-400 outline-none"
+                    className="w-full min-h-11 pl-10 pr-3 py-2 text-base sm:text-sm border border-border-ui rounded-xl bg-surface-muted text-fg focus:ring-2 focus:ring-success-ring outline-none"
                     enterKeyHint="search"
                     autoCapitalize="none"
                     autoCorrect="off"
                   />
                 </div>
                 <div className="mb-2 flex items-center gap-2">
-                  <ArrowDownUp size={14} className="shrink-0 text-gray-400" aria-hidden />
+                  <ArrowDownUp size={14} className="shrink-0 text-fg-faint" aria-hidden />
                   <label htmlFor="nav-public-sort" className="sr-only">
                     {t('nav.publicSort')}
                   </label>
@@ -330,7 +330,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                     id="nav-public-sort"
                     value={publicSort}
                     onChange={(e) => setPublicSort(e.target.value as typeof publicSort)}
-                    className="min-h-9 flex-1 rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-medium text-gray-800 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+                    className="min-h-9 flex-1 rounded-lg border border-border-ui bg-surface px-2 py-1.5 text-xs font-medium text-fg-heading dark:border-border-ui dark:bg-surface-muted dark:text-fg"
                   >
                     <option value="progressDesc">{t('nav.publicSortProgressDesc')}</option>
                     <option value="progressAsc">{t('nav.publicSortProgressAsc')}</option>
@@ -339,7 +339,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                   </select>
                 </div>
                 {filteredPublic.length === 0 ? (
-                  <p className="text-sm text-gray-400 py-2">
+                  <p className="text-sm text-fg-faint py-2">
                     {publicSearch ? t('home.noResults') : t('home.noPublic')}
                   </p>
                 ) : (
@@ -350,17 +350,17 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                           type="button"
                           disabled={joining}
                           onClick={() => tryJoin(p.id)}
-                          className="w-full flex items-center justify-between gap-3 min-h-12 px-3 py-2.5 rounded-xl hover:bg-green-50 active:bg-green-100/80 text-left border border-transparent hover:border-green-200 transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
+                          className="w-full flex items-center justify-between gap-3 min-h-12 px-3 py-2.5 rounded-xl hover:bg-success-row-hover active:bg-success-row-active text-left border border-transparent hover:border-success-row-border transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
                         >
                           <div className="min-w-0">
-                            <p className="font-semibold text-gray-800 text-sm truncate">{p.name}</p>
-                            <p className="text-xs text-gray-400">
+                            <p className="font-semibold text-fg-heading text-sm truncate">{p.name}</p>
+                            <p className="text-xs text-fg-faint">
                               {p.placedPieces.toLocaleString(numberLocale)} /{' '}
                               {p.totalPieces.toLocaleString(numberLocale)} ·{' '}
                               {Math.round((p.placedPieces / p.totalPieces) * 100)}%
                             </p>
                           </div>
-                          <ArrowRight size={18} className="text-gray-400 shrink-0" aria-hidden />
+                          <ArrowRight size={18} className="text-fg-faint shrink-0" aria-hidden />
                         </button>
                       </li>
                     ))}
@@ -370,12 +370,12 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
             )}
           </section>
 
-          {localError && <p className="text-sm text-red-600">{localError}</p>}
+          {localError && <p className="text-sm text-danger-text">{localError}</p>}
         </nav>
 
         {pendingPrivate && (
-          <div className="border-t border-gray-100 dark:border-gray-800 p-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] bg-indigo-50 dark:bg-indigo-950/40 shrink-0">
-            <p className="text-sm font-semibold text-indigo-800 dark:text-indigo-200 mb-3 flex items-center gap-2">
+          <div className="border-t border-divide p-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] bg-primary-soft shrink-0">
+            <p className="text-sm font-semibold text-primary-strong mb-3 flex items-center gap-2">
               <Lock size={14} aria-hidden />
               &quot;{pendingPrivate.name}&quot; {t('home.protectedPw')}
             </p>
@@ -387,7 +387,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                   onChange={(e) => setJoinPassword(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && verifyPrivateJoin()}
                   placeholder={t('home.passwordPh')}
-                  className="w-full min-h-11 pl-3 pr-11 py-2 border border-indigo-200 rounded-xl text-base sm:text-sm"
+                  className="w-full min-h-11 pl-3 pr-11 py-2 border border-primary-border rounded-xl text-base sm:text-sm"
                   autoFocus
                   enterKeyHint="go"
                   autoComplete="current-password"
@@ -395,7 +395,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowJoinPassword(!showJoinPassword)}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center min-h-10 min-w-10 rounded-lg text-gray-500 hover:bg-white/80 active:bg-white"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center min-h-10 min-w-10 rounded-lg text-fg-muted hover:bg-surface/80 active:bg-surface"
                   aria-label={showJoinPassword ? t('home.hidePassword') : t('home.showPassword')}
                 >
                   {showJoinPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -405,7 +405,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                 type="button"
                 onClick={verifyPrivateJoin}
                 disabled={joining || !joinPassword}
-                className="min-h-11 px-5 rounded-xl bg-indigo-600 text-white text-base font-bold disabled:opacity-50 active:bg-indigo-700"
+                className="min-h-11 px-5 rounded-xl bg-primary-fill text-white text-base font-bold disabled:opacity-50 active:bg-primary-fill-hover"
               >
                 OK
               </button>
@@ -416,7 +416,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                   setJoinPassword('');
                   setLocalError(null);
                 }}
-                className="inline-flex items-center justify-center min-h-11 min-w-11 rounded-xl text-gray-600 hover:bg-white/80 active:bg-white border border-indigo-100"
+                className="inline-flex items-center justify-center min-h-11 min-w-11 rounded-xl text-fg-muted hover:bg-surface/80 active:bg-surface border border-primary-border-muted"
                 aria-label={t('common.cancel')}
               >
                 <X size={20} aria-hidden />

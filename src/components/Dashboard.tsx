@@ -527,7 +527,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const lastHistory = puzzle.history.length > 0 ? puzzle.history[puzzle.history.length - 1] : null;
 
   return (
-    <div className="min-h-dvh bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-4 md:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
+    <div className="min-h-dvh bg-canvas text-fg p-4 md:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
       <ErrorModal message={error} onClose={() => setError(null)} />
 
       <p className="sr-only" aria-live="polite" aria-atomic="true">
@@ -537,7 +537,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       <div className="max-w-4xl mx-auto">
         {readOnly && (
           <div
-            className="mb-4 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm font-medium text-center"
+            className="mb-4 p-3 rounded-xl bg-warning-soft border border-warning-border text-warning-fg text-sm font-medium text-center"
             role="status"
           >
             {t('dashboard.readOnlyBanner')}
@@ -560,7 +560,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         setNameInput(puzzle.name);
                       }
                     }}
-                    className="text-2xl font-bold text-gray-800 border-b-2 border-indigo-400 bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 rounded"
+                    className="text-2xl font-bold text-fg-heading border-b-2 border-primary-ring bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-primary-ring rounded"
                     autoFocus
                     maxLength={100}
                     readOnly={readOnly}
@@ -569,7 +569,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   <button
                     type="button"
                     onClick={handleRename}
-                    className="p-1 text-green-600 hover:text-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded"
+                    className="p-1 text-success hover:text-success-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring rounded"
                     title={t('dashboard.validate')}
                     aria-label={t('dashboard.validate')}
                   >
@@ -581,7 +581,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       setEditingName(false);
                       setNameInput(puzzle.name);
                     }}
-                    className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 rounded"
+                    className="p-1 text-fg-faint hover:text-fg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-border-ui-strong rounded"
                     title={t('common.cancel')}
                     aria-label={t('common.cancel')}
                   >
@@ -590,12 +590,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 </div>
               ) : (
                 <div className="flex items-center gap-2 group/name">
-                  <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{puzzle.name}</h1>
+                  <h1 className="text-3xl font-bold text-fg-heading">{puzzle.name}</h1>
                   <button
                     type="button"
                     onClick={() => !readOnly && setEditingName(true)}
                     disabled={readOnly}
-                    className="p-1 text-gray-300 hover:text-indigo-500 transition opacity-0 group-hover/name:opacity-100 disabled:opacity-0 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
+                    className="p-1 text-fg-faint hover:text-primary-muted transition opacity-0 group-hover/name:opacity-100 disabled:opacity-0 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring rounded"
                     title={t('dashboard.rename')}
                     aria-label={t('dashboard.rename')}
                   >
@@ -604,16 +604,16 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 </div>
               )}
               <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                <p className="text-indigo-600 font-mono font-bold text-sm">
+                <p className="text-primary font-mono font-bold text-sm">
                   {t('dashboard.codeLabel')} {puzzle.id}
                 </p>
                 {puzzle.createdBy && (
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-fg-faint">
                     · {t('dashboard.createdBy')} {puzzle.createdBy}
                   </span>
                 )}
                 {!puzzle.isPublic && (
-                  <span className="flex items-center gap-1 text-xs text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">
+                  <span className="flex items-center gap-1 text-xs text-primary-muted bg-primary-soft px-2 py-0.5 rounded-full border border-primary-border">
                     <Lock size={10} aria-hidden /> {t('common.private')}
                   </span>
                 )}
@@ -621,23 +621,23 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             </div>
             <div className="flex items-center gap-2 flex-wrap lg:justify-end shrink-0 w-full lg:w-auto">
             {activeMembers.length > 0 ? (
-              <div className="flex items-center gap-1 bg-white dark:bg-gray-900 px-3 py-2 min-h-11 rounded-full shadow-sm border border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-1 bg-surface px-3 py-2 min-h-11 rounded-full shadow-sm border border-divide">
                 {activeMembers.slice(0, 5).map((member) => (
                   <div
                     key={`${member.pseudo}-${member.lastSeen}`}
                     title={member.pseudo}
-                    className="w-7 h-7 rounded-full bg-indigo-500 text-white text-xs flex items-center justify-center font-bold border-2 border-white -ml-1 first:ml-0"
+                    className="w-7 h-7 rounded-full bg-primary-bar text-white text-xs flex items-center justify-center font-bold border-2 border-white -ml-1 first:ml-0"
                   >
                     {member.pseudo.charAt(0).toUpperCase()}
                   </div>
                 ))}
                 {activeMembers.length > 5 && (
-                  <span className="text-xs text-gray-400 ml-1">+{activeMembers.length - 5}</span>
+                  <span className="text-xs text-fg-faint ml-1">+{activeMembers.length - 5}</span>
                 )}
-                <span className="text-xs text-gray-500 ml-1">{t('dashboard.online')}</span>
+                <span className="text-xs text-fg-muted ml-1">{t('dashboard.online')}</span>
               </div>
             ) : (
-              <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 px-4 py-2 min-h-11 rounded-full shadow-sm border border-gray-100 dark:border-gray-800">
+              <div className="flex items-center space-x-2 text-fg-muted bg-surface px-4 py-2 min-h-11 rounded-full shadow-sm border border-divide">
                 <Users size={20} aria-hidden />
                 <span className="text-sm font-medium">{t('dashboard.collaborative')}</span>
               </div>
@@ -645,7 +645,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             <button
               type="button"
               onClick={handleShare}
-              className="flex items-center justify-center gap-2 min-h-11 bg-indigo-600 text-white px-4 py-2.5 rounded-full shadow-sm hover:bg-indigo-700 active:bg-indigo-800 transition font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-600"
+              className="flex items-center justify-center gap-2 min-h-11 bg-primary-fill text-white px-4 py-2.5 rounded-full shadow-sm hover:bg-primary-fill-hover active:bg-primary-fill-active transition font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-ring"
               title={t('dashboard.share')}
               aria-label={t('dashboard.share')}
             >
@@ -655,7 +655,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             <button
               type="button"
               onClick={handleExportPng}
-              className="flex items-center justify-center gap-2 min-h-11 bg-white dark:bg-gray-900 text-indigo-600 border border-indigo-200 dark:border-indigo-800 px-4 py-2.5 rounded-full shadow-sm hover:bg-indigo-50 active:bg-indigo-100/80 dark:hover:bg-indigo-950/50 dark:active:bg-indigo-950 transition font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="flex items-center justify-center gap-2 min-h-11 bg-surface text-primary border border-primary-border px-4 py-2.5 rounded-full shadow-sm hover:bg-primary-soft-hover active:bg-primary-track/80 dark:hover:bg-primary-soft dark:active:bg-primary-soft transition font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
               aria-label={t('dashboard.exportPng')}
             >
               <Download size={16} aria-hidden />
@@ -665,7 +665,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               <button
                 type="button"
                 onClick={() => setActionsOpen((o) => !o)}
-                className={`inline-flex items-center justify-center min-h-11 min-w-11 rounded-full shadow-sm border transition active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${actionsOpen ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-800 dark:active:bg-gray-700'}`}
+                className={`inline-flex items-center justify-center min-h-11 min-w-11 rounded-full shadow-sm border transition active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring ${actionsOpen ? 'bg-primary-fill text-white border-primary-fill' : 'bg-surface text-fg-muted border-border-ui hover:bg-surface-muted active:bg-surface-muted dark:bg-surface dark:text-fg-faint dark:border-border-ui-strong dark:hover:bg-surface-muted dark:active:bg-surface-muted'}`}
                 aria-expanded={actionsOpen}
                 aria-haspopup="true"
                 title={t('nav.moreActions')}
@@ -675,7 +675,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               </button>
               {actionsOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-[min(calc(100vw-2rem),14rem)] sm:w-56 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl py-1 z-50 max-h-[min(50dvh,20rem)] overflow-y-auto overscroll-y-contain"
+                  className="absolute right-0 mt-2 w-[min(calc(100vw-2rem),14rem)] sm:w-56 rounded-xl border border-divide bg-surface shadow-xl py-1 z-50 max-h-[min(50dvh,20rem)] overflow-y-auto overscroll-y-contain"
                   role="menu"
                 >
                   <button
@@ -685,9 +685,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       setShowSettings((s) => !s);
                       setActionsOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 min-h-12 px-4 py-3 text-base sm:text-sm text-gray-800 dark:text-gray-100 hover:bg-gray-50 active:bg-gray-100 dark:hover:bg-gray-800 dark:active:bg-gray-700 text-left"
+                    className="w-full flex items-center gap-3 min-h-12 px-4 py-3 text-base sm:text-sm text-fg-heading hover:bg-surface-muted active:bg-surface-muted dark:hover:bg-surface-muted dark:active:bg-surface-muted text-left"
                   >
-                    <Settings size={18} aria-hidden className="text-gray-500 dark:text-gray-400 shrink-0" />
+                    <Settings size={18} aria-hidden className="text-fg-muted shrink-0" />
                     {t('nav.puzzleSettings')}
                   </button>
                   <button
@@ -700,7 +700,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         setActionsOpen(false);
                       }
                     }}
-                    className="w-full flex items-center gap-3 min-h-12 px-4 py-3 text-base sm:text-sm text-red-600 hover:bg-red-50 active:bg-red-100/80 dark:hover:bg-red-950/40 dark:active:bg-red-950/60 text-left disabled:opacity-40 disabled:pointer-events-none"
+                    className="w-full flex items-center gap-3 min-h-12 px-4 py-3 text-base sm:text-sm text-danger-text hover:bg-danger-soft-hover active:bg-danger-soft-active text-left disabled:opacity-40 disabled:pointer-events-none"
                   >
                     <Trash2 size={18} aria-hidden className="shrink-0" />
                     {t('nav.deletePuzzle')}
@@ -712,19 +712,19 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
           </div>
 
           {confirmDelete && (
-            <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-100">
-              <span className="text-sm text-red-700 font-medium">{t('dashboard.deleteConfirm')}</span>
+            <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-danger-soft border border-danger-soft-border">
+              <span className="text-sm text-danger-text font-medium">{t('dashboard.deleteConfirm')}</span>
               <button
                 type="button"
                 onClick={handleDelete}
-                className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-red-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                className="bg-danger-fill text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-danger-fill-hover transition focus:outline-none focus-visible:ring-2 focus-visible:ring-danger-ring"
               >
                 {t('dashboard.yes')}
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
-                className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-full text-sm font-bold border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition focus:outline-none focus-visible:ring-2"
+                className="bg-surface text-fg px-4 py-2 rounded-full text-sm font-bold border border-border-ui-strong hover:bg-surface-muted dark:hover:bg-surface-muted transition focus:outline-none focus-visible:ring-2"
               >
                 {t('dashboard.no')}
               </button>
@@ -733,52 +733,52 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
         </header>
 
         {showSettings && (
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 mb-8">
+          <div className="bg-surface rounded-2xl shadow-sm border border-divide p-6 mb-8">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Settings size={18} aria-hidden /> {t('dashboard.settingsTitle')}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t('dashboard.localeLabel')}</label>
-                <div className="flex rounded-lg overflow-hidden border border-gray-200 w-fit">
+                <label className="block text-sm font-medium text-fg-muted mb-2">{t('dashboard.localeLabel')}</label>
+                <div className="flex rounded-lg overflow-hidden border border-border-ui w-fit">
                   <button
                     type="button"
                     onClick={() => setLocale('fr')}
-                    className={`px-4 py-2 text-sm font-medium transition ${locale === 'fr' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'}`}
+                    className={`px-4 py-2 text-sm font-medium transition ${locale === 'fr' ? 'bg-primary-fill text-white' : 'bg-surface text-fg-muted hover:bg-surface-muted dark:text-fg-muted dark:hover:bg-surface-muted'}`}
                   >
                     FR
                   </button>
                   <button
                     type="button"
                     onClick={() => setLocale('en')}
-                    className={`px-4 py-2 text-sm font-medium transition ${locale === 'en' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'}`}
+                    className={`px-4 py-2 text-sm font-medium transition ${locale === 'en' ? 'bg-primary-fill text-white' : 'bg-surface text-fg-muted hover:bg-surface-muted dark:text-fg-muted dark:hover:bg-surface-muted'}`}
                   >
                     EN
                   </button>
                 </div>
               </div>
 
-              <div className="md:col-span-2 border-t border-gray-100 pt-4">
+              <div className="md:col-span-2 border-t border-divide pt-4">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={readOnly}
                     onChange={(e) => handleSetReadOnly(e.target.checked)}
-                    className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                    className="rounded border-border-ui-strong text-primary focus:ring-primary-ring w-4 h-4"
                   />
-                  <span className="text-sm font-medium text-gray-800">{t('dashboard.readOnlyToggle')}</span>
+                  <span className="text-sm font-medium text-fg-heading">{t('dashboard.readOnlyToggle')}</span>
                 </label>
-                <p className="text-xs text-gray-400 mt-1 ml-7">{t('dashboard.readOnlyHint')}</p>
+                <p className="text-xs text-fg-faint mt-1 ml-7">{t('dashboard.readOnlyHint')}</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t('dashboard.visibilityLabel')}</label>
-                <div className="flex rounded-lg overflow-hidden border border-gray-200 w-fit">
+                <label className="block text-sm font-medium text-fg-muted mb-2">{t('dashboard.visibilityLabel')}</label>
+                <div className="flex rounded-lg overflow-hidden border border-border-ui w-fit">
                   <button
                     type="button"
                     onClick={() => handleUpdateVisibility(true)}
                     disabled={readOnly}
-                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition disabled:opacity-40 ${puzzle.isPublic ? 'bg-green-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'}`}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition disabled:opacity-40 ${puzzle.isPublic ? 'bg-success-fill text-white' : 'bg-surface text-fg-muted hover:bg-surface-muted dark:text-fg-muted dark:hover:bg-surface-muted'}`}
                   >
                     <Globe size={14} aria-hidden /> {t('common.public')}
                   </button>
@@ -786,24 +786,24 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     type="button"
                     onClick={() => handleUpdateVisibility(false)}
                     disabled={readOnly}
-                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition disabled:opacity-40 ${!puzzle.isPublic ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800'}`}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition disabled:opacity-40 ${!puzzle.isPublic ? 'bg-primary-fill text-white' : 'bg-surface text-fg-muted hover:bg-surface-muted dark:text-fg-muted dark:hover:bg-surface-muted'}`}
                   >
                     <Lock size={14} aria-hidden /> {t('common.private')}
                   </button>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-fg-faint mt-1">
                   {puzzle.isPublic ? t('dashboard.visibilityPublicSearch') : t('dashboard.visibilityPrivateSearch')}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">{t('dashboard.passwordLabel')}</label>
+                <label className="block text-sm font-medium text-fg-muted mb-2">{t('dashboard.passwordLabel')}</label>
                 <div className="space-y-2">
                   {puzzle.passwordHash && (
                     <input
                       type="password"
                       placeholder={t('dashboard.currentPwPh')}
-                      className="w-full p-2 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-400"
+                      className="w-full p-2 border border-border-ui rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-ring"
                       value={currentPwd}
                       onChange={(e) => setCurrentPwd(e.target.value)}
                       disabled={readOnly}
@@ -813,7 +813,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     <input
                       type={showNewPwd ? 'text' : 'password'}
                       placeholder={puzzle.passwordHash ? t('dashboard.newPwPh') : t('dashboard.setPwPh')}
-                      className="w-full p-2 pr-8 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-400"
+                      className="w-full p-2 pr-8 border border-border-ui rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-ring"
                       value={newPwd}
                       onChange={(e) => setNewPwd(e.target.value)}
                       disabled={readOnly}
@@ -821,7 +821,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     <button
                       type="button"
                       onClick={() => setShowNewPwd(!showNewPwd)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 focus:outline-none focus-visible:ring-2 rounded"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-fg-faint focus:outline-none focus-visible:ring-2 rounded"
                     >
                       {showNewPwd ? <EyeOff size={14} aria-hidden /> : <Eye size={14} aria-hidden />}
                     </button>
@@ -830,12 +830,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     type="button"
                     onClick={handleChangePassword}
                     disabled={readOnly}
-                    className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-indigo-700 transition disabled:opacity-40"
+                    className="bg-primary-fill text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-primary-fill-hover transition disabled:opacity-40"
                   >
                     {puzzle.passwordHash ? t('dashboard.changePw') : t('dashboard.setPw')}
                   </button>
                   {pwMessage && (
-                    <p className={`text-xs font-medium ${pwMessage.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>
+                    <p className={`text-xs font-medium ${pwMessage.type === 'error' ? 'text-danger-text' : 'text-success-fill'}`}>
                       {pwMessage.text}
                     </p>
                   )}
@@ -846,22 +846,22 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
         )}
 
         <div className="grid grid-cols-1 gap-6 mb-8">
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+          <div className="bg-surface p-6 rounded-2xl shadow-sm border border-divide">
             <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
               <h2 className="text-xl font-semibold">{t('dashboard.progressTitle')}</h2>
               <button
                 type="button"
                 onClick={() => setHelpOpen((o) => !o)}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 px-2 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-900 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-strong px-2 py-1.5 rounded-lg border border-primary-border-muted hover:bg-primary-soft-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                 aria-expanded={helpOpen}
               >
                 <CircleHelp size={16} aria-hidden />
                 {t('dashboard.helpToggle')}
               </button>
             </div>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">{t('dashboard.progressViewHint')}</p>
+            <p className="text-xs text-fg-faint mb-4">{t('dashboard.progressViewHint')}</p>
             {helpOpen && (
-              <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700 whitespace-pre-line">
+              <p className="text-sm text-fg-muted mb-4 p-3 rounded-xl bg-surface-muted/60 border border-divide whitespace-pre-line">
                 {t('dashboard.helpBody')}
               </p>
             )}
@@ -871,12 +871,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 type="button"
                 onClick={() => handleSetInputMode('placed')}
                 disabled={readOnly}
-                className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'placed' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 dark:border-indigo-400' : 'border-gray-100 bg-gray-50 hover:border-indigo-200 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-indigo-700'}`}
+                className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'placed' ? 'border-primary-muted bg-primary-soft dark:border-primary-hover' : 'border-divide bg-surface-muted hover:border-primary-border dark:border-border-ui-strong dark:bg-surface-muted/50 dark:hover:border-primary-muted'}`}
                 aria-pressed={inputMode === 'placed'}
               >
-                <p className="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-1">{t('dashboard.placed')}</p>
-                <p className="text-3xl font-bold text-indigo-700">{puzzle.placedPieces.toLocaleString(numberLocale)}</p>
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs font-bold uppercase tracking-wider text-primary-muted mb-1">{t('dashboard.placed')}</p>
+                <p className="text-3xl font-bold text-primary-strong">{puzzle.placedPieces.toLocaleString(numberLocale)}</p>
+                <p className="text-xs text-fg-faint mt-1">
                   {t('dashboard.onTotal')} {puzzle.totalPieces.toLocaleString(numberLocale)}
                 </p>
               </button>
@@ -884,12 +884,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 type="button"
                 onClick={() => handleSetInputMode('remaining')}
                 disabled={readOnly}
-                className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'remaining' ? 'border-orange-400 bg-orange-50 dark:bg-orange-950/30 dark:border-orange-500' : 'border-gray-100 bg-gray-50 hover:border-orange-200 dark:border-gray-700 dark:bg-gray-800/50 dark:hover:border-orange-800'}`}
+                className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'remaining' ? 'border-warm-muted bg-warm-soft dark:border-warm-fill' : 'border-divide bg-surface-muted hover:border-warm-border dark:border-border-ui-strong dark:bg-surface-muted/50 dark:hover:border-warm-strong'}`}
                 aria-pressed={inputMode === 'remaining'}
               >
-                <p className="text-xs font-bold uppercase tracking-wider text-orange-800 mb-1">{t('dashboard.remaining')}</p>
-                <p className="text-3xl font-bold text-orange-700">{remainingPieces.toLocaleString(numberLocale)}</p>
-                <p className="text-xs text-gray-400 mt-1">{t('dashboard.toPlace')}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-warm-strong mb-1">{t('dashboard.remaining')}</p>
+                <p className="text-3xl font-bold text-warm">{remainingPieces.toLocaleString(numberLocale)}</p>
+                <p className="text-xs text-fg-faint mt-1">{t('dashboard.toPlace')}</p>
               </button>
             </div>
 
@@ -909,24 +909,24 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             <div className="flex mb-2 items-center justify-between flex-wrap gap-2">
               <span
                 className={`text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full ${
-                  inputMode === 'placed' ? 'text-indigo-600 bg-indigo-50' : 'text-orange-700 bg-orange-50'
+                  inputMode === 'placed' ? 'text-primary bg-primary-soft' : 'text-warm bg-warm-soft'
                 }`}
               >
                 {Math.round(progress)}% {t('dashboard.donePct')}
               </span>
               <span
-                className={`text-xs font-semibold ${inputMode === 'placed' ? 'text-indigo-600' : 'text-orange-800'}`}
+                className={`text-xs font-semibold ${inputMode === 'placed' ? 'text-primary' : 'text-warm-strong'}`}
               >
                 {inputMode === 'placed'
                   ? `${puzzle.placedPieces.toLocaleString(numberLocale)} / ${puzzle.totalPieces.toLocaleString(numberLocale)}`
                   : `${remainingPieces.toLocaleString(numberLocale)} / ${puzzle.totalPieces.toLocaleString(numberLocale)}`}{' '}
-                <span className="text-gray-400 font-normal normal-case">
+                <span className="text-fg-faint font-normal normal-case">
                   ({inputMode === 'placed' ? t('dashboard.progressFractionPlaced') : t('dashboard.progressFractionRemaining')})
                 </span>
               </span>
             </div>
             <div
-              className={`overflow-hidden h-4 mb-2 flex rounded ${inputMode === 'placed' ? 'bg-indigo-100' : 'bg-orange-100'}`}
+              className={`overflow-hidden h-4 mb-2 flex rounded ${inputMode === 'placed' ? 'bg-primary-track' : 'bg-warm-track'}`}
               role="progressbar"
               aria-valuenow={inputMode === 'placed' ? puzzle.placedPieces : remainingPieces}
               aria-valuemin={0}
@@ -940,30 +940,30 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               {inputMode === 'placed' ? (
                 <div
                   style={{ width: `${progress}%` }}
-                  className="h-full min-w-0 flex flex-col justify-center bg-indigo-500 transition-all duration-500"
+                  className="h-full min-w-0 flex flex-col justify-center bg-primary-bar transition-all duration-500"
                 />
               ) : (
                 <div
                   style={{ width: `${remainingRatioPct}%` }}
-                  className="h-full min-w-0 bg-orange-600 transition-all duration-500"
+                  className="h-full min-w-0 bg-warm-bar transition-all duration-500"
                 />
               )}
             </div>
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-fg-muted mb-4">
               {puzzle.rows && puzzle.cols && (
-                <span className="text-gray-400">
+                <span className="text-fg-faint">
                   {t('dashboard.gridSize')} {puzzle.rows} × {puzzle.cols}
                 </span>
               )}
             </p>
 
             {remoteConflict && (
-              <div className="mb-4 p-3 rounded-xl bg-orange-50 border border-orange-200 text-sm text-orange-900 flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
+              <div className="mb-4 p-3 rounded-xl bg-warm-soft border border-warm-border text-sm text-warm-strong flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
                 <span>{t('dashboard.remoteConflict')}</span>
                 <button
                   type="button"
                   onClick={adoptServerValue}
-                  className="text-sm font-bold text-orange-800 underline hover:no-underline focus:outline-none focus-visible:ring-2 rounded px-1"
+                  className="text-sm font-bold text-warm-strong underline hover:no-underline focus:outline-none focus-visible:ring-2 rounded px-1"
                 >
                   {t('dashboard.adoptServer')}
                 </button>
@@ -972,14 +972,14 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-3 flex-wrap">
-                <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">{t('dashboard.step')}</span>
+                <span className="text-xs text-fg-faint font-semibold uppercase tracking-wider">{t('dashboard.step')}</span>
                 {[1, 5, 10, 25, 50, 100].map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => setStep(s)}
                     disabled={readOnly}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition disabled:opacity-40 ${step === s ? (inputMode === 'placed' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-orange-500 text-white border-orange-500') : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400 dark:bg-gray-900 dark:text-gray-400 dark:border-gray-700 dark:hover:border-gray-500'}`}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition disabled:opacity-40 ${step === s ? (inputMode === 'placed' ? 'bg-primary-fill text-white border-primary-fill' : 'bg-warm-fill text-white border-warm-fill') : 'bg-surface text-fg-muted border-border-ui hover:border-border-ui-strong dark:bg-surface dark:text-fg-muted dark:border-border-ui-strong dark:hover:border-fg-faint'}`}
                     aria-pressed={step === s}
                   >
                     {s}
@@ -988,7 +988,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               </div>
 
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                <span className="text-xs text-gray-500 dark:text-gray-400">{t('dashboard.quickBump')}</span>
+                <span className="text-xs text-fg-muted">{t('dashboard.quickBump')}</span>
                 {([-10, -1, 1, 10] as const).map((d) => (
                   <button
                     key={d}
@@ -997,8 +997,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     disabled={readOnly}
                     className={`rounded-lg border px-2.5 py-1 text-xs font-bold transition disabled:opacity-40 focus:outline-none focus-visible:ring-2 ${
                       inputMode === 'placed'
-                        ? 'border-indigo-200 bg-white text-indigo-700 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-gray-900 dark:text-indigo-200 dark:hover:bg-indigo-950/50'
-                        : 'border-orange-200 bg-white text-orange-800 hover:bg-orange-100 dark:border-orange-800 dark:bg-gray-900 dark:text-orange-200 dark:hover:bg-orange-950/30'
+                        ? 'border-primary-border bg-surface text-primary-strong hover:bg-primary-soft-hover dark:border-primary-border dark:bg-surface dark:text-primary-hover dark:hover:bg-primary-soft-hover'
+                        : 'border-warm-border bg-surface text-warm-strong hover:bg-warm-soft-hover dark:border-warm-border dark:bg-surface dark:text-warm-strong dark:hover:bg-warm-soft-hover'
                     }`}
                   >
                     {d > 0 ? `+${d}` : `${d}`}
@@ -1006,19 +1006,19 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 ))}
               </div>
 
-              <div className={`flex items-center gap-3 p-4 rounded-2xl border-2 ${inputMode === 'placed' ? 'border-indigo-200 bg-indigo-50' : 'border-orange-200 bg-orange-50'}`}>
+              <div className={`flex items-center gap-3 p-4 rounded-2xl border-2 ${inputMode === 'placed' ? 'border-primary-border bg-primary-soft' : 'border-warm-border bg-warm-soft'}`}>
                 <button
                   type="button"
                   onClick={() => handleInputChange(displayedValue - step)}
                   disabled={readOnly || (inputMode === 'placed' ? newPieces <= 0 : newPieces >= puzzle.totalPieces)}
-                  className={`w-14 h-14 rounded-xl text-2xl font-bold transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${inputMode === 'placed' ? 'bg-indigo-200 text-indigo-700 hover:bg-indigo-300 focus-visible:ring-indigo-500' : 'bg-orange-200 text-orange-700 hover:bg-orange-300 focus-visible:ring-orange-500'}`}
+                  className={`w-14 h-14 rounded-xl text-2xl font-bold transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${inputMode === 'placed' ? 'bg-primary-pill-bg text-primary-pill-text hover:bg-primary-border-strong focus-visible:ring-primary-ring' : 'bg-warm-border text-warm hover:bg-warm-border-strong focus-visible:ring-warm-ring'}`}
                   aria-label={t('dashboard.step')}
                 >
                   −
                 </button>
 
                 <div className="flex-1 text-center">
-                  <p className="text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-fg-faint mb-1 uppercase tracking-wider">
                     {inputMode === 'placed' ? t('dashboard.piecesPlaced') : t('dashboard.piecesRemaining')}
                   </p>
                   <input
@@ -1028,11 +1028,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     value={displayedValue}
                     onChange={(e) => handleInputChange(parseInt(e.target.value, 10) || 0)}
                     disabled={readOnly}
-                    className={`w-full text-center text-4xl font-black bg-transparent border-b-2 outline-none pb-1 transition disabled:opacity-50 focus-visible:ring-2 rounded ${inputMode === 'placed' ? 'text-indigo-700 border-indigo-300 focus:border-indigo-600 focus-visible:ring-indigo-400' : 'text-orange-600 border-orange-300 focus:border-orange-500 focus-visible:ring-orange-400'}`}
+                    className={`w-full text-center text-4xl font-black bg-transparent border-b-2 outline-none pb-1 transition disabled:opacity-50 focus-visible:ring-2 rounded ${inputMode === 'placed' ? 'text-primary-strong border-primary-border-strong focus:border-primary-fill focus-visible:ring-primary-ring' : 'text-warm border-warm-border-strong focus:border-warm-fill focus-visible:ring-warm-ring'}`}
                     aria-label={inputMode === 'placed' ? t('dashboard.piecesPlaced') : t('dashboard.piecesRemaining')}
                   />
                   {displayedValue !== (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces) && (
-                    <p className={`text-xs mt-1 font-semibold ${inputMode === 'placed' ? 'text-indigo-600' : 'text-orange-800'}`}>
+                    <p className={`text-xs mt-1 font-semibold ${inputMode === 'placed' ? 'text-primary' : 'text-warm-strong'}`}>
                       {displayedValue > (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces) ? '\u25B2' : '\u25BC'}{' '}
                       {Math.abs(displayedValue - (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces)).toLocaleString(numberLocale)}{' '}
                       {t('dashboard.vsNow')}
@@ -1044,7 +1044,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   type="button"
                   onClick={() => handleInputChange(displayedValue + step)}
                   disabled={readOnly || (inputMode === 'placed' ? newPieces >= puzzle.totalPieces : newPieces <= 0)}
-                  className={`w-14 h-14 rounded-xl text-2xl font-bold transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${inputMode === 'placed' ? 'bg-indigo-500 text-white hover:bg-indigo-600 focus-visible:ring-indigo-500' : 'bg-orange-400 text-white hover:bg-orange-500 focus-visible:ring-orange-500'}`}
+                  className={`w-14 h-14 rounded-xl text-2xl font-bold transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${inputMode === 'placed' ? 'bg-primary-bar text-white hover:bg-primary-fill-hover focus-visible:ring-primary-ring' : 'bg-warm-fill text-white hover:bg-warm-fill-hover focus-visible:ring-warm-ring'}`}
                   aria-label={t('dashboard.step')}
                 >
                   +
@@ -1056,7 +1056,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   type="button"
                   onClick={handlePiecesUpdate}
                   disabled={readOnly || newPieces === puzzle.placedPieces}
-                  className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                  className="flex-1 bg-primary-fill text-white py-3 rounded-xl font-bold hover:bg-primary-fill-hover transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                 >
                   {t('dashboard.save')}
                 </button>
@@ -1099,7 +1099,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     <button
                       type="button"
                       onClick={() => setFlagConfirm(false)}
-                      className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:bg-gray-100 transition focus:outline-none focus-visible:ring-2"
+                      className="px-4 py-2 rounded-lg text-sm font-semibold text-fg-muted hover:bg-surface-muted transition focus:outline-none focus-visible:ring-2"
                     >
                       {t('common.cancel')}
                     </button>
@@ -1108,12 +1108,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               )}
 
               {lastHistory && (
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-fg-faint mt-2">
                   {t('dashboard.lastActivity')}
                   {lastHistory.pseudo && (
                     <>
                       {' '}
-                      ({t('dashboard.by')} <span className="font-medium text-indigo-600">{lastHistory.pseudo}</span>)
+                      ({t('dashboard.by')} <span className="font-medium text-primary">{lastHistory.pseudo}</span>)
                     </>
                   )}
                   :{' '}
@@ -1121,24 +1121,24 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 </p>
               )}
 
-              <details className="mt-4 rounded-xl border border-gray-200 bg-white/60 p-3 dark:border-gray-700 dark:bg-gray-900/50">
-                <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-gray-800 marker:content-none dark:text-gray-100 [&::-webkit-details-marker]:hidden">
-                  <History size={16} className="shrink-0 text-indigo-500" aria-hidden />
+              <details className="mt-4 rounded-xl border border-border-ui bg-surface/60 p-3 dark:border-border-ui-strong dark:bg-surface/50">
+                <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-fg-heading marker:content-none [&::-webkit-details-marker]:hidden">
+                  <History size={16} className="shrink-0 text-primary-muted" aria-hidden />
                   {t('dashboard.activityLogToggle')}
                 </summary>
                 {activityLogDescending.length === 0 ? (
-                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{t('dashboard.activityLogEmpty')}</p>
+                  <p className="mt-2 text-xs text-fg-muted">{t('dashboard.activityLogEmpty')}</p>
                 ) : (
                   <ul className="mt-2 max-h-52 space-y-1.5 overflow-y-auto overscroll-y-contain text-xs [-webkit-overflow-scrolling:touch]">
                     {activityLogDescending.map((h, idx) => (
                       <li
                         key={`${h.timestamp}-${idx}`}
-                        className="flex items-start justify-between gap-2 border-b border-gray-100 pb-1.5 last:border-0 dark:border-gray-800"
+                        className="flex items-start justify-between gap-2 border-b border-divide pb-1.5 last:border-0"
                       >
-                        <span className="text-gray-700 dark:text-gray-200">
+                        <span className="text-fg">
                           {h.placedPieces.toLocaleString(numberLocale)} {t('common.pieces')}
                           {h.pseudo ? (
-                            <span className="text-gray-500 dark:text-gray-400">
+                            <span className="text-fg-muted">
                               {' '}
                               · {h.pseudo}
                             </span>
@@ -1146,7 +1146,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         </span>
                         <time
                           dateTime={new Date(h.timestamp).toISOString()}
-                          className="shrink-0 text-gray-400 dark:text-gray-500"
+                          className="shrink-0 text-fg-faint"
                         >
                           {formatDistanceToNow(new Date(h.timestamp), { addSuffix: true, locale: dateLocale })}
                         </time>
@@ -1158,7 +1158,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   <button
                     type="button"
                     onClick={() => downloadHistoryCsv(puzzle.history, historyExportBase)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                   >
                     <FileSpreadsheet size={14} aria-hidden />
                     {t('dashboard.exportHistoryCsv')}
@@ -1166,7 +1166,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   <button
                     type="button"
                     onClick={() => downloadHistoryJson(puzzle.history, historyExportBase)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                   >
                     <Download size={14} aria-hidden />
                     {t('dashboard.exportHistoryJson')}
@@ -1184,43 +1184,43 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   setShowGridEditor(!showGridEditor);
                 }}
                 disabled={readOnly}
-                className="flex items-center gap-1 text-xs text-gray-400 hover:text-indigo-500 transition disabled:opacity-40 focus:outline-none focus-visible:ring-2 rounded"
+                className="flex items-center gap-1 text-xs text-fg-faint hover:text-primary-muted transition disabled:opacity-40 focus:outline-none focus-visible:ring-2 rounded"
               >
                 <Grid size={12} aria-hidden />
                 {showGridEditor ? t('dashboard.gridCancel') : t('dashboard.adjustGrid')}
               </button>
               {showGridEditor && (
-                <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-800/60">
+                <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-border-ui bg-surface-muted p-3 dark:border-border-ui dark:bg-surface-muted/60">
                   <div className="min-w-[100px] flex-1">
-                    <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">{t('home.rows')}</label>
+                    <label className="mb-1 block text-xs text-fg-muted">{t('home.rows')}</label>
                     <input
                       type="number"
                       min={1}
                       value={gridRows}
                       onChange={(e) => setGridRows(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                      className="w-full rounded-lg border border-gray-200 bg-white p-2 text-center text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-indigo-400 dark:border-gray-600 dark:bg-gray-950 dark:text-gray-100 dark:focus:ring-indigo-500 [color-scheme:light] dark:[color-scheme:dark]"
+                      className="w-full rounded-lg border border-border-ui bg-surface p-2 text-center text-sm font-bold text-fg outline-none focus:ring-2 focus:ring-primary-ring dark:border-border-ui dark:bg-surface-input dark:text-fg dark:focus:ring-primary-ring [color-scheme:light] dark:[color-scheme:dark]"
                     />
                   </div>
-                  <span className="mt-4 text-xl text-gray-400 dark:text-gray-500">×</span>
+                  <span className="mt-4 text-xl text-fg-faint">×</span>
                   <div className="min-w-[100px] flex-1">
-                    <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">{t('home.cols')}</label>
+                    <label className="mb-1 block text-xs text-fg-muted">{t('home.cols')}</label>
                     <input
                       type="number"
                       min={1}
                       value={gridCols}
                       onChange={(e) => setGridCols(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                      className="w-full rounded-lg border border-gray-200 bg-white p-2 text-center text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-indigo-400 dark:border-gray-600 dark:bg-gray-950 dark:text-gray-100 dark:focus:ring-indigo-500 [color-scheme:light] dark:[color-scheme:dark]"
+                      className="w-full rounded-lg border border-border-ui bg-surface p-2 text-center text-sm font-bold text-fg outline-none focus:ring-2 focus:ring-primary-ring dark:border-border-ui dark:bg-surface-input dark:text-fg dark:focus:ring-primary-ring [color-scheme:light] dark:[color-scheme:dark]"
                     />
                   </div>
                   <div className="mt-4 min-w-[80px] flex-1">
-                    <div className="rounded-lg bg-indigo-50 p-2 text-center text-sm font-bold text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-200">
+                    <div className="rounded-lg bg-primary-soft p-2 text-center text-sm font-bold text-primary-strong">
                       = {(gridRows * gridCols).toLocaleString(numberLocale)}
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={handleGridUpdate}
-                    className="mt-4 bg-indigo-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-indigo-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                    className="mt-4 bg-primary-fill text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-primary-fill-hover transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                   >
                     OK
                   </button>
@@ -1231,7 +1231,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+          <div className="bg-surface p-6 rounded-2xl shadow-sm border border-divide">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <h2 className="text-xl font-semibold flex items-center">
                 <CheckCircle className="mr-2" size={20} aria-hidden /> {t('dashboard.checkpointsTitle')}
@@ -1240,20 +1240,20 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 type="button"
                 onClick={handleUncheckAll}
                 disabled={readOnly || puzzle.checkpoints.every((c) => !c.completed)}
-                className="text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 disabled:opacity-40 focus:outline-none focus-visible:ring-2"
+                className="text-xs font-semibold text-fg-muted hover:text-primary-hover border border-border-ui rounded-lg px-2 py-1 disabled:opacity-40 focus:outline-none focus-visible:ring-2"
               >
                 {t('dashboard.uncheckAll')}
               </button>
             </div>
 
-            <div className="mb-6 rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/40 p-4 space-y-4">
+            <div className="mb-6 rounded-2xl border border-divide bg-surface-muted/80 dark:bg-surface-muted/40 p-4 space-y-4">
               <div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('dashboard.checkpointQuickAdd')}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">{t('dashboard.checkpointQuickAddHint')}</p>
+                <p className="text-sm font-semibold text-fg">{t('dashboard.checkpointQuickAdd')}</p>
+                <p className="text-xs text-fg-muted mt-1 leading-relaxed">{t('dashboard.checkpointQuickAddHint')}</p>
               </div>
 
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-fg-muted mb-2">
                   {t('dashboard.checkpointFromProgress')}
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -1263,7 +1263,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       type="button"
                       onClick={() => handlePresetCheckpoint(s)}
                       disabled={readOnly}
-                      className="text-xs px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 max-w-full text-left break-words"
+                      className="text-xs px-3 py-2 rounded-xl border border-border-ui bg-surface text-fg-heading hover:border-primary-ring hover:bg-primary-soft-hover disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring max-w-full text-left break-words"
                     >
                       {s}
                     </button>
@@ -1272,7 +1272,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               </div>
 
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-fg-muted mb-2">
                   {t('dashboard.checkpointPresets')}
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -1282,7 +1282,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       type="button"
                       onClick={() => handlePresetCheckpoint(label)}
                       disabled={readOnly}
-                      className="text-xs px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 max-w-full text-left break-words"
+                      className="text-xs px-3 py-2 rounded-xl border border-border-ui bg-surface text-fg-heading hover:border-primary-ring hover:bg-primary-soft-hover disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring max-w-full text-left break-words"
                     >
                       {label}
                     </button>
@@ -1290,8 +1290,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-gray-200/80 dark:border-gray-600/80">
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+              <div className="pt-3 border-t border-border-ui/80">
+                <p className="text-xs font-semibold uppercase tracking-wide text-fg-muted mb-2">
                   {t('dashboard.checkpointCustom')}
                 </p>
                 <div className="flex gap-2">
@@ -1302,13 +1302,13 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     onChange={(e) => setNewCheckpointName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAddCheckpoint()}
                     disabled={readOnly}
-                    className="flex-1 min-w-0 p-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-400 outline-none disabled:opacity-50"
+                    className="flex-1 min-w-0 p-2.5 text-sm border border-border-ui rounded-xl bg-surface text-fg focus:ring-2 focus:ring-primary-ring outline-none disabled:opacity-50"
                   />
                   <button
                     type="button"
                     onClick={handleAddCheckpoint}
                     disabled={readOnly || !newCheckpointName.trim()}
-                    className="shrink-0 px-3 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 text-sm font-semibold"
+                    className="shrink-0 px-3 py-2 bg-primary-fill text-white rounded-xl hover:bg-primary-fill-hover transition disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring text-sm font-semibold"
                     title={t('dashboard.addCheckpoint')}
                     aria-label={t('dashboard.addCheckpoint')}
                   >
@@ -1319,22 +1319,22 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               </div>
             </div>
 
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-fg-muted mb-2">
               {t('dashboard.checkpointsList')}
             </p>
             {puzzle.checkpoints.length === 0 ? (
-              <p className="text-sm text-gray-400 dark:text-gray-500 py-2">{t('dashboard.checkpointsEmpty')}</p>
+              <p className="text-sm text-fg-faint py-2">{t('dashboard.checkpointsEmpty')}</p>
             ) : (
               <div className="space-y-3">
                 {puzzle.checkpoints.map((cp) => (
                   <div
                     key={cp.id}
-                    className={`flex items-stretch gap-1 rounded-xl border transition ${cp.completed ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700'}`}
+                    className={`flex items-stretch gap-1 rounded-xl border transition ${cp.completed ? 'bg-success-soft border-success-soft-border' : 'bg-surface-muted/50 border-divide'}`}
                   >
                     <div
                       role="button"
                       tabIndex={readOnly ? -1 : 0}
-                      className={`flex min-w-0 flex-1 cursor-pointer items-center p-3 rounded-l-xl transition ${!readOnly && !cp.completed ? 'hover:border-indigo-200 dark:hover:border-indigo-600' : ''} ${readOnly ? 'cursor-default' : ''}`}
+                      className={`flex min-w-0 flex-1 cursor-pointer items-center p-3 rounded-l-xl transition ${!readOnly && !cp.completed ? 'hover:border-primary-border dark:hover:border-primary-muted' : ''} ${readOnly ? 'cursor-default' : ''}`}
                       onClick={() => !readOnly && toggleCheckpoint(puzzle.id, cp.id, cp.completed)}
                       onKeyDown={(e) => {
                         if (!readOnly && (e.key === 'Enter' || e.key === ' ')) {
@@ -1344,17 +1344,17 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       }}
                     >
                       <div
-                        className={`mr-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${cp.completed ? 'border-green-500 bg-green-500 text-white' : 'border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-900'}`}
+                        className={`mr-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${cp.completed ? 'border-success-fill bg-success-fill text-white' : 'border-border-ui-strong bg-surface dark:border-border-ui dark:bg-surface'}`}
                       >
                         {cp.completed && <CheckCircle size={14} aria-hidden />}
                       </div>
                       <div className="min-w-0 flex-1">
                         <span
-                          className={`break-words text-sm font-medium ${cp.completed ? 'text-green-800 line-through dark:text-green-200' : 'text-gray-700 dark:text-gray-200'}`}
+                          className={`break-words text-sm font-medium ${cp.completed ? 'text-success-on-soft line-through' : 'text-fg'}`}
                         >
                           {cp.name}
                         </span>
-                        {cp.createdBy && <p className="text-xs text-gray-400 dark:text-gray-500">{cp.createdBy}</p>}
+                        {cp.createdBy && <p className="text-xs text-fg-faint">{cp.createdBy}</p>}
                       </div>
                     </div>
                     {!readOnly && (
@@ -1364,7 +1364,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                           e.stopPropagation();
                           void handleDeleteCheckpoint(cp.id);
                         }}
-                        className="flex shrink-0 items-center justify-center rounded-r-xl border-l border-gray-200/80 px-3 text-gray-400 transition hover:bg-red-50 hover:text-red-600 dark:border-gray-600/80 dark:hover:bg-red-950/40 dark:hover:text-red-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-400"
+                        className="flex shrink-0 items-center justify-center rounded-r-xl border-l border-border-ui/80 px-3 text-fg-faint transition hover:bg-danger-soft-hover hover:text-danger-text dark:border-border-ui/80 dark:hover:bg-danger-soft-hover dark:hover:text-danger-text focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-danger-ring"
                         title={t('dashboard.deleteCheckpoint')}
                         aria-label={t('dashboard.deleteCheckpoint')}
                       >
@@ -1377,7 +1377,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             )}
           </div>
 
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+          <div className="bg-surface p-6 rounded-2xl shadow-sm border border-divide">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold flex items-center">
                 <ImageIcon className="mr-2" size={20} aria-hidden /> {t('dashboard.photosTitle')}
@@ -1386,7 +1386,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 type="button"
                 onClick={() => !readOnly && fileInputRef.current?.click()}
                 disabled={readOnly}
-                className="bg-indigo-100 text-indigo-600 p-2 rounded-full hover:bg-indigo-200 transition disabled:opacity-40 focus:outline-none focus-visible:ring-2"
+                className="bg-primary-track text-primary p-2 rounded-full hover:bg-primary-soft-active transition disabled:opacity-40 focus:outline-none focus-visible:ring-2"
                 aria-label={t('dashboard.addPhoto')}
               >
                 <Camera size={20} aria-hidden />
@@ -1400,12 +1400,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 onChange={handlePhotoUpload}
               />
             </div>
-            <p className="text-xs text-gray-400 mb-3">{t('dashboard.photoHelp')}</p>
+            <p className="text-xs text-fg-faint mb-3">{t('dashboard.photoHelp')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {puzzle.photos.map((photo, idx) => (
                 <div
                   key={photo.id}
-                  className="relative rounded-lg overflow-hidden border border-gray-100 group"
+                  className="relative rounded-lg overflow-hidden border border-divide group"
                   draggable={!readOnly}
                   onDragStart={() => !readOnly && setDragPhotoId(photo.id)}
                   onDragEnd={() => setDragPhotoId(null)}
@@ -1432,7 +1432,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         type="button"
                         onClick={() => movePhoto(photo.id, -1)}
                         disabled={readOnly || idx === 0}
-                        className="bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-100 p-2 rounded-full hover:bg-white dark:hover:bg-gray-800 transition disabled:opacity-30"
+                        className="bg-surface/90 text-fg-heading p-2 rounded-full hover:bg-surface dark:hover:bg-surface-muted transition disabled:opacity-30"
                         aria-label={t('dashboard.moveLeft')}
                       >
                         <ChevronLeft size={16} aria-hidden />
@@ -1441,7 +1441,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         type="button"
                         onClick={() => rotatePhoto(puzzle.id, photo.id, (photo.rotation + 90) % 360)}
                         disabled={readOnly}
-                        className="bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-100 p-2 rounded-full hover:bg-white dark:hover:bg-gray-800 transition disabled:opacity-30"
+                        className="bg-surface/90 text-fg-heading p-2 rounded-full hover:bg-surface dark:hover:bg-surface-muted transition disabled:opacity-30"
                         aria-label={t('dashboard.rotate')}
                       >
                         <RotateCw size={16} aria-hidden />
@@ -1450,7 +1450,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         type="button"
                         onClick={() => movePhoto(photo.id, 1)}
                         disabled={readOnly || idx >= puzzle.photos.length - 1}
-                        className="bg-white/90 dark:bg-gray-900/90 text-gray-800 dark:text-gray-100 p-2 rounded-full hover:bg-white dark:hover:bg-gray-800 transition disabled:opacity-30"
+                        className="bg-surface/90 text-fg-heading p-2 rounded-full hover:bg-surface dark:hover:bg-surface-muted transition disabled:opacity-30"
                         aria-label={t('dashboard.moveRight')}
                       >
                         <ChevronRight size={16} aria-hidden />
@@ -1459,7 +1459,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         type="button"
                         onClick={() => !readOnly && deletePhoto(puzzle.id, photo.id)}
                         disabled={readOnly}
-                        className="bg-red-500/90 text-white p-2 rounded-full hover:bg-red-600 transition disabled:opacity-30"
+                        className="bg-danger-fill/90 text-white p-2 rounded-full hover:bg-danger-fill-hover transition disabled:opacity-30"
                         aria-label={t('dashboard.deletePhoto')}
                       >
                         <Trash2 size={16} aria-hidden />
@@ -1479,10 +1479,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         updatePhoto(puzzle.id, photo.id, { caption: v.length ? v : null }).catch(console.error);
                       }
                     }}
-                    className="w-full text-xs p-2 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/80 outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-1 focus:ring-indigo-300 text-gray-800 dark:text-gray-200 disabled:opacity-50"
+                    className="w-full text-xs p-2 border-t border-divide bg-surface-muted/80 outline-none focus:bg-surface dark:focus:bg-surface focus:ring-1 focus:ring-primary-ring/50 text-fg disabled:opacity-50"
                   />
                   {photo.addedAt && (
-                    <p className="text-[10px] text-gray-400 px-2 pb-1">
+                    <p className="text-[10px] text-fg-faint px-2 pb-1">
                       {new Date(photo.addedAt).toLocaleString(numberLocale, {
                         day: '2-digit',
                         month: 'short',
@@ -1494,7 +1494,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 </div>
               ))}
               {puzzle.photos.length === 0 && (
-                <div className="col-span-3 text-center text-gray-300 py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                <div className="col-span-3 text-center text-fg-faint py-12 bg-surface-muted rounded-xl border border-dashed border-border-ui">
                   <ImageIcon className="mx-auto mb-2 opacity-50" size={32} aria-hidden />
                   <p className="text-sm">{t('dashboard.noPhotos')}</p>
                 </div>

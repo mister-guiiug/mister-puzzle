@@ -26,10 +26,10 @@ const PullToRefreshIndicator: React.FC<PullToRefreshIndicatorProps> = ({
       <div
         className={`flex items-center gap-2 px-4 py-2 rounded-full shadow-md text-sm font-semibold transition-colors duration-200 ${
           refreshing
-            ? 'bg-indigo-600 text-white'
+            ? 'bg-primary-fill text-white'
             : ready
-            ? 'bg-indigo-500 text-white'
-            : 'bg-white dark:bg-gray-900 text-indigo-500 border border-indigo-200 dark:border-indigo-800'
+            ? 'bg-primary-bar text-white'
+            : 'bg-surface text-primary-muted border border-primary-border'
         }`}
       >
         <RefreshCw
