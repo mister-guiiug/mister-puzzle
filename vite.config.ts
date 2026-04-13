@@ -5,6 +5,9 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __BMAC_URL__: JSON.stringify('https://buymeacoffee.com/mister.guiiug'),
+  },
   base: '/mister-puzzle/',
   build: {
     sourcemap: true,

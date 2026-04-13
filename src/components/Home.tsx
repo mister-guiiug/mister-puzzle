@@ -484,7 +484,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
             Code source
           </a>
           <a
-            href="https://www.buymeacoffee.com/"
+            href={__BMAC_URL__}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-yellow-400 text-yellow-900 font-bold px-3 py-1 rounded-full hover:bg-yellow-300 transition text-xs"
