@@ -51,3 +51,10 @@
 body {
   margin: 0;
 }
+
+/* Réduit le délai tactile sur les contrôles (navigation, menus) */
+button,
+[role='button'],
+[role='menuitem'] {
+  touch-action: manipulation;
+}

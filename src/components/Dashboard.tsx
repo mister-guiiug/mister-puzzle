@@ -123,11 +123,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
   useEffect(() => {
     if (!actionsOpen) return;
-    const close = (e: MouseEvent) => {
+    const close = (e: PointerEvent) => {
       if (!actionsRef.current?.contains(e.target as Node)) setActionsOpen(false);
     };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
+    document.addEventListener('pointerdown', close);
+    return () => document.removeEventListener('pointerdown', close);
   }, [actionsOpen]);
 
   useEffect(() => {
@@ -440,7 +440,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const lastHistory = puzzle.history.length > 0 ? puzzle.history[puzzle.history.length - 1] : null;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-dvh bg-gray-50 p-4 md:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
       <ErrorModal message={error} onClose={() => setError(null)} />
 
       <div className="max-w-4xl mx-auto">
@@ -528,9 +528,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-wrap lg:justify-end shrink-0">
+            <div className="flex items-center gap-2 flex-wrap lg:justify-end shrink-0 w-full lg:w-auto">
             {activeMembers.length > 0 ? (
-              <div className="flex items-center gap-1 bg-white px-3 py-2 rounded-full shadow-sm border border-gray-100">
+              <div className="flex items-center gap-1 bg-white px-3 py-2 min-h-11 rounded-full shadow-sm border border-gray-100">
                 {activeMembers.slice(0, 5).map((member) => (
                   <div
                     key={`${member.pseudo}-${member.lastSeen}`}
@@ -546,7 +546,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 <span className="text-xs text-gray-500 ml-1">{t('dashboard.online')}</span>
               </div>
             ) : (
-              <div className="flex items-center space-x-2 text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
+              <div className="flex items-center space-x-2 text-gray-500 bg-white px-4 py-2 min-h-11 rounded-full shadow-sm border border-gray-100">
                 <Users size={20} aria-hidden />
                 <span className="text-sm font-medium">{t('dashboard.collaborative')}</span>
               </div>
@@ -554,7 +554,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             <button
               type="button"
               onClick={handleShare}
-              className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-sm hover:bg-indigo-700 transition font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-600"
+              className="flex items-center justify-center gap-2 min-h-11 bg-indigo-600 text-white px-4 py-2.5 rounded-full shadow-sm hover:bg-indigo-700 active:bg-indigo-800 transition font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-600"
               title={t('dashboard.share')}
               aria-label={t('dashboard.share')}
             >
@@ -564,7 +564,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             <button
               type="button"
               onClick={handleExportPng}
-              className="flex items-center gap-2 bg-white text-indigo-600 border border-indigo-200 px-4 py-2 rounded-full shadow-sm hover:bg-indigo-50 transition font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="flex items-center justify-center gap-2 min-h-11 bg-white text-indigo-600 border border-indigo-200 px-4 py-2.5 rounded-full shadow-sm hover:bg-indigo-50 active:bg-indigo-100/80 transition font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               aria-label={t('dashboard.exportPng')}
             >
               <Download size={16} aria-hidden />
@@ -574,7 +574,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               <button
                 type="button"
                 onClick={() => setActionsOpen((o) => !o)}
-                className={`p-2.5 rounded-full shadow-sm border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${actionsOpen ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                className={`inline-flex items-center justify-center min-h-11 min-w-11 rounded-full shadow-sm border transition active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${actionsOpen ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 active:bg-gray-100'}`}
                 aria-expanded={actionsOpen}
                 aria-haspopup="true"
                 title={t('nav.moreActions')}
@@ -584,7 +584,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               </button>
               {actionsOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-56 rounded-xl border border-gray-100 bg-white shadow-xl py-1 z-50"
+                  className="absolute right-0 mt-2 w-[min(calc(100vw-2rem),14rem)] sm:w-56 rounded-xl border border-gray-100 bg-white shadow-xl py-1 z-50 max-h-[min(50dvh,20rem)] overflow-y-auto overscroll-y-contain"
                   role="menu"
                 >
                   <button
@@ -594,9 +594,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       setShowSettings((s) => !s);
                       setActionsOpen(false);
                     }}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-50 text-left"
+                    className="w-full flex items-center gap-3 min-h-12 px-4 py-3 text-base sm:text-sm text-gray-800 hover:bg-gray-50 active:bg-gray-100 text-left"
                   >
-                    <Settings size={16} aria-hidden className="text-gray-500" />
+                    <Settings size={18} aria-hidden className="text-gray-500 shrink-0" />
                     {t('nav.puzzleSettings')}
                   </button>
                   <button
@@ -609,9 +609,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         setActionsOpen(false);
                       }
                     }}
-                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 text-left disabled:opacity-40 disabled:pointer-events-none"
+                    className="w-full flex items-center gap-3 min-h-12 px-4 py-3 text-base sm:text-sm text-red-600 hover:bg-red-50 active:bg-red-100/80 text-left disabled:opacity-40 disabled:pointer-events-none"
                   >
-                    <Trash2 size={16} aria-hidden />
+                    <Trash2 size={18} aria-hidden className="shrink-0" />
                     {t('nav.deletePuzzle')}
                   </button>
                 </div>
