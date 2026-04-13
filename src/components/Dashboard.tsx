@@ -162,6 +162,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
   const remainingPieces = puzzle.totalPieces - puzzle.placedPieces;
   const progress = Math.min((puzzle.placedPieces / puzzle.totalPieces) * 100, 100);
+  const remainingRatioPct = puzzle.totalPieces > 0 ? Math.min((remainingPieces / puzzle.totalPieces) * 100, 100) : 0;
 
   const displayedValue = inputMode === 'placed' ? newPieces : puzzle.totalPieces - newPieces;
   const handleInputChange = (raw: number) => {
@@ -756,28 +757,86 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
         <div className="grid grid-cols-1 gap-6 mb-8">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-semibold mb-4">{t('dashboard.progressTitle')}</h2>
+            <h2 className="text-xl font-semibold mb-1">{t('dashboard.progressTitle')}</h2>
+            <p className="text-xs text-gray-400 mb-4">{t('dashboard.progressViewHint')}</p>
+
+            <div className="grid grid-cols-2 gap-3 mb-5">
+              <button
+                type="button"
+                onClick={() => handleSetInputMode('placed')}
+                disabled={readOnly}
+                className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'placed' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-100 bg-gray-50 hover:border-indigo-200'}`}
+                aria-pressed={inputMode === 'placed'}
+              >
+                <p className="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-1">{t('dashboard.placed')}</p>
+                <p className="text-3xl font-bold text-indigo-700">{puzzle.placedPieces.toLocaleString(numberLocale)}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {t('dashboard.onTotal')} {puzzle.totalPieces.toLocaleString(numberLocale)}
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetInputMode('remaining')}
+                disabled={readOnly}
+                className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'remaining' ? 'border-orange-400 bg-orange-50' : 'border-gray-100 bg-gray-50 hover:border-orange-200'}`}
+                aria-pressed={inputMode === 'remaining'}
+              >
+                <p className="text-xs font-bold uppercase tracking-wider text-orange-500 mb-1">{t('dashboard.remaining')}</p>
+                <p className="text-3xl font-bold text-orange-600">{remainingPieces.toLocaleString(numberLocale)}</p>
+                <p className="text-xs text-gray-400 mt-1">{t('dashboard.toPlace')}</p>
+              </button>
+            </div>
 
             <ProgressChart
               history={puzzle.history}
               totalPieces={puzzle.totalPieces}
-              label={t('dashboard.chartTitle')}
+              metric={inputMode}
+              label={inputMode === 'placed' ? t('dashboard.chartTitle') : t('dashboard.chartTitleRemaining')}
               emptyHint={t('dashboard.chartEmpty')}
             />
 
             <div className="flex mb-2 items-center justify-between flex-wrap gap-2">
-              <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-50">
+              <span
+                className={`text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full ${
+                  inputMode === 'placed' ? 'text-indigo-600 bg-indigo-50' : 'text-orange-700 bg-orange-50'
+                }`}
+              >
                 {Math.round(progress)}% {t('dashboard.donePct')}
               </span>
-              <span className="text-xs font-semibold text-indigo-600">
-                {puzzle.placedPieces.toLocaleString(numberLocale)} / {puzzle.totalPieces.toLocaleString(numberLocale)}
+              <span
+                className={`text-xs font-semibold ${inputMode === 'placed' ? 'text-indigo-600' : 'text-orange-600'}`}
+              >
+                {inputMode === 'placed'
+                  ? `${puzzle.placedPieces.toLocaleString(numberLocale)} / ${puzzle.totalPieces.toLocaleString(numberLocale)}`
+                  : `${remainingPieces.toLocaleString(numberLocale)} / ${puzzle.totalPieces.toLocaleString(numberLocale)}`}{' '}
+                <span className="text-gray-400 font-normal normal-case">
+                  ({inputMode === 'placed' ? t('dashboard.progressFractionPlaced') : t('dashboard.progressFractionRemaining')})
+                </span>
               </span>
             </div>
-            <div className="overflow-hidden h-4 mb-2 flex rounded bg-indigo-100" role="progressbar" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100}>
-              <div
-                style={{ width: `${progress}%` }}
-                className="flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500 transition-all duration-500"
-              />
+            <div
+              className={`overflow-hidden h-4 mb-2 flex rounded ${inputMode === 'placed' ? 'bg-indigo-100' : 'bg-orange-100'}`}
+              role="progressbar"
+              aria-valuenow={inputMode === 'placed' ? puzzle.placedPieces : remainingPieces}
+              aria-valuemin={0}
+              aria-valuemax={puzzle.totalPieces}
+              aria-valuetext={
+                inputMode === 'placed'
+                  ? `${puzzle.placedPieces} / ${puzzle.totalPieces} ${t('dashboard.progressFractionPlaced')}`
+                  : `${remainingPieces} / ${puzzle.totalPieces} ${t('dashboard.progressFractionRemaining')}`
+              }
+            >
+              {inputMode === 'placed' ? (
+                <div
+                  style={{ width: `${progress}%` }}
+                  className="h-full min-w-0 flex flex-col justify-center bg-indigo-500 transition-all duration-500"
+                />
+              ) : (
+                <div
+                  style={{ width: `${remainingRatioPct}%` }}
+                  className="h-full min-w-0 bg-orange-500 transition-all duration-500"
+                />
+              )}
             </div>
             <p className="text-sm text-gray-500 mb-4">
               {puzzle.rows && puzzle.cols && (
@@ -801,33 +860,6 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             )}
 
             <div className="mb-6">
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <button
-                  type="button"
-                  onClick={() => handleSetInputMode('placed')}
-                  disabled={readOnly}
-                  className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'placed' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-100 bg-gray-50 hover:border-indigo-200'}`}
-                  aria-pressed={inputMode === 'placed'}
-                >
-                  <p className="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-1">{t('dashboard.placed')}</p>
-                  <p className="text-3xl font-bold text-indigo-700">{puzzle.placedPieces.toLocaleString(numberLocale)}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {t('dashboard.onTotal')} {puzzle.totalPieces.toLocaleString(numberLocale)}
-                  </p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSetInputMode('remaining')}
-                  disabled={readOnly}
-                  className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'remaining' ? 'border-orange-400 bg-orange-50' : 'border-gray-100 bg-gray-50 hover:border-orange-200'}`}
-                  aria-pressed={inputMode === 'remaining'}
-                >
-                  <p className="text-xs font-bold uppercase tracking-wider text-orange-500 mb-1">{t('dashboard.remaining')}</p>
-                  <p className="text-3xl font-bold text-orange-600">{remainingPieces.toLocaleString(numberLocale)}</p>
-                  <p className="text-xs text-gray-400 mt-1">{t('dashboard.toPlace')}</p>
-                </button>
-              </div>
-
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">{t('dashboard.step')}</span>
                 {[1, 5, 10, 25, 50, 100].map((s) => (
