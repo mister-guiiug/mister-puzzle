@@ -1,4 +1,4 @@
-name: Build & Deploy Puzzle Tracker
+name: Build & Deploy Mister Puzzle
 
 on:
   push:
