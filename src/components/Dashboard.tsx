@@ -4,13 +4,11 @@ import {
   CheckCircle,
   Image as ImageIcon,
   Users,
-  ArrowLeft,
   Plus,
   Grid,
   Share2,
   Trash2,
   Lock,
-  Unlock,
   Globe,
   Eye,
   EyeOff,
@@ -24,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   GripVertical,
+  MoreVertical,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
@@ -49,15 +48,7 @@ import {
   updatePhoto,
 } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
-import {
-  getPseudo,
-  setPseudo as savePseudo,
-  getSessionId,
-  isPseudoLocked,
-  setPseudoLocked,
-  getInputMode,
-  setInputModePreference,
-} from '../utils/pseudo';
+import { getSessionId, getInputMode, setInputModePreference } from '../utils/pseudo';
 import { getReadOnlyMode, setReadOnlyMode } from '../utils/prefs';
 import { useI18n } from '../i18n/I18nContext';
 import { ProgressChart } from './ProgressChart';
@@ -69,14 +60,16 @@ const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
 interface DashboardProps {
   puzzle: PuzzleState;
   onBack: () => void;
+  pseudo: string;
+  pseudoRefreshKey: number;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
+const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRefreshKey }) => {
   const { t, numberLocale, locale, setLocale } = useI18n();
   const dateLocale = locale === 'en' ? enUS : fr;
 
   const [newPieces, setNewPieces] = useState(puzzle.placedPieces);
-  const [inputMode, setInputMode] = useState<'placed' | 'remaining'>(() => getInputMode(getPseudo()));
+  const [inputMode, setInputMode] = useState<'placed' | 'remaining'>(() => getInputMode(pseudo));
   const isDirtyRef = useRef(false);
   const lastServerPlacedRef = useRef(puzzle.placedPieces);
   const [remoteConflict, setRemoteConflict] = useState(false);
@@ -109,20 +102,6 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
   const [gridCols, setGridCols] = useState(puzzle.cols ?? 0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [pseudo, setPseudoState] = useState(getPseudo);
-  const [pseudoLocked, setPseudoLockedState] = useState(isPseudoLocked);
-
-  const handleTogglePseudoLock = () => {
-    if (readOnly) return;
-    if (!pseudoLocked) {
-      savePseudo(pseudo);
-      setInputMode(getInputMode(pseudo));
-    }
-    const next = !pseudoLocked;
-    setPseudoLocked(next);
-    setPseudoLockedState(next);
-  };
-
   const [showSettings, setShowSettings] = useState(false);
   const [currentPwd, setCurrentPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
@@ -133,6 +112,23 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
   const [flagConfirm, setFlagConfirm] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(puzzle.name);
+
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const actionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setInputMode(getInputMode(pseudo));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only refresh input mode when Navbar commits pseudo (blur/lock), not on every keystroke
+  }, [pseudoRefreshKey]);
+
+  useEffect(() => {
+    if (!actionsOpen) return;
+    const close = (e: MouseEvent) => {
+      if (!actionsRef.current?.contains(e.target as Node)) setActionsOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [actionsOpen]);
 
   useEffect(() => {
     const sessionId = getSessionId();
@@ -457,18 +453,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
           </div>
         )}
 
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onBack}
-              className="p-2 rounded-full hover:bg-gray-200 transition text-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-              title={t('dashboard.back')}
-              aria-label={t('dashboard.back')}
-            >
-              <ArrowLeft size={20} aria-hidden />
-            </button>
-            <div>
+        <header className="mb-8 space-y-4">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+            <div className="min-w-0 flex-1">
               {editingName ? (
                 <div className="flex items-center gap-2">
                   <input
@@ -540,38 +527,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-gray-400">{t('dashboard.you')}</span>
-                <input
-                  type="text"
-                  value={pseudo}
-                  onChange={(e) => !pseudoLocked && !readOnly && setPseudoState(e.target.value)}
-                  onBlur={() => {
-                    if (!pseudoLocked && !readOnly) {
-                      savePseudo(pseudo);
-                      setInputMode(getInputMode(pseudo));
-                    }
-                  }}
-                  readOnly={pseudoLocked || readOnly}
-                  className={`text-xs font-medium bg-transparent border-b outline-none transition w-28 focus-visible:ring-2 focus-visible:ring-indigo-400 rounded ${pseudoLocked || readOnly ? 'text-gray-400 border-transparent cursor-not-allowed' : 'text-gray-600 border-dashed border-gray-300 focus:border-indigo-400'}`}
-                  placeholder={t('dashboard.pseudoPh')}
-                  maxLength={30}
-                  aria-label={t('dashboard.pseudoPh')}
-                />
-                <button
-                  type="button"
-                  onClick={handleTogglePseudoLock}
-                  disabled={readOnly}
-                  title={pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')}
-                  aria-label={pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')}
-                  className={`transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded p-0.5 disabled:opacity-40 ${pseudoLocked ? 'text-indigo-400 hover:text-indigo-600' : 'text-gray-300 hover:text-indigo-400'}`}
-                >
-                  {pseudoLocked ? <Lock size={12} aria-hidden /> : <Unlock size={12} aria-hidden />}
-                </button>
-              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap lg:justify-end shrink-0">
             {activeMembers.length > 0 ? (
               <div className="flex items-center gap-1 bg-white px-3 py-2 rounded-full shadow-sm border border-gray-100">
                 {activeMembers.slice(0, 5).map((member) => (
@@ -613,48 +570,75 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
               <Download size={16} aria-hidden />
               {t('dashboard.exportPng')}
             </button>
-            <button
-              type="button"
-              onClick={() => setShowSettings(!showSettings)}
-              className={`p-2 rounded-full shadow-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${showSettings ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-100'}`}
-              title={t('dashboard.settings')}
-              aria-label={t('dashboard.settings')}
-              aria-expanded={showSettings}
-            >
-              <Settings size={18} aria-hidden />
-            </button>
-            {!confirmDelete ? (
+            <div className="relative" ref={actionsRef}>
               <button
                 type="button"
-                onClick={() => !readOnly && setConfirmDelete(true)}
-                disabled={readOnly}
-                className="flex items-center gap-2 bg-white text-red-500 border border-red-200 px-4 py-2 rounded-full shadow-sm hover:bg-red-50 transition font-medium text-sm disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-                title={t('dashboard.delete')}
-                aria-label={t('dashboard.delete')}
+                onClick={() => setActionsOpen((o) => !o)}
+                className={`p-2.5 rounded-full shadow-sm border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${actionsOpen ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                aria-expanded={actionsOpen}
+                aria-haspopup="true"
+                title={t('nav.moreActions')}
+                aria-label={t('nav.moreActions')}
               >
-                <Trash2 size={16} aria-hidden />
-                {t('dashboard.delete')}
+                <MoreVertical size={20} aria-hidden />
               </button>
-            ) : (
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm text-red-600 font-medium">{t('dashboard.deleteConfirm')}</span>
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  className="bg-red-600 text-white px-3 py-1.5 rounded-full text-sm font-bold hover:bg-red-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              {actionsOpen && (
+                <div
+                  className="absolute right-0 mt-2 w-56 rounded-xl border border-gray-100 bg-white shadow-xl py-1 z-50"
+                  role="menu"
                 >
-                  {t('dashboard.yes')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirmDelete(false)}
-                  className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full text-sm font-bold hover:bg-gray-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
-                >
-                  {t('dashboard.no')}
-                </button>
-              </div>
-            )}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setShowSettings((s) => !s);
+                      setActionsOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-50 text-left"
+                  >
+                    <Settings size={16} aria-hidden className="text-gray-500" />
+                    {t('nav.puzzleSettings')}
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    disabled={readOnly}
+                    onClick={() => {
+                      if (!readOnly) {
+                        setConfirmDelete(true);
+                        setActionsOpen(false);
+                      }
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 text-left disabled:opacity-40 disabled:pointer-events-none"
+                  >
+                    <Trash2 size={16} aria-hidden />
+                    {t('nav.deletePuzzle')}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
+          </div>
+
+          {confirmDelete && (
+            <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-100">
+              <span className="text-sm text-red-700 font-medium">{t('dashboard.deleteConfirm')}</span>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-red-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              >
+                {t('dashboard.yes')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-bold border border-gray-200 hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2"
+              >
+                {t('dashboard.no')}
+              </button>
+            </div>
+          )}
         </header>
 
         {showSettings && (

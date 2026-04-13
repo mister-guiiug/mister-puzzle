@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Grid, Hash, ArrowRight, X, Lock, Unlock, Globe, Eye, EyeOff, Search, Users } from 'lucide-react';
-import { createPuzzle, joinPuzzle, getPublicPuzzles, hashPassword, type PuzzleState } from '../hooks/useSocket';
+import { Grid, Hash, ArrowRight, X, Lock, Unlock, Globe, Eye, EyeOff } from 'lucide-react';
+import { createPuzzle, joinPuzzle, hashPassword, type PuzzleState } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
 import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
-import { getPseudo, setPseudo, isPseudoLocked, setPseudoLocked, isGridLocked, setGridLocked, getSavedGrid, saveGrid } from '../utils/pseudo';
+import { isGridLocked, setGridLocked, getSavedGrid, saveGrid } from '../utils/pseudo';
 import { useI18n } from '../i18n/I18nContext';
 
 interface HomeProps {
   onJoin: (roomCode: string) => void;
+  pseudo: string;
 }
 
-const Home: React.FC<HomeProps> = ({ onJoin }) => {
+const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   const { t, numberLocale, locale, setLocale } = useI18n();
-  const [pseudo, setPseudoState] = useState(getPseudo);
-  const [pseudoLocked, setPseudoLockedState] = useState(isPseudoLocked);
   const [name, setName] = useState('');
   const [rows, setRows] = useState(() => getSavedGrid()?.rows ?? 20);
   const [cols, setCols] = useState(() => getSavedGrid()?.cols ?? 50);
@@ -42,31 +41,11 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
   // Prompt to remove a deleted puzzle from history
   const [deletedCode, setDeletedCode] = useState<string | null>(null);
 
-  // Public puzzles browser
-  const [showPublicPuzzles, setShowPublicPuzzles] = useState(false);
-  const [publicPuzzles, setPublicPuzzles] = useState<PuzzleState[]>([]);
-  const [publicSearch, setPublicSearch] = useState('');
-  const [loadingPublic, setLoadingPublic] = useState(false);
-
   const totalPieces = rows * cols;
 
   useEffect(() => {
     setHistory(getHistory());
   }, []);
-
-  const handlePseudoBlur = () => {
-    setPseudo(pseudo.trim());
-  };
-
-  const handleTogglePseudoLock = () => {
-    if (!pseudoLocked) {
-      // Saving before locking
-      setPseudo(pseudo.trim());
-    }
-    const next = !pseudoLocked;
-    setPseudoLocked(next);
-    setPseudoLockedState(next);
-  };
 
   const handleRowsChange = (val: number) => {
     if (gridLocked) return;
@@ -154,31 +133,8 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
     }
   };
 
-  const handleLoadPublicPuzzles = async () => {
-    if (showPublicPuzzles) {
-      setShowPublicPuzzles(false);
-      return;
-    }
-    setShowPublicPuzzles(true);
-    setLoadingPublic(true);
-    try {
-      const puzzles = await getPublicPuzzles();
-      setPublicPuzzles(puzzles);
-    } catch (err) {
-      setError(t('home.errorPublic'));
-      console.error(err);
-    } finally {
-      setLoadingPublic(false);
-    }
-  };
-
-  const filteredPublicPuzzles = publicPuzzles.filter(p =>
-    p.name.toLowerCase().includes(publicSearch.toLowerCase()) ||
-    p.id.toLowerCase().includes(publicSearch.toLowerCase())
-  );
-
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+    <div className="min-h-[calc(100vh-3.5rem)] bg-gray-50 flex flex-col items-center justify-center p-4 pt-8">
       <ErrorModal message={error} onClose={() => setError(null)} />
 
       {/* Deleted puzzle popup */}
@@ -226,39 +182,8 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         className="w-40 h-40 mb-4 drop-shadow-lg hover:scale-105 transition-transform duration-300"
       />
       <h1 className="text-4xl font-bold mb-2 text-indigo-600">{t('common.appName')}</h1>
-      <p className="text-gray-400 text-sm mb-8">{t('home.tagline')}</p>
-
-      {/* Pseudo */}
-      <div className="bg-white p-4 rounded-xl shadow-md w-full max-w-md mb-6">
-        <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1">
-          <Users size={12} aria-hidden /> {t('home.yourPseudo')}
-        </label>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder={t('home.pseudoPlaceholder')}
-            aria-label={t('home.yourPseudo')}
-            className={`flex-1 p-2 border rounded-lg outline-none transition ${pseudoLocked ? 'bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed' : 'border-gray-200 focus:ring-2 focus:ring-indigo-400'}`}
-            value={pseudo}
-            onChange={(e) => !pseudoLocked && setPseudoState(e.target.value)}
-            onBlur={!pseudoLocked ? handlePseudoBlur : undefined}
-            readOnly={pseudoLocked}
-            maxLength={30}
-          />
-          <button
-            type="button"
-            onClick={handleTogglePseudoLock}
-            title={pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')}
-            aria-label={pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')}
-            className={`p-2 rounded-lg border transition ${pseudoLocked ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100' : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-indigo-500 hover:border-indigo-300'}`}
-          >
-            {pseudoLocked ? <Lock size={16} /> : <Unlock size={16} />}
-          </button>
-        </div>
-        <p className="text-xs text-gray-400 mt-1">
-          {pseudoLocked ? t('home.pseudoLockedHint') : t('home.pseudoUnlockedHint')}
-        </p>
-      </div>
+      <p className="text-gray-400 text-sm mb-1">{t('home.tagline')}</p>
+      <p className="text-gray-400 text-xs mb-8 text-center max-w-md">{t('home.navHint')}</p>
 
       {/* Create */}
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md mb-6">
@@ -274,7 +199,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         />
 
         {/* Grid calculator */}
-        <div className={`rounded-xl p-4 mb-4 border transition ${gridLocked ? t('home.gridLockedHint') : t('home.gridUnlockedHint')}`}>
+        <div className={`rounded-xl p-4 mb-4 border transition ${gridLocked ? 'bg-gray-50 border-gray-200' : 'bg-indigo-50 border-indigo-100'}`}>
           <div className="flex items-center justify-between mb-3">
             <p className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${gridLocked ? 'text-gray-400' : 'text-indigo-500'}`}>
               <Grid size={12} aria-hidden /> {t('home.gridTitle')}
@@ -322,7 +247,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
             </div>
           </div>
           <p className={`text-xs mt-2 text-center ${gridLocked ? 'text-gray-400' : 'text-indigo-400'}`}>
-            {gridLocked ? '🔒 Grille verrouillée — cliquez sur le cadenas pour modifier.' : 'Ajustable plus tard depuis le tableau de bord'}
+            {gridLocked ? t('home.gridLockedHint') : t('home.gridUnlockedHint')}
           </p>
         </div>
 
@@ -469,121 +394,6 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
           </div>
         )}
       </div>
-
-      {/* Public puzzles browser */}
-      <div className="w-full max-w-md mb-6">
-        <button
-          type="button"
-          onClick={handleLoadPublicPuzzles}
-          className="w-full flex items-center justify-between p-4 bg-white rounded-xl shadow-md border border-gray-100 hover:border-green-300 transition text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
-          aria-expanded={showPublicPuzzles}
-        >
-          <span className="font-semibold text-gray-700 flex items-center gap-2">
-            <Globe size={18} className="text-green-600" aria-hidden /> {t('home.publicPuzzles')}
-          </span>
-          <ArrowRight
-            size={18}
-            className={`text-gray-400 transition-transform duration-200 ${showPublicPuzzles ? 'rotate-90' : ''}`}
-          />
-        </button>
-        {showPublicPuzzles && (
-          <div className="mt-2 bg-white rounded-xl shadow-md p-4 border border-gray-100">
-            <div className="relative mb-3">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden />
-              <input
-                type="text"
-                placeholder={t('home.searchPh')}
-                aria-label={t('home.searchPh')}
-                className="w-full pl-8 p-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-green-400"
-                value={publicSearch}
-                onChange={(e) => setPublicSearch(e.target.value)}
-              />
-            </div>
-            {loadingPublic ? (
-              <p className="text-center text-gray-400 text-sm py-4 animate-pulse">{t('common.loading')}</p>
-            ) : filteredPublicPuzzles.length === 0 ? (
-              <p className="text-center text-gray-400 text-sm py-4">
-                {publicSearch ? t('home.noResults') : t('home.noPublic')}
-              </p>
-            ) : (
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {filteredPublicPuzzles.map((p) => (
-                  <button
-                    type="button"
-                    key={p.id}
-                    onClick={() => handleJoin(p.id)}
-                    disabled={loading}
-                    className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-green-50 border border-transparent hover:border-green-200 transition text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
-                  >
-                    <div>
-                      <p className="font-bold text-gray-800 text-sm">{p.name}</p>
-                      <p className="text-xs text-gray-400 font-mono">
-                        {p.id}
-                        {p.createdBy && <span className="ml-2 not-font-mono">· {p.createdBy}</span>}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {p.placedPieces.toLocaleString(numberLocale)} / {p.totalPieces.toLocaleString(numberLocale)}{' '}
-                        {t('common.pieces')}
-                        {' · '}
-                        {Math.round((p.placedPieces / p.totalPieces) * 100)}%
-                      </p>
-                    </div>
-                    <ArrowRight size={14} className="text-gray-300 shrink-0 ml-2" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* History */}
-      {history.length > 0 && (
-        <div className="w-full max-w-md">
-          <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
-            <Clock size={16} className="mr-2" aria-hidden /> {t('home.recentTitle')}
-          </h2>
-          <div className="space-y-2">
-            {history.map((item) => (
-              <div key={item.code} className="relative group/row">
-                <button
-                  type="button"
-                  onClick={() => handleJoin(item.code)}
-                  disabled={loading}
-                  className="w-full flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition group text-left pr-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-                >
-                  <div>
-                    <p className="font-bold text-gray-800 group-hover:text-indigo-600 transition">
-                      {item.name}
-                    </p>
-                    <p className="text-xs font-mono text-gray-400">{item.code}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(item.timestamp).toLocaleString(numberLocale, {
-                        day: '2-digit', month: '2-digit', year: '2-digit',
-                        hour: '2-digit', minute: '2-digit',
-                      })}
-                    </p>
-                  </div>
-                  <ArrowRight size={18} className="text-gray-200 group-hover:text-indigo-500 transition" />
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeFromHistory(item.code);
-                    setHistory(getHistory());
-                  }}
-                  className="absolute top-2 right-2 p-1 rounded-full text-gray-200 hover:text-red-400 hover:bg-red-50 transition opacity-0 group-hover/row:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2"
-                  title={t('home.removeHistory')}
-                  aria-label={t('home.removeHistory')}
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Footer */}
       <footer className="mt-12 flex flex-col items-center gap-3 text-gray-400 text-xs">

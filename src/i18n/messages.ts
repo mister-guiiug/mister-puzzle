@@ -15,6 +15,7 @@ export const messages: Record<Locale, MsgValue> = {
     },
     home: {
       tagline: 'Suivez votre progression en équipe',
+      navHint: 'Ouvrez le menu latéral pour les puzzles récents et la liste publique. Votre pseudo se règle dans la barre du haut.',
       yourPseudo: 'Votre pseudo',
       pseudoPlaceholder: 'Anonyme',
       pseudoLockedHint: 'Pseudo verrouillé — cliquez sur le cadenas pour modifier.',
@@ -170,6 +171,20 @@ export const messages: Record<Locale, MsgValue> = {
       notFound: 'Puzzle introuvable.',
       backHome: "Retour à l'accueil",
     },
+    nav: {
+      drawerTitle: 'Navigation',
+      closeDrawer: 'Fermer le menu',
+      openMenu: 'Ouvrir le menu',
+      home: 'Accueil',
+      recent: 'Puzzles récents',
+      public: 'Puzzles publics',
+      noRecent: 'Aucun puzzle récent.',
+      profileMenu: 'Profil et pseudo',
+      profileSection: 'Votre profil',
+      moreActions: 'Autres actions',
+      puzzleSettings: 'Paramètres du puzzle',
+      deletePuzzle: 'Supprimer le puzzle',
+    },
   },
   en: {
     common: {
@@ -183,6 +198,7 @@ export const messages: Record<Locale, MsgValue> = {
     },
     home: {
       tagline: 'Track progress together',
+      navHint: 'Open the side menu for recent puzzles and the public list. Set your nickname in the top bar.',
       yourPseudo: 'Your nickname',
       pseudoPlaceholder: 'Anonymous',
       pseudoLockedHint: 'Nickname locked — click the lock to edit.',
@@ -337,6 +353,20 @@ export const messages: Record<Locale, MsgValue> = {
       loading: 'Loading...',
       notFound: 'Puzzle not found.',
       backHome: 'Back to home',
+    },
+    nav: {
+      drawerTitle: 'Navigation',
+      closeDrawer: 'Close menu',
+      openMenu: 'Open menu',
+      home: 'Home',
+      recent: 'Recent puzzles',
+      public: 'Public puzzles',
+      noRecent: 'No recent puzzles.',
+      profileMenu: 'Profile and nickname',
+      profileSection: 'Your profile',
+      moreActions: 'More actions',
+      puzzleSettings: 'Puzzle settings',
+      deletePuzzle: 'Delete puzzle',
     },
   },
 };
