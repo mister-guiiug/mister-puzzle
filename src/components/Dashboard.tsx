@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2, Lock, Globe, Eye, EyeOff, Settings, Pencil, Check, X as XIcon } from 'lucide-react';
+import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2, Lock, Unlock, Globe, Eye, EyeOff, Settings, Pencil, Check, X as XIcon } from 'lucide-react';
 import { differenceInMinutes } from 'date-fns';
 import { type PuzzleState, type Member, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, updateGridSize, deletePuzzle, joinMember, leaveMember, changePassword, updateVisibility, hashPassword, renamePuzzle } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
-import { getPseudo, setPseudo as savePseudo, getSessionId } from '../utils/pseudo';
+import { getPseudo, setPseudo as savePseudo, getSessionId, isPseudoLocked, setPseudoLocked } from '../utils/pseudo';
 
 interface DashboardProps {
   puzzle: PuzzleState;
@@ -24,6 +24,14 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
 
   // Pseudo (editable inline)
   const [pseudo, setPseudoState] = useState(getPseudo);
+  const [pseudoLocked, setPseudoLockedState] = useState(isPseudoLocked);
+
+  const handleTogglePseudoLock = () => {
+    if (!pseudoLocked) savePseudo(pseudo);
+    const next = !pseudoLocked;
+    setPseudoLocked(next);
+    setPseudoLockedState(next);
+  };
 
   // Settings panel
   const [showSettings, setShowSettings] = useState(false);
@@ -302,12 +310,20 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
                 <input
                   type="text"
                   value={pseudo}
-                  onChange={(e) => setPseudoState(e.target.value)}
-                  onBlur={() => savePseudo(pseudo)}
-                  className="text-xs text-gray-600 font-medium bg-transparent border-b border-dashed border-gray-300 outline-none focus:border-indigo-400 w-28"
+                  onChange={(e) => !pseudoLocked && setPseudoState(e.target.value)}
+                  onBlur={() => !pseudoLocked && savePseudo(pseudo)}
+                  readOnly={pseudoLocked}
+                  className={`text-xs font-medium bg-transparent border-b outline-none transition w-28 ${pseudoLocked ? 'text-gray-400 border-transparent cursor-not-allowed' : 'text-gray-600 border-dashed border-gray-300 focus:border-indigo-400'}`}
                   placeholder="Votre pseudo"
                   maxLength={30}
                 />
+                <button
+                  onClick={handleTogglePseudoLock}
+                  title={pseudoLocked ? 'Déverrouiller le pseudo' : 'Verrouiller le pseudo'}
+                  className={`transition ${pseudoLocked ? 'text-indigo-400 hover:text-indigo-600' : 'text-gray-300 hover:text-indigo-400'}`}
+                >
+                  {pseudoLocked ? <Lock size={12} /> : <Unlock size={12} />}
+                </button>
               </div>
             </div>
           </div>
