@@ -7,7 +7,7 @@
 
         "placedPieces": {
           ".write": "data.parent().exists()",
-          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= data.parent().child('totalPieces').val()"
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= newData.parent().child('totalPieces').val()"
         },
 
         "checkpoints": {
