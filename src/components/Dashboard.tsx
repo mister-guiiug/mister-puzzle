@@ -512,11 +512,21 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
               >
                 Enregistrer
               </button>
-              {puzzle.history.length > 0 && puzzle.history[puzzle.history.length - 1].pseudo && (
-                <p className="text-xs text-gray-400 mt-2">
-                  Dernière mise à jour par <span className="font-medium text-indigo-600">{puzzle.history[puzzle.history.length - 1].pseudo}</span>
-                </p>
-              )}
+              {puzzle.history.length > 0 && (() => {
+                const last = puzzle.history[puzzle.history.length - 1];
+                const date = new Date(last.timestamp);
+                const formatted = date.toLocaleString('fr-FR', {
+                  day: '2-digit', month: '2-digit',
+                  hour: '2-digit', minute: '2-digit',
+                }).replace(',', ' à').replace(':', 'h');
+                return (
+                  <p className="text-xs text-gray-400 mt-2">
+                    Mis à jour
+                    {last.pseudo && <> par <span className="font-medium text-indigo-600">{last.pseudo}</span></>}
+                    {' '}le {formatted}
+                  </p>
+                );
+              })()}
             </div>
 
             {/* Grid size editor */}
