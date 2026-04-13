@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ref, set, get, update, push, onValue, off, remove, query, orderByChild, equalTo, onDisconnect } from 'firebase/database';
 import { db } from '../firebase';
+import { normalizePuzzleFromFirebase } from '../utils/puzzleNormalize';
+import { reportError } from '../utils/reportError';
 
 export interface Photo {
   id: string;
@@ -47,37 +49,7 @@ export interface PuzzleState {
   members?: Record<string, Member>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const normalizePuzzle = (data: any): PuzzleState => ({
-  ...data,
-  isPublic: data.isPublic ?? true,
-  checkpoints: data.checkpoints ? Object.values(data.checkpoints) : [],
-  photos: data.photos
-    ? Object.entries(data.photos as Record<string, unknown>)
-        .map(([key, val]) => {
-          if (typeof val === 'string') {
-            return { id: key, data: val, rotation: 0 } as Photo;
-          }
-          const o = val as Record<string, unknown>;
-          return {
-            id: key,
-            data: String(o.data ?? ''),
-            rotation: typeof o.rotation === 'number' ? o.rotation : 0,
-            ...(typeof o.caption === 'string' ? { caption: o.caption } : {}),
-            ...(typeof o.addedAt === 'number' ? { addedAt: o.addedAt } : {}),
-            ...(typeof o.sortOrder === 'number' ? { sortOrder: o.sortOrder } : {}),
-          } as Photo;
-        })
-        .sort((a, b) => {
-          const ao = a.sortOrder ?? a.addedAt ?? 0;
-          const bo = b.sortOrder ?? b.addedAt ?? 0;
-          if (ao !== bo) return ao - bo;
-          return a.id.localeCompare(b.id);
-        })
-    : [],
-  history: data.history ? Object.values(data.history) : [],
-  members: data.members ?? undefined,
-});
+const normalizePuzzle = (data: unknown): PuzzleState => normalizePuzzleFromFirebase(data);
 
 /** Hash a password with SHA-256 (client-side UX-level privacy). */
 export const hashPassword = async (password: string): Promise<string> => {
@@ -91,34 +63,52 @@ export const hashPassword = async (password: string): Promise<string> => {
 export const usePuzzle = (roomCode: string | null) => {
   const [puzzle, setPuzzle] = useState<PuzzleState | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
+    /* Pièces d’état alignées sur le cycle d’abonnement Firebase (onValue / cleanup). */
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (!roomCode) {
       setPuzzle(null);
       setLoading(false);
+      setLoadError(null);
       return;
     }
 
     setLoading(true);
+    setLoadError(null);
     const puzzleRef = ref(db, `puzzles/${roomCode}`);
-    const unsubscribe = onValue(puzzleRef, (snapshot) => {
-      setLoading(false);
-      const data = snapshot.val();
-      if (data) {
-        setPuzzle(normalizePuzzle(data));
-      } else {
+    const unsubscribe = onValue(
+      puzzleRef,
+      (snapshot) => {
+        setLoading(false);
+        setLoadError(null);
+        const data = snapshot.val();
+        if (data) {
+          setPuzzle(normalizePuzzle(data));
+        } else {
+          setPuzzle(null);
+        }
+      },
+      (err) => {
+        setLoading(false);
         setPuzzle(null);
-      }
-    });
+        const msg = err instanceof Error ? err.message : String(err);
+        setLoadError(msg);
+        reportError('usePuzzle_onValue', err, { roomCode });
+      },
+    );
 
     return () => {
       off(puzzleRef, 'value', unsubscribe);
       setPuzzle(null);
       setLoading(false);
+      setLoadError(null);
     };
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [roomCode]);
 
-  return { puzzle, loading };
+  return { puzzle, loading, loadError };
 };
 
 export const createPuzzle = async (
@@ -164,15 +154,14 @@ export const getPublicPuzzles = async (): Promise<PuzzleState[]> => {
     const publicQuery = query(ref(db, 'puzzles'), orderByChild('isPublic'), equalTo(true));
     const snapshot = await get(publicQuery);
     if (!snapshot.exists()) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return Object.values(snapshot.val() as Record<string, any>)
+    return Object.values(snapshot.val() as Record<string, unknown>)
       .map(normalizePuzzle)
       .filter((p) => !p.passwordHash); // never show password-protected puzzles in search
-  } catch {
+  } catch (e) {
+    reportError('getPublicPuzzles_indexed', e, {});
     const snapshot = await get(ref(db, 'puzzles'));
     if (!snapshot.exists()) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return Object.values(snapshot.val() as Record<string, any>)
+    return Object.values(snapshot.val() as Record<string, unknown>)
       .map(normalizePuzzle)
       .filter((p) => p.isPublic !== false && !p.passwordHash);
   }

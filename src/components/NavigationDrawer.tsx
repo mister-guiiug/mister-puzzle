@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   X,
   Home,
@@ -13,6 +13,7 @@ import {
 import { joinPuzzle, getPublicPuzzles, hashPassword, type PuzzleState } from '../hooks/useSocket';
 import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
 import { useI18n } from '../i18n/I18nContext';
+import { reportError } from '../utils/reportError';
 
 export type NavigationDrawerProps = {
   open: boolean;
@@ -40,6 +41,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   const [joinPassword, setJoinPassword] = useState('');
   const [showJoinPassword, setShowJoinPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const refreshHistory = useCallback(() => setHistory(getHistory()), []);
 
@@ -49,6 +51,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
       setLocalError(null);
       setPendingPrivate(null);
       setJoinPassword('');
+      setPublicLoaded(false);
     }
   }, [open, refreshHistory]);
 
@@ -64,8 +67,9 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
           setPublicPuzzles(list);
           setPublicLoaded(true);
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) setLocalError(t('home.errorPublic'));
+        reportError('navigationDrawer_loadPublic', err, {});
       } finally {
         if (!cancelled) setLoadingPublic(false);
       }
@@ -90,6 +94,43 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    const tabbable = () =>
+      [...panel.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )].filter((el) => !el.hasAttribute('disabled'));
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const nodes = tabbable();
+      if (nodes.length === 0) return;
+      const first = nodes[0]!;
+      const last = nodes[nodes.length - 1]!;
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    panel.addEventListener('keydown', onKey);
+    const tid = window.setTimeout(() => {
+      tabbable()[0]?.focus();
+    }, 0);
+    return () => {
+      window.clearTimeout(tid);
+      panel.removeEventListener('keydown', onKey);
     };
   }, [open]);
 
@@ -118,8 +159,9 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
       saveToHistory(puzzle.id, puzzle.name);
       onNavigateToPuzzle(puzzle.id);
       onClose();
-    } catch {
+    } catch (err) {
       setLocalError(t('home.errorJoin'));
+      reportError('navigationDrawer_tryJoin', err, { code: c });
     } finally {
       setJoining(false);
     }
@@ -140,8 +182,9 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
       } else {
         setLocalError(t('home.errorPwWrong'));
       }
-    } catch {
+    } catch (err) {
       setLocalError(t('home.errorGeneric'));
+      reportError('navigationDrawer_verifyPrivateJoin', err, {});
     } finally {
       setJoining(false);
     }
@@ -161,6 +204,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
         onClick={onClose}
       />
       <aside
+        ref={panelRef}
         id="app-navigation-drawer"
         className={`fixed left-0 top-0 z-[70] h-full max-h-dvh w-full min-w-0 max-w-[min(100vw,24rem)] bg-white shadow-2xl border-r border-gray-100 flex flex-col transition-transform duration-200 ease-out pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] touch-pan-y ${open ? 'translate-x-0' : '-translate-x-full'}`}
         aria-hidden={!open}
@@ -230,7 +274,16 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
               <Globe size={14} className="text-green-600" aria-hidden /> {t('nav.public')}
             </h3>
             {loadingPublic && !publicLoaded ? (
-              <p className="text-sm text-gray-400 py-2 animate-pulse">{t('common.loading')}</p>
+              <div
+                className="space-y-2 py-1"
+                role="status"
+                aria-busy="true"
+                aria-label={t('nav.publicLoadingSkeleton')}
+              >
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-12 rounded-xl bg-gray-100 animate-pulse" />
+                ))}
+              </div>
             ) : (
               <>
                 <div className="relative mb-2">

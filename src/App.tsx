@@ -18,8 +18,9 @@ const getHashCode = () => {
 function App() {
   const { t } = useI18n();
   const [roomCode, setRoomCode] = useState<string | null>(getHashCode);
-  const { puzzle, loading } = usePuzzle(roomCode);
+  const { puzzle, loading, loadError } = usePuzzle(roomCode);
   const savedRef = useRef<string | null>(null);
+  const [online, setOnline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine);
 
   const [pseudo, setPseudo] = useState(() => getPseudo());
   const [pseudoLocked, setPseudoLocked] = useState(() => isPseudoLocked());
@@ -38,6 +39,17 @@ function App() {
     const handleHashChange = () => setRoomCode(getHashCode());
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  useEffect(() => {
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
   }, []);
 
   const handleJoin = (code: string) => {
@@ -72,10 +84,36 @@ function App() {
         onPseudoCommit={handlePseudoCommit}
       />
       <div className="min-h-screen bg-gray-50">
+        {!online && (
+          <div
+            className="bg-amber-50 border-b border-amber-200 text-amber-950 text-sm px-4 py-3 text-center"
+            role="alert"
+          >
+            <strong className="font-semibold">{t('app.offlineTitle')}</strong> — {t('app.offlineDetail')}
+          </div>
+        )}
         {roomCode ? (
           loading ? (
             <div className="flex items-center justify-center min-h-[50vh]">
               <p className="text-gray-400 text-lg animate-pulse">{t('app.loading')}</p>
+            </div>
+          ) : loadError ? (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4 max-w-md mx-auto text-center">
+              <p className="text-gray-700">{t('app.loadError')}</p>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              >
+                {t('app.retryLoad')}
+              </button>
+              <button
+                type="button"
+                onClick={handleBack}
+                className="text-indigo-600 underline text-sm focus:outline-none focus-visible:ring-2 rounded"
+              >
+                {t('app.backHome')}
+              </button>
             </div>
           ) : puzzle ? (
             <Dashboard
@@ -85,12 +123,16 @@ function App() {
               pseudoRefreshKey={pseudoRefreshKey}
             />
           ) : (
-            <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4">
-              <p className="text-gray-500">{t('app.notFound')}</p>
+            <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4 max-w-md mx-auto text-center">
+              <p className="text-lg font-semibold text-gray-800">{t('app.notFound')}</p>
+              {roomCode && (
+                <p className="text-sm font-mono text-gray-500 bg-gray-100 px-3 py-1 rounded-lg">{roomCode}</p>
+              )}
+              <p className="text-gray-600 text-sm leading-relaxed">{t('app.notFoundDetail')}</p>
               <button
                 type="button"
                 onClick={handleBack}
-                className="text-indigo-600 underline focus:outline-none focus-visible:ring-2 rounded"
+                className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               >
                 {t('app.backHome')}
               </button>

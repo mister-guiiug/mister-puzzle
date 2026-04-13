@@ -1,3 +1,5 @@
+export type ExportBarMode = 'placed' | 'remaining';
+
 type ExportOpts = {
   name: string;
   code: string;
@@ -5,9 +7,21 @@ type ExportOpts = {
   total: number;
   url: string;
   titleLine: string;
+  /** Ligne sous le titre (résumé chiffré selon la préférence utilisateur). */
+  summaryLine: string;
+  barMode: ExportBarMode;
 };
 
-export function exportProgressPng({ name, code, placed, total, url, titleLine }: ExportOpts): void {
+export function exportProgressPng({
+  name,
+  code,
+  placed,
+  total,
+  url,
+  titleLine,
+  summaryLine,
+  barMode,
+}: ExportOpts): void {
   const canvas = document.createElement('canvas');
   const w = 640;
   const h = 360;
@@ -26,21 +40,34 @@ export function exportProgressPng({ name, code, placed, total, url, titleLine }:
 
   ctx.fillStyle = '#64748b';
   ctx.font = '15px system-ui, -apple-system, sans-serif';
-  const pct = total > 0 ? Math.round((placed / total) * 100) : 0;
-  ctx.fillText(`${code} · ${placed.toLocaleString()} / ${total.toLocaleString()} · ${pct}%`, 36, 82);
+  ctx.fillText(summaryLine, 36, 82);
 
   const barY = 102;
   const barH = 18;
   const barW = w - 72;
-  ctx.fillStyle = '#e0e7ff';
-  ctx.beginPath();
-  ctx.roundRect(36, barY, barW, barH, 9);
-  ctx.fill();
+  const pct = total > 0 ? placed / total : 0;
+  const remaining = Math.max(0, total - placed);
+  const remPct = total > 0 ? remaining / total : 0;
 
-  ctx.fillStyle = '#6366f1';
-  ctx.beginPath();
-  ctx.roundRect(36, barY, Math.max(8, barW * (placed / Math.max(total, 1))), barH, 9);
-  ctx.fill();
+  if (barMode === 'placed') {
+    ctx.fillStyle = '#e0e7ff';
+    ctx.beginPath();
+    ctx.roundRect(36, barY, barW, barH, 9);
+    ctx.fill();
+    ctx.fillStyle = '#6366f1';
+    ctx.beginPath();
+    ctx.roundRect(36, barY, Math.max(8, barW * pct), barH, 9);
+    ctx.fill();
+  } else {
+    ctx.fillStyle = '#ffedd5';
+    ctx.beginPath();
+    ctx.roundRect(36, barY, barW, barH, 9);
+    ctx.fill();
+    ctx.fillStyle = '#ea580c';
+    ctx.beginPath();
+    ctx.roundRect(36, barY, Math.max(8, barW * remPct), barH, 9);
+    ctx.fill();
+  }
 
   ctx.fillStyle = '#94a3b8';
   ctx.font = '13px system-ui, -apple-system, sans-serif';

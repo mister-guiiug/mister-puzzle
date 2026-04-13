@@ -111,6 +111,8 @@ export const messages: Record<Locale, MsgValue> = {
       flagAsk: 'Poser un checkpoint ici ?',
       flagDetail: "Un checkpoint sera créé avec l'étape actuelle",
       flagPieces: 'pièces placées',
+      flagStats:
+        '{placed} placées · {remaining} restantes · {pct}% terminé.',
       adjustGrid: 'Ajuster la grille',
       gridCancel: 'Annuler',
       checkpointsTitle: 'Checkpoints',
@@ -140,6 +142,13 @@ export const messages: Record<Locale, MsgValue> = {
       chartTitle: 'Historique des pièces posées',
       chartTitleRemaining: 'Historique des pièces restantes',
       chartEmpty: 'Ajoutez des mises à jour pour voir la courbe.',
+      chartTableCaption: 'Dernières entrées d’historique (aperçu pour lecteurs d’écran)',
+      chartColTime: 'Date',
+      chartColValue: 'Valeur affichée',
+      chartColAuthor: 'Auteur',
+      helpToggle: 'Aide — comment ça marche',
+      helpBody:
+        'La progression se synchronise en temps réel entre les appareils. Choisissez « Placées » ou « Restantes » selon votre habitude : le graphique et la barre suivent ce mode. Les checkpoints et photos sont partagés. En lecture seule, vous observez sans modifier.',
       progressViewHint: 'Choisissez votre vue : le graphique et le résumé suivent ce mode.',
       progressFractionPlaced: 'placées',
       progressFractionRemaining: 'restantes',
@@ -175,7 +184,13 @@ export const messages: Record<Locale, MsgValue> = {
     app: {
       loading: 'Chargement...',
       notFound: 'Puzzle introuvable.',
+      notFoundDetail:
+        'Ce code ne correspond à aucun puzzle actif. Vérifiez le lien ou retournez à l’accueil pour en créer un.',
       backHome: "Retour à l'accueil",
+      loadError: 'Impossible de charger le puzzle (réseau ou serveur).',
+      retryLoad: 'Réessayer',
+      offlineTitle: 'Hors ligne',
+      offlineDetail: 'Sans connexion, les mises à jour en direct ne sont pas disponibles.',
     },
     nav: {
       drawerTitle: 'Navigation',
@@ -190,6 +205,7 @@ export const messages: Record<Locale, MsgValue> = {
       moreActions: 'Autres actions',
       puzzleSettings: 'Paramètres du puzzle',
       deletePuzzle: 'Supprimer le puzzle',
+      publicLoadingSkeleton: 'Chargement de la liste…',
     },
   },
   en: {
@@ -300,6 +316,7 @@ export const messages: Record<Locale, MsgValue> = {
       flagAsk: 'Create a checkpoint here?',
       flagDetail: 'A checkpoint will be created at the current step',
       flagPieces: 'pieces placed',
+      flagStats: '{placed} placed · {remaining} left · {pct}% complete.',
       adjustGrid: 'Adjust grid',
       gridCancel: 'Cancel',
       checkpointsTitle: 'Checkpoints',
@@ -329,6 +346,13 @@ export const messages: Record<Locale, MsgValue> = {
       chartTitle: 'Placed pieces over time',
       chartTitleRemaining: 'Remaining pieces over time',
       chartEmpty: 'Add updates to see the chart.',
+      chartTableCaption: 'Latest history entries (screen reader preview)',
+      chartColTime: 'Time',
+      chartColValue: 'Shown value',
+      chartColAuthor: 'Author',
+      helpToggle: 'Help — how it works',
+      helpBody:
+        'Progress syncs live across devices. Pick Placed or Left depending on how you count: the chart and bar follow that mode. Checkpoints and photos are shared. In read-only you watch without editing.',
       progressViewHint: 'Pick your view — chart and summary follow this mode.',
       progressFractionPlaced: 'placed',
       progressFractionRemaining: 'remaining',
@@ -364,7 +388,13 @@ export const messages: Record<Locale, MsgValue> = {
     app: {
       loading: 'Loading...',
       notFound: 'Puzzle not found.',
+      notFoundDetail:
+        'This code does not match an active puzzle. Check the link or go home to create one.',
       backHome: 'Back to home',
+      loadError: 'Could not load the puzzle (network or server).',
+      retryLoad: 'Retry',
+      offlineTitle: 'Offline',
+      offlineDetail: 'Without a connection, live updates are not available.',
     },
     nav: {
       drawerTitle: 'Navigation',
@@ -379,6 +409,7 @@ export const messages: Record<Locale, MsgValue> = {
       moreActions: 'More actions',
       puzzleSettings: 'Puzzle settings',
       deletePuzzle: 'Delete puzzle',
+      publicLoadingSkeleton: 'Loading list…',
     },
   },
 };

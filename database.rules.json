@@ -14,7 +14,7 @@
 
         "passwordHash": {
           ".write": "data.parent().exists()",
-          ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0)"
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0 && newData.val().length <= 128)"
         },
 
         "createdBy": {
@@ -29,17 +29,17 @@
 
         "rows": {
           ".write": "data.parent().exists()",
-          ".validate": "newData.isNumber() && newData.val() > 0"
+          ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 5000"
         },
 
         "cols": {
           ".write": "data.parent().exists()",
-          ".validate": "newData.isNumber() && newData.val() > 0"
+          ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 5000"
         },
 
         "totalPieces": {
           ".write": "data.parent().exists()",
-          ".validate": "newData.isNumber() && newData.val() > 0"
+          ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 25000000"
         },
 
         "placedPieces": {

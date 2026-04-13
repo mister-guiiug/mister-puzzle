@@ -16,6 +16,14 @@ Application web progressive (PWA) collaborative pour suivre l'avancement de vos 
 - **Historique** : entrées limitées automatiquement (taille maîtrisée côté base).
 - **PWA** : installable, mises à jour via bannière interne.
 
+### Installer la PWA (téléphone / ordinateur)
+
+1. Déployez ou lancez le site en **HTTPS** (requis pour le service worker).
+2. **Chrome / Edge (desktop)** : icône « Installer l’application » dans la barre d’adresse, ou menu ⋮ → *Installer Mister Puzzle*.
+3. **Android (Chrome)** : menu ⋮ → *Installer l’application* ou *Ajouter à l’écran d’accueil*.
+4. **Safari (iOS)** : bouton Partager → *Sur l’écran d’accueil*.
+5. Les **mises à jour** : la bannière interne propose de recharger quand une nouvelle version est disponible (stratégie `prompt` du plugin PWA).
+
 ## Technologies
 
 - **Frontend** : [React 19](https://react.dev/), [Vite](https://vitejs.dev/)
