@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid } from 'lucide-react';
+import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2 } from 'lucide-react';
 import { differenceInMinutes } from 'date-fns';
-import { type PuzzleState, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, updateGridSize } from '../hooks/useSocket';
+import { type PuzzleState, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, updateGridSize, deletePuzzle } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
 
 interface DashboardProps {
@@ -11,15 +11,35 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
   const [newPieces, setNewPieces] = useState(puzzle.placedPieces);
+  const [inputMode, setInputMode] = useState<'placed' | 'remaining'>('placed');
   const [error, setError] = useState<string | null>(null);
   const [newCheckpointName, setNewCheckpointName] = useState('');
   const [showGridEditor, setShowGridEditor] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [gridRows, setGridRows] = useState(puzzle.rows ?? 0);
   const [gridCols, setGridCols] = useState(puzzle.cols ?? 0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const remainingPieces = puzzle.totalPieces - puzzle.placedPieces;
   const progress = Math.min((puzzle.placedPieces / puzzle.totalPieces) * 100, 100);
+
+  // Dual input: value displayed depends on mode
+  const displayedValue = inputMode === 'placed' ? newPieces : puzzle.totalPieces - newPieces;
+  const handleInputChange = (raw: number) => {
+    if (inputMode === 'placed') {
+      setNewPieces(Math.max(0, Math.min(puzzle.totalPieces, raw)));
+    } else {
+      setNewPieces(Math.max(0, Math.min(puzzle.totalPieces, puzzle.totalPieces - raw)));
+    }
+  };
+
+  // Checkpoint name suggestions
+  const checkpointSuggestions = [
+    `${Math.round(progress)}% terminé`,
+    `${puzzle.placedPieces.toLocaleString('fr-FR')} pièces placées`,
+    `${remainingPieces.toLocaleString('fr-FR')} pièces restantes`,
+  ];
 
   const calculateEstimates = () => {
     if (puzzle.history.length < 2) return null;
@@ -81,6 +101,32 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await deletePuzzle(puzzle.id);
+      onBack();
+    } catch (err) {
+      setError('Impossible de supprimer le puzzle.');
+      console.error(err);
+    }
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}${window.location.pathname}#${puzzle.id}`;
+    const text = `Rejoins mon puzzle "${puzzle.name}" sur Mister Puzzle ! Code : ${puzzle.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Mister Puzzle', text, url });
+      } catch {
+        // user cancelled
+      }
+    } else {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   const resizeImage = (file: File): Promise<string> =>
     new Promise((resolve) => {
       const reader = new FileReader();
@@ -132,9 +178,45 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
               <p className="text-indigo-600 font-mono font-bold text-sm">CODE: {puzzle.id}</p>
             </div>
           </div>
-          <div className="flex items-center space-x-2 text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm">
-            <Users size={20} />
-            <span className="text-sm font-medium">Collaboratif en temps réel</span>
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center space-x-2 text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm">
+              <Users size={20} />
+              <span className="text-sm font-medium">Collaboratif en temps réel</span>
+            </div>
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-sm hover:bg-indigo-700 transition font-medium text-sm"
+              title="Partager le code du puzzle"
+            >
+              <Share2 size={16} />
+              {copied ? 'Copié !' : 'Partager'}
+            </button>
+            {!confirmDelete ? (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="flex items-center gap-2 bg-white text-red-500 border border-red-200 px-4 py-2 rounded-full shadow-sm hover:bg-red-50 transition font-medium text-sm"
+                title="Supprimer le puzzle"
+              >
+                <Trash2 size={16} />
+                Supprimer
+              </button>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-red-600 font-medium">Supprimer définitivement ?</span>
+                <button
+                  onClick={handleDelete}
+                  className="bg-red-600 text-white px-3 py-1.5 rounded-full text-sm font-bold hover:bg-red-700 transition"
+                >
+                  Oui
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full text-sm font-bold hover:bg-gray-200 transition"
+                >
+                  Non
+                </button>
+              </div>
+            )}
           </div>
         </header>
 
@@ -165,13 +247,31 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
 
             <div className="flex space-x-4 items-end">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Pièces placées</label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {inputMode === 'placed' ? 'Pièces placées' : 'Pièces restantes'}
+                  </label>
+                  <div className="flex rounded-lg overflow-hidden border border-gray-200 text-xs font-semibold">
+                    <button
+                      onClick={() => setInputMode('placed')}
+                      className={`px-2 py-1 transition ${inputMode === 'placed' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                    >
+                      Placées
+                    </button>
+                    <button
+                      onClick={() => setInputMode('remaining')}
+                      className={`px-2 py-1 transition ${inputMode === 'remaining' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                    >
+                      Restantes
+                    </button>
+                  </div>
+                </div>
                 <input
                   type="number"
                   min={0}
                   max={puzzle.totalPieces}
-                  value={newPieces}
-                  onChange={(e) => setNewPieces(parseInt(e.target.value) || 0)}
+                  value={displayedValue}
+                  onChange={(e) => handleInputChange(parseInt(e.target.value) || 0)}
                   className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
                 />
               </div>
@@ -282,6 +382,19 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
                   </div>
                   <span className={`font-medium text-sm ${cp.completed ? 'text-green-800 line-through' : 'text-gray-700'}`}>{cp.name}</span>
                 </div>
+              ))}
+            </div>
+
+            {/* Checkpoint name suggestions */}
+            <div className="flex flex-wrap gap-2 mt-4 mb-2">
+              {checkpointSuggestions.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setNewCheckpointName(s)}
+                  className={`text-xs px-3 py-1 rounded-full border transition ${newCheckpointName === s ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100'}`}
+                >
+                  {s}
+                </button>
               ))}
             </div>
 
