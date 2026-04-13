@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2, Lock, Unlock, Globe, Eye, EyeOff, Settings, Pencil, Check, X as XIcon, Flag } from 'lucide-react';
+import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2, Lock, Unlock, Globe, Eye, EyeOff, Settings, Pencil, Check, X as XIcon, Flag, RotateCw } from 'lucide-react';
 import { differenceInMinutes } from 'date-fns';
-import { type PuzzleState, type Member, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, updateGridSize, deletePuzzle, joinMember, leaveMember, changePassword, updateVisibility, hashPassword, renamePuzzle } from '../hooks/useSocket';
+import { type PuzzleState, type Member, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, deletePhoto, rotatePhoto, updateGridSize, deletePuzzle, joinMember, leaveMember, changePassword, updateVisibility, hashPassword, renamePuzzle } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
 import { getPseudo, setPseudo as savePseudo, getSessionId, isPseudoLocked, setPseudoLocked, getInputMode, setInputModePreference } from '../utils/pseudo';
 
@@ -806,9 +806,30 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
               />
             </div>
             <div className="grid grid-cols-3 gap-2">
-              {puzzle.photos.map((photo, i) => (
-                <div key={i} className="aspect-square rounded-lg overflow-hidden border border-gray-100">
-                  <img src={photo} alt={`Progress ${i}`} className="w-full h-full object-cover" />
+              {puzzle.photos.map((photo) => (
+                <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 group">
+                  <img
+                    src={photo.data}
+                    alt="Progress"
+                    className="w-full h-full object-cover transition-transform duration-300"
+                    style={{ transform: `rotate(${photo.rotation}deg)` }}
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                    <button
+                      onClick={() => rotatePhoto(puzzle.id, photo.id, (photo.rotation + 90) % 360)}
+                      className="bg-white/90 text-gray-800 p-2 rounded-full hover:bg-white transition"
+                      title="Pivoter"
+                    >
+                      <RotateCw size={16} />
+                    </button>
+                    <button
+                      onClick={() => deletePhoto(puzzle.id, photo.id)}
+                      className="bg-red-500/90 text-white p-2 rounded-full hover:bg-red-600 transition"
+                      title="Supprimer"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               ))}
               {puzzle.photos.length === 0 && (

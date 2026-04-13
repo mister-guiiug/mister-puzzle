@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react';
 import { ref, set, get, update, push, onValue, off, remove, query, orderByChild, equalTo, onDisconnect } from 'firebase/database';
 import { db } from '../firebase';
 
+export interface Photo {
+  id: string;
+  data: string;
+  rotation: number;
+}
+
 export interface Member {
   pseudo: string;
   lastSeen: number;
@@ -31,7 +37,7 @@ export interface PuzzleState {
   rows?: number;
   cols?: number;
   checkpoints: Checkpoint[];
-  photos: string[];
+  photos: Photo[];
   history: HistoryEntry[];
   members?: Record<string, Member>;
 }
@@ -41,7 +47,13 @@ const normalizePuzzle = (data: any): PuzzleState => ({
   ...data,
   isPublic: data.isPublic ?? true,
   checkpoints: data.checkpoints ? Object.values(data.checkpoints) : [],
-  photos: data.photos ? Object.values(data.photos) : [],
+  photos: data.photos
+    ? Object.entries(data.photos as Record<string, unknown>).map(([key, val]) =>
+        typeof val === 'string'
+          ? { id: key, data: val, rotation: 0 }
+          : { ...(val as Omit<Photo, 'id'>), id: key }
+      )
+    : [],
   history: data.history ? Object.values(data.history) : [],
   members: data.members ?? undefined,
 });
@@ -195,7 +207,16 @@ export const addCheckpoint = async (roomCode: string, name: string, pseudo?: str
 };
 
 export const addPhoto = async (roomCode: string, photo: string): Promise<void> => {
-  await push(ref(db, `puzzles/${roomCode}/photos`), photo);
+  const newRef = push(ref(db, `puzzles/${roomCode}/photos`));
+  await set(newRef, { data: photo, rotation: 0 });
+};
+
+export const deletePhoto = async (roomCode: string, photoId: string): Promise<void> => {
+  await remove(ref(db, `puzzles/${roomCode}/photos/${photoId}`));
+};
+
+export const rotatePhoto = async (roomCode: string, photoId: string, newRotation: number): Promise<void> => {
+  await update(ref(db, `puzzles/${roomCode}/photos/${photoId}`), { rotation: newRotation });
 };
 
 export const updateGridSize = async (roomCode: string, rows: number, cols: number): Promise<void> => {
