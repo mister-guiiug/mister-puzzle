@@ -1,3 +1,5 @@
+import { reportError } from './reportError';
+
 export interface HistoryPuzzle {
   code: string;
   name: string;
@@ -12,7 +14,7 @@ export const getHistory = (): HistoryPuzzle[] => {
     const data = localStorage.getItem(HISTORY_KEY);
     return data ? JSON.parse(data) : [];
   } catch (err) {
-    console.error('Failed to get history', err);
+    reportError('getHistory', err, {});
     return [];
   }
 };
@@ -27,7 +29,7 @@ export const saveToHistory = (code: string, name: string) => {
 
     localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
   } catch (err) {
-    console.error('Failed to save history', err);
+    reportError('saveToHistory', err, {});
   }
 };
 
@@ -37,7 +39,7 @@ export const removeFromHistory = (code: string) => {
     const updated = history.filter(p => p.code !== code.toUpperCase());
     localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
   } catch (err) {
-    console.error('Failed to remove from history', err);
+    reportError('removeFromHistory', err, {});
   }
 };
 

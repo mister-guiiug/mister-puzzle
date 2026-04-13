@@ -23,6 +23,7 @@ import {
   ChevronRight,
   GripVertical,
   MoreVertical,
+  CircleHelp,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
@@ -53,6 +54,7 @@ import { getReadOnlyMode, setReadOnlyMode } from '../utils/prefs';
 import { useI18n } from '../i18n/I18nContext';
 import { ProgressChart } from './ProgressChart';
 import { exportProgressPng } from '../utils/exportProgressCard';
+import { reportError } from '../utils/reportError';
 
 const MEMBER_TTL_MS = 5 * 60 * 1000;
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
@@ -115,6 +117,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
   const [actionsOpen, setActionsOpen] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   useEffect(() => {
     setInputMode(getInputMode(pseudo));
@@ -175,11 +178,24 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     }
   };
 
-  const checkpointSuggestions = [
-    `${Math.round(progress)}% ${t('dashboard.donePct')}`,
-    `${puzzle.placedPieces.toLocaleString(numberLocale)} ${t('common.pieces')}`,
-    `${remainingPieces.toLocaleString(numberLocale)} ${t('dashboard.remaining').toLowerCase()}`,
-  ];
+  const checkpointSuggestions = useMemo(() => {
+    const pct = Math.round(progress);
+    const pStr = puzzle.placedPieces.toLocaleString(numberLocale);
+    const rStr = remainingPieces.toLocaleString(numberLocale);
+    const totStr = puzzle.totalPieces.toLocaleString(numberLocale);
+    if (inputMode === 'remaining') {
+      return [
+        `${pct}% ${t('dashboard.donePct')}`,
+        `${rStr} ${t('dashboard.remaining')} (${t('dashboard.onTotal')} ${totStr})`,
+        `${pStr} ${t('common.pieces')}`,
+      ];
+    }
+    return [
+      `${pct}% ${t('dashboard.donePct')}`,
+      `${pStr} ${t('common.pieces')}`,
+      `${rStr} ${t('dashboard.remaining').toLowerCase()}`,
+    ];
+  }, [inputMode, progress, puzzle.placedPieces, puzzle.totalPieces, remainingPieces, t, numberLocale]);
 
   const checkpointPresets = [
     t('dashboard.presetContour'),
@@ -202,6 +218,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       setRemoteConflict(false);
     } catch (err) {
       setError(t('dashboard.errorUpdatePieces'));
+      reportError('handlePiecesUpdate', err, { puzzleId: puzzle.id });
       console.error(err);
     }
   };
@@ -346,6 +363,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
   const handleExportPng = () => {
     const url = `${window.location.origin}${window.location.pathname}#${puzzle.id}`;
+    const pct = puzzle.totalPieces > 0 ? Math.round((puzzle.placedPieces / puzzle.totalPieces) * 100) : 0;
+    const summaryLine =
+      inputMode === 'remaining'
+        ? `${puzzle.id} · ${remainingPieces.toLocaleString(numberLocale)} / ${puzzle.totalPieces.toLocaleString(numberLocale)} ${t('dashboard.remaining').toLowerCase()} · ${pct}% ${t('dashboard.donePct')}`
+        : `${puzzle.id} · ${puzzle.placedPieces.toLocaleString(numberLocale)} / ${puzzle.totalPieces.toLocaleString(numberLocale)} · ${pct}% ${t('dashboard.donePct')}`;
     exportProgressPng({
       name: puzzle.name,
       code: puzzle.id,
@@ -353,6 +375,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       total: puzzle.totalPieces,
       url,
       titleLine: t('dashboard.exportHint'),
+      summaryLine,
+      barMode: inputMode === 'remaining' ? 'remaining' : 'placed',
     });
   };
 
@@ -757,8 +781,24 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
         <div className="grid grid-cols-1 gap-6 mb-8">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-semibold mb-1">{t('dashboard.progressTitle')}</h2>
+            <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
+              <h2 className="text-xl font-semibold">{t('dashboard.progressTitle')}</h2>
+              <button
+                type="button"
+                onClick={() => setHelpOpen((o) => !o)}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 px-2 py-1.5 rounded-lg border border-indigo-100 hover:bg-indigo-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                aria-expanded={helpOpen}
+              >
+                <CircleHelp size={16} aria-hidden />
+                {t('dashboard.helpToggle')}
+              </button>
+            </div>
             <p className="text-xs text-gray-400 mb-4">{t('dashboard.progressViewHint')}</p>
+            {helpOpen && (
+              <p className="text-sm text-gray-700 mb-4 p-3 rounded-xl bg-gray-50 border border-gray-100 whitespace-pre-line">
+                {t('dashboard.helpBody')}
+              </p>
+            )}
 
             <div className="grid grid-cols-2 gap-3 mb-5">
               <button
@@ -781,8 +821,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 className={`rounded-xl p-4 text-left border-2 transition disabled:opacity-50 ${inputMode === 'remaining' ? 'border-orange-400 bg-orange-50' : 'border-gray-100 bg-gray-50 hover:border-orange-200'}`}
                 aria-pressed={inputMode === 'remaining'}
               >
-                <p className="text-xs font-bold uppercase tracking-wider text-orange-500 mb-1">{t('dashboard.remaining')}</p>
-                <p className="text-3xl font-bold text-orange-600">{remainingPieces.toLocaleString(numberLocale)}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-orange-800 mb-1">{t('dashboard.remaining')}</p>
+                <p className="text-3xl font-bold text-orange-700">{remainingPieces.toLocaleString(numberLocale)}</p>
                 <p className="text-xs text-gray-400 mt-1">{t('dashboard.toPlace')}</p>
               </button>
             </div>
@@ -793,6 +833,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               metric={inputMode}
               label={inputMode === 'placed' ? t('dashboard.chartTitle') : t('dashboard.chartTitleRemaining')}
               emptyHint={t('dashboard.chartEmpty')}
+              chartLocale={numberLocale}
+              tableCaption={t('dashboard.chartTableCaption')}
+              tableColTime={t('dashboard.chartColTime')}
+              tableColValue={t('dashboard.chartColValue')}
+              tableColAuthor={t('dashboard.chartColAuthor')}
             />
 
             <div className="flex mb-2 items-center justify-between flex-wrap gap-2">
@@ -804,7 +849,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 {Math.round(progress)}% {t('dashboard.donePct')}
               </span>
               <span
-                className={`text-xs font-semibold ${inputMode === 'placed' ? 'text-indigo-600' : 'text-orange-600'}`}
+                className={`text-xs font-semibold ${inputMode === 'placed' ? 'text-indigo-600' : 'text-orange-800'}`}
               >
                 {inputMode === 'placed'
                   ? `${puzzle.placedPieces.toLocaleString(numberLocale)} / ${puzzle.totalPieces.toLocaleString(numberLocale)}`
@@ -834,7 +879,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               ) : (
                 <div
                   style={{ width: `${remainingRatioPct}%` }}
-                  className="h-full min-w-0 bg-orange-500 transition-all duration-500"
+                  className="h-full min-w-0 bg-orange-600 transition-all duration-500"
                 />
               )}
             </div>
@@ -902,7 +947,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     aria-label={inputMode === 'placed' ? t('dashboard.piecesPlaced') : t('dashboard.piecesRemaining')}
                   />
                   {displayedValue !== (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces) && (
-                    <p className={`text-xs mt-1 font-semibold ${inputMode === 'placed' ? 'text-indigo-500' : 'text-orange-500'}`}>
+                    <p className={`text-xs mt-1 font-semibold ${inputMode === 'placed' ? 'text-indigo-600' : 'text-orange-800'}`}>
                       {displayedValue > (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces) ? '\u25B2' : '\u25BC'}{' '}
                       {Math.abs(displayedValue - (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces)).toLocaleString(numberLocale)}{' '}
                       {t('dashboard.vsNow')}
@@ -947,9 +992,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   <p className="text-sm font-semibold text-yellow-800 mb-1 flex items-center gap-2">
                     <Flag size={14} aria-hidden /> {t('dashboard.flagAsk')}
                   </p>
-                  <p className="text-xs text-yellow-700 mb-3">
-                    {t('dashboard.flagDetail')} ({puzzle.placedPieces.toLocaleString(numberLocale)}{' '}
-                    {t('dashboard.flagPieces')}, {Math.round(progress)}% {t('dashboard.donePct')}).
+                  <p className="text-xs text-yellow-800 mb-3">
+                    {t('dashboard.flagDetail')}{' '}
+                    {t('dashboard.flagStats')
+                      .replace('{placed}', puzzle.placedPieces.toLocaleString(numberLocale))
+                      .replace('{remaining}', remainingPieces.toLocaleString(numberLocale))
+                      .replace('{pct}', String(Math.round(progress)))}
                   </p>
                   <div className="flex gap-2">
                     <button

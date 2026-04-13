@@ -39,6 +39,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
+/** Hook consommateur du provider i18n. */
+// eslint-disable-next-line react-refresh/only-export-components -- hook pairé à I18nProvider
 export function useI18n(): I18nValue {
   const ctx = useContext(I18nContext);
   if (!ctx) {

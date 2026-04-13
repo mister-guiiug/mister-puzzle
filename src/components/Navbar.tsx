@@ -31,6 +31,15 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const prevDrawerOpen = useRef(drawerOpen);
+
+  useEffect(() => {
+    if (prevDrawerOpen.current && !drawerOpen) {
+      menuButtonRef.current?.focus();
+    }
+    prevDrawerOpen.current = drawerOpen;
+  }, [drawerOpen]);
 
   useEffect(() => {
     const onDoc = (e: PointerEvent) => {
@@ -64,6 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="max-w-4xl mx-auto px-2 sm:px-4 min-h-14 flex items-center justify-between gap-2 sm:gap-3">
           <div className="flex items-center gap-1 sm:gap-2 min-w-0">
             <button
+              ref={menuButtonRef}
               type="button"
               onClick={() => {
                 setProfileOpen(false);
