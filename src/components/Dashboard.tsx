@@ -1102,91 +1102,123 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 type="button"
                 onClick={handleUncheckAll}
                 disabled={readOnly || puzzle.checkpoints.every((c) => !c.completed)}
-                className="text-xs font-semibold text-gray-500 hover:text-indigo-600 border border-gray-200 rounded-lg px-2 py-1 disabled:opacity-40 focus:outline-none focus-visible:ring-2"
+                className="text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 disabled:opacity-40 focus:outline-none focus-visible:ring-2"
               >
                 {t('dashboard.uncheckAll')}
               </button>
             </div>
-            <div className="space-y-3">
-              {puzzle.checkpoints.map((cp) => (
-                <div
-                  key={cp.id}
-                  role="button"
-                  tabIndex={readOnly ? -1 : 0}
-                  className={`flex items-center p-3 rounded-xl border transition ${readOnly ? 'cursor-default' : 'cursor-pointer'} ${cp.completed ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-100 hover:border-indigo-200'}`}
-                  onClick={() => !readOnly && toggleCheckpoint(puzzle.id, cp.id, cp.completed)}
-                  onKeyDown={(e) => {
-                    if (!readOnly && (e.key === 'Enter' || e.key === ' ')) {
-                      e.preventDefault();
-                      toggleCheckpoint(puzzle.id, cp.id, cp.completed);
-                    }
-                  }}
-                >
-                  <div
-                    className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center transition-colors ${cp.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-900'}`}
-                  >
-                    {cp.completed && <CheckCircle size={14} aria-hidden />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className={`font-medium text-sm ${cp.completed ? 'text-green-800 line-through' : 'text-gray-700'}`}>
-                      {cp.name}
-                    </span>
-                    {cp.createdBy && <p className="text-xs text-gray-400">{cp.createdBy}</p>}
-                  </div>
+
+            <div className="mb-6 rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/40 p-4 space-y-4">
+              <div>
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('dashboard.checkpointQuickAdd')}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">{t('dashboard.checkpointQuickAddHint')}</p>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                  {t('dashboard.checkpointFromProgress')}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {checkpointSuggestions.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => handlePresetCheckpoint(s)}
+                      disabled={readOnly}
+                      className="text-xs px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 max-w-full text-left break-words"
+                    >
+                      {s}
+                    </button>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                  {t('dashboard.checkpointPresets')}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {checkpointPresets.map((label) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => handlePresetCheckpoint(label)}
+                      disabled={readOnly}
+                      className="text-xs px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 max-w-full text-left break-words"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-gray-200/80 dark:border-gray-600/80">
+                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+                  {t('dashboard.checkpointCustom')}
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder={t('dashboard.newCheckpointPh')}
+                    value={newCheckpointName}
+                    onChange={(e) => setNewCheckpointName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddCheckpoint()}
+                    disabled={readOnly}
+                    className="flex-1 min-w-0 p-2.5 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-400 outline-none disabled:opacity-50"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCheckpoint}
+                    disabled={readOnly || !newCheckpointName.trim()}
+                    className="shrink-0 px-3 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 text-sm font-semibold"
+                    title={t('dashboard.addCheckpoint')}
+                    aria-label={t('dashboard.addCheckpoint')}
+                  >
+                    <Plus size={18} aria-hidden className="sm:hidden" />
+                    <span className="hidden sm:inline">{t('dashboard.addCheckpoint')}</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <p className="text-xs font-semibold text-gray-500 mt-4 mb-2">{t('dashboard.checkpointPresets')}</p>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {checkpointPresets.map((label) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => handlePresetCheckpoint(label)}
-                  disabled={readOnly}
-                  className="text-xs px-3 py-1 rounded-full border bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 disabled:opacity-40 focus:outline-none focus-visible:ring-2"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap gap-2 mt-4 mb-2">
-              {checkpointSuggestions.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setNewCheckpointName(s)}
-                  disabled={readOnly}
-                  className={`text-xs px-3 py-1 rounded-full border transition disabled:opacity-40 ${newCheckpointName === s ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100'}`}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex gap-2 mt-4">
-              <input
-                type="text"
-                placeholder={t('dashboard.newCheckpointPh')}
-                value={newCheckpointName}
-                onChange={(e) => setNewCheckpointName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddCheckpoint()}
-                disabled={readOnly}
-                className="flex-1 p-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none disabled:opacity-50"
-              />
-              <button
-                type="button"
-                onClick={handleAddCheckpoint}
-                disabled={readOnly || !newCheckpointName.trim()}
-                className="p-2 bg-indigo-100 text-indigo-600 rounded-lg hover:bg-indigo-200 transition disabled:opacity-40 focus:outline-none focus-visible:ring-2"
-                title={t('dashboard.addCheckpoint')}
-                aria-label={t('dashboard.addCheckpoint')}
-              >
-                <Plus size={16} aria-hidden />
-              </button>
-            </div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+              {t('dashboard.checkpointsList')}
+            </p>
+            {puzzle.checkpoints.length === 0 ? (
+              <p className="text-sm text-gray-400 dark:text-gray-500 py-2">{t('dashboard.checkpointsEmpty')}</p>
+            ) : (
+              <div className="space-y-3">
+                {puzzle.checkpoints.map((cp) => (
+                  <div
+                    key={cp.id}
+                    role="button"
+                    tabIndex={readOnly ? -1 : 0}
+                    className={`flex items-center p-3 rounded-xl border transition ${readOnly ? 'cursor-default' : 'cursor-pointer'} ${cp.completed ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-600'}`}
+                    onClick={() => !readOnly && toggleCheckpoint(puzzle.id, cp.id, cp.completed)}
+                    onKeyDown={(e) => {
+                      if (!readOnly && (e.key === 'Enter' || e.key === ' ')) {
+                        e.preventDefault();
+                        toggleCheckpoint(puzzle.id, cp.id, cp.completed);
+                      }
+                    }}
+                  >
+                    <div
+                      className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center transition-colors shrink-0 ${cp.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-900'}`}
+                    >
+                      {cp.completed && <CheckCircle size={14} aria-hidden />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span
+                        className={`font-medium text-sm break-words ${cp.completed ? 'text-green-800 dark:text-green-200 line-through' : 'text-gray-700 dark:text-gray-200'}`}
+                      >
+                        {cp.name}
+                      </span>
+                      {cp.createdBy && <p className="text-xs text-gray-400 dark:text-gray-500">{cp.createdBy}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
