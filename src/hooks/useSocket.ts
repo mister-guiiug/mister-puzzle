@@ -126,11 +126,21 @@ export const joinPuzzle = async (roomCode: string): Promise<PuzzleState | null> 
 
 /** Fetch all public puzzles (requires isPublic index in database rules). */
 export const getPublicPuzzles = async (): Promise<PuzzleState[]> => {
-  const publicQuery = query(ref(db, 'puzzles'), orderByChild('isPublic'), equalTo(true));
-  const snapshot = await get(publicQuery);
-  if (!snapshot.exists()) return [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return Object.values(snapshot.val() as Record<string, any>).map(normalizePuzzle);
+  try {
+    const publicQuery = query(ref(db, 'puzzles'), orderByChild('isPublic'), equalTo(true));
+    const snapshot = await get(publicQuery);
+    if (!snapshot.exists()) return [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return Object.values(snapshot.val() as Record<string, any>).map(normalizePuzzle);
+  } catch {
+    // Index not yet deployed — fall back to full fetch and filter client-side
+    const snapshot = await get(ref(db, 'puzzles'));
+    if (!snapshot.exists()) return [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return Object.values(snapshot.val() as Record<string, any>)
+      .map(normalizePuzzle)
+      .filter((p) => p.isPublic !== false);
+  }
 };
 
 /** Register the current session as an active member. Uses onDisconnect to auto-remove. */

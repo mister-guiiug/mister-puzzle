@@ -32,6 +32,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
   const [showNewPwd, setShowNewPwd] = useState(false);
   const [pwMessage, setPwMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
 
+  const [step, setStep] = useState(1);
+
   // Member presence
   useEffect(() => {
     const sessionId = getSessionId();
@@ -423,10 +425,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
               )}
             </p>
 
-            {/* Placed / Remaining stats + input */}
+            {/* Placed / Remaining stats + counter */}
             <div className="mb-6">
-              {/* Two-stat visual */}
-              <div className="grid grid-cols-2 gap-3 mb-4">
+              {/* Two-stat cards — click to switch mode */}
+              <div className="grid grid-cols-2 gap-3 mb-5">
                 <button
                   onClick={() => setInputMode('placed')}
                   className={`rounded-xl p-4 text-left border-2 transition ${inputMode === 'placed' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-100 bg-gray-50 hover:border-indigo-200'}`}
@@ -445,28 +447,71 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
                 </button>
               </div>
 
-              {/* Input */}
-              <div className="flex gap-3 items-center">
-                <div className="flex-1">
-                  <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">
-                    {inputMode === 'placed' ? '✏️ Saisir les pièces placées' : '✏️ Saisir les pièces restantes'}
-                  </label>
+              {/* Step selector */}
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Pas :</span>
+                {[1, 5, 10, 25, 50, 100].map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setStep(s)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition ${step === s ? (inputMode === 'placed' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-orange-500 text-white border-orange-500') : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400'}`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+
+              {/* +/− counter */}
+              <div className={`flex items-center gap-3 p-4 rounded-2xl border-2 ${inputMode === 'placed' ? 'border-indigo-200 bg-indigo-50' : 'border-orange-200 bg-orange-50'}`}>
+                {/* − button */}
+                <button
+                  onClick={() => handleInputChange(displayedValue - step)}
+                  disabled={inputMode === 'placed' ? newPieces <= 0 : newPieces >= puzzle.totalPieces}
+                  className={`w-14 h-14 rounded-xl text-2xl font-bold transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed ${inputMode === 'placed' ? 'bg-indigo-200 text-indigo-700 hover:bg-indigo-300' : 'bg-orange-200 text-orange-700 hover:bg-orange-300'}`}
+                >
+                  −
+                </button>
+
+                {/* Value display + manual input */}
+                <div className="flex-1 text-center">
+                  <p className="text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wider">
+                    {inputMode === 'placed' ? 'Pièces placées' : 'Pièces restantes'}
+                  </p>
                   <input
                     type="number"
                     min={0}
                     max={puzzle.totalPieces}
                     value={displayedValue}
                     onChange={(e) => handleInputChange(parseInt(e.target.value) || 0)}
-                    className={`w-full p-3 text-lg font-bold border-2 rounded-xl outline-none transition ${inputMode === 'placed' ? 'border-indigo-300 focus:border-indigo-500 focus:bg-indigo-50' : 'border-orange-300 focus:border-orange-400 focus:bg-orange-50'}`}
+                    className={`w-full text-center text-4xl font-black bg-transparent border-b-2 outline-none pb-1 transition ${inputMode === 'placed' ? 'text-indigo-700 border-indigo-300 focus:border-indigo-600' : 'text-orange-600 border-orange-300 focus:border-orange-500'}`}
                   />
+                  {displayedValue !== (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces) && (
+                    <p className={`text-xs mt-1 font-semibold ${inputMode === 'placed' ? 'text-indigo-500' : 'text-orange-500'}`}>
+                      {displayedValue > (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces) ? '▲' : '▼'}
+                      {' '}
+                      {Math.abs(displayedValue - (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces)).toLocaleString('fr-FR')} par rapport à maintenant
+                    </p>
+                  )}
                 </div>
+
+                {/* + button */}
                 <button
-                  onClick={handlePiecesUpdate}
-                  className="mt-5 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-sm text-sm whitespace-nowrap"
+                  onClick={() => handleInputChange(displayedValue + step)}
+                  disabled={inputMode === 'placed' ? newPieces >= puzzle.totalPieces : newPieces <= 0}
+                  className={`w-14 h-14 rounded-xl text-2xl font-bold transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed ${inputMode === 'placed' ? 'bg-indigo-500 text-white hover:bg-indigo-600' : 'bg-orange-400 text-white hover:bg-orange-500'}`}
                 >
-                  Mettre à jour
+                  +
                 </button>
               </div>
+
+              {/* Save button */}
+              <button
+                onClick={handlePiecesUpdate}
+                disabled={newPieces === puzzle.placedPieces}
+                className="mt-3 w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Enregistrer
+              </button>
               {puzzle.history.length > 0 && puzzle.history[puzzle.history.length - 1].pseudo && (
                 <p className="text-xs text-gray-400 mt-2">
                   Dernière mise à jour par <span className="font-medium text-indigo-600">{puzzle.history[puzzle.history.length - 1].pseudo}</span>
