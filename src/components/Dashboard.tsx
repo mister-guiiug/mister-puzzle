@@ -417,54 +417,61 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
                 className="flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500 transition-all duration-500"
               />
             </div>
-            <p className="text-sm text-gray-500 mb-6">
-              <span className="font-bold text-indigo-700">{remainingPieces.toLocaleString('fr-FR')}</span> pièces restantes
+            <p className="text-sm text-gray-500 mb-4">
               {puzzle.rows && puzzle.cols && (
-                <span className="text-gray-400 ml-2">· {puzzle.rows} × {puzzle.cols}</span>
-              )}
-              {puzzle.history.length > 0 && puzzle.history[puzzle.history.length - 1].pseudo && (
-                <span className="text-gray-400 ml-2">
-                  · Mis à jour par <span className="font-medium text-indigo-600">{puzzle.history[puzzle.history.length - 1].pseudo}</span>
-                </span>
+                <span className="text-gray-400">Grille {puzzle.rows} × {puzzle.cols}</span>
               )}
             </p>
 
-            <div className="flex space-x-4 items-end">
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    {inputMode === 'placed' ? 'Pièces placées' : 'Pièces restantes'}
-                  </label>
-                  <div className="flex rounded-lg overflow-hidden border border-gray-200 text-xs font-semibold">
-                    <button
-                      onClick={() => setInputMode('placed')}
-                      className={`px-2 py-1 transition ${inputMode === 'placed' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
-                    >
-                      Placées
-                    </button>
-                    <button
-                      onClick={() => setInputMode('remaining')}
-                      className={`px-2 py-1 transition ${inputMode === 'remaining' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
-                    >
-                      Restantes
-                    </button>
-                  </div>
-                </div>
-                <input
-                  type="number"
-                  min={0}
-                  max={puzzle.totalPieces}
-                  value={displayedValue}
-                  onChange={(e) => handleInputChange(parseInt(e.target.value) || 0)}
-                  className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                />
+            {/* Placed / Remaining stats + input */}
+            <div className="mb-6">
+              {/* Two-stat visual */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <button
+                  onClick={() => setInputMode('placed')}
+                  className={`rounded-xl p-4 text-left border-2 transition ${inputMode === 'placed' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-100 bg-gray-50 hover:border-indigo-200'}`}
+                >
+                  <p className="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-1">Placées</p>
+                  <p className="text-3xl font-bold text-indigo-700">{puzzle.placedPieces.toLocaleString('fr-FR')}</p>
+                  <p className="text-xs text-gray-400 mt-1">sur {puzzle.totalPieces.toLocaleString('fr-FR')}</p>
+                </button>
+                <button
+                  onClick={() => setInputMode('remaining')}
+                  className={`rounded-xl p-4 text-left border-2 transition ${inputMode === 'remaining' ? 'border-orange-400 bg-orange-50' : 'border-gray-100 bg-gray-50 hover:border-orange-200'}`}
+                >
+                  <p className="text-xs font-bold uppercase tracking-wider text-orange-500 mb-1">Restantes</p>
+                  <p className="text-3xl font-bold text-orange-600">{remainingPieces.toLocaleString('fr-FR')}</p>
+                  <p className="text-xs text-gray-400 mt-1">à placer</p>
+                </button>
               </div>
-              <button
-                onClick={handlePiecesUpdate}
-                className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 transition shadow-sm"
-              >
-                Mettre à jour
-              </button>
+
+              {/* Input */}
+              <div className="flex gap-3 items-center">
+                <div className="flex-1">
+                  <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                    {inputMode === 'placed' ? '✏️ Saisir les pièces placées' : '✏️ Saisir les pièces restantes'}
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={puzzle.totalPieces}
+                    value={displayedValue}
+                    onChange={(e) => handleInputChange(parseInt(e.target.value) || 0)}
+                    className={`w-full p-3 text-lg font-bold border-2 rounded-xl outline-none transition ${inputMode === 'placed' ? 'border-indigo-300 focus:border-indigo-500 focus:bg-indigo-50' : 'border-orange-300 focus:border-orange-400 focus:bg-orange-50'}`}
+                  />
+                </div>
+                <button
+                  onClick={handlePiecesUpdate}
+                  className="mt-5 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-sm text-sm whitespace-nowrap"
+                >
+                  Mettre à jour
+                </button>
+              </div>
+              {puzzle.history.length > 0 && puzzle.history[puzzle.history.length - 1].pseudo && (
+                <p className="text-xs text-gray-400 mt-2">
+                  Dernière mise à jour par <span className="font-medium text-indigo-600">{puzzle.history[puzzle.history.length - 1].pseudo}</span>
+                </p>
+              )}
             </div>
 
             {/* Grid size editor */}
