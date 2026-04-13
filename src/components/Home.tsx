@@ -167,7 +167,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   };
 
   return (
-    <div className="min-h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px))] bg-gray-50 flex flex-col items-center py-6 sm:py-8 px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+    <div className="min-h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px))] bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 flex flex-col items-center py-6 sm:py-8 px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
       <ErrorModal message={error} onClose={() => setError(null)} />
 
       {/* Deleted puzzle popup */}
@@ -175,7 +175,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         const inHistory = history.some((h) => h.code === deletedCode);
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 w-full max-w-sm border border-gray-100 dark:border-gray-800">
               <h3 className="text-lg font-bold text-gray-800 mb-2">{t('home.deletedTitle')}</h3>
               <p className="text-sm text-gray-500 mb-4">
                 <span className="font-mono font-bold text-gray-700">{deletedCode}</span> {t('home.deletedBody')}
@@ -214,16 +214,16 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         alt=""
         className="w-40 h-40 mb-4 drop-shadow-lg hover:scale-105 transition-transform duration-300"
       />
-      <h1 className="text-4xl font-bold mb-2 text-indigo-600">{t('common.appName')}</h1>
-      <p className="text-gray-400 text-sm mb-6">{t('home.tagline')}</p>
+      <h1 className="text-4xl font-bold mb-2 text-indigo-600 dark:text-indigo-400">{t('common.appName')}</h1>
+      <p className="text-gray-400 dark:text-gray-500 text-sm mb-6">{t('home.tagline')}</p>
 
       <section
         className="w-full max-w-3xl mb-8"
         aria-label={t('home.tourTitle')}
       >
         {!showTour ? (
-          <div className="rounded-2xl border border-gray-200 bg-white/80 px-4 py-3 text-center shadow-sm">
-            <p className="text-sm text-gray-600 mb-2">{t('home.tourDismissedHint')}</p>
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/90 px-4 py-3 text-center shadow-sm">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{t('home.tourDismissedHint')}</p>
             <button
               type="button"
               onClick={restoreTour}
@@ -233,12 +233,12 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             </button>
           </div>
         ) : (
-          <div className="rounded-2xl border border-indigo-100 bg-gradient-to-b from-white to-indigo-50/40 shadow-md overflow-hidden">
+          <div className="rounded-2xl border border-indigo-100 dark:border-indigo-900/60 bg-gradient-to-b from-white to-indigo-50/40 dark:from-gray-900 dark:to-indigo-950/30 shadow-md overflow-hidden">
             <div className="px-4 pt-4 pb-2 sm:px-6 sm:pt-5">
-              <p className="text-sm text-gray-600 text-center">{t('home.tourIntro')}</p>
-              <h2 className="text-center text-lg font-bold text-gray-900 mt-2 mb-4">{t('home.tourTitle')}</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 text-center">{t('home.tourIntro')}</p>
+              <h2 className="text-center text-lg font-bold text-gray-900 dark:text-gray-100 mt-2 mb-4">{t('home.tourTitle')}</h2>
             </div>
-            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-0 sm:gap-0 divide-y sm:divide-y-0 sm:divide-x divide-indigo-100 list-none m-0 p-0">
+            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-0 sm:gap-0 divide-y sm:divide-y-0 sm:divide-x divide-indigo-100 dark:divide-gray-700 list-none m-0 p-0">
               <li className="flex gap-3 p-4 sm:p-5">
                 <span
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white text-sm font-black"
@@ -247,11 +247,11 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                   1
                 </span>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900 flex items-center gap-2">
-                    <Menu size={18} className="text-indigo-600 shrink-0" aria-hidden />
+                  <p className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <Menu size={18} className="text-indigo-600 dark:text-indigo-400 shrink-0" aria-hidden />
                     {t('home.tourStep1Title')}
                   </p>
-                  <p className="text-sm text-gray-600 mt-1 leading-snug">{t('home.tourStep1Body')}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-snug">{t('home.tourStep1Body')}</p>
                 </div>
               </li>
               <li className="flex gap-3 p-4 sm:p-5">
@@ -262,11 +262,11 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                   2
                 </span>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900 flex items-center gap-2">
-                    <User size={18} className="text-indigo-600 shrink-0" aria-hidden />
+                  <p className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <User size={18} className="text-indigo-600 dark:text-indigo-400 shrink-0" aria-hidden />
                     {t('home.tourStep2Title')}
                   </p>
-                  <p className="text-sm text-gray-600 mt-1 leading-snug">{t('home.tourStep2Body')}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-snug">{t('home.tourStep2Body')}</p>
                 </div>
               </li>
               <li className="flex gap-3 p-4 sm:p-5">
@@ -277,15 +277,15 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                   3
                 </span>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900 flex items-center gap-2">
-                    <LayoutTemplate size={18} className="text-indigo-600 shrink-0" aria-hidden />
+                  <p className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <LayoutTemplate size={18} className="text-indigo-600 dark:text-indigo-400 shrink-0" aria-hidden />
                     {t('home.tourStep3Title')}
                   </p>
-                  <p className="text-sm text-gray-600 mt-1 leading-snug">{t('home.tourStep3Body')}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-snug">{t('home.tourStep3Body')}</p>
                 </div>
               </li>
             </ol>
-            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2 px-4 pb-4 sm:px-6 sm:pb-5 pt-1 border-t border-indigo-100 bg-white/60">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2 px-4 pb-4 sm:px-6 sm:pb-5 pt-1 border-t border-indigo-100 dark:border-gray-700 bg-white/60 dark:bg-gray-900/50">
               <button
                 type="button"
                 onClick={scrollToForms}
@@ -297,7 +297,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               <button
                 type="button"
                 onClick={dismissTour}
-                className="inline-flex items-center justify-center min-h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-600 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+                className="inline-flex items-center justify-center min-h-11 px-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
               >
                 {t('home.tourDismiss')}
               </button>
@@ -308,14 +308,14 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
 
       <div ref={formsAnchorRef} id="home-forms" className="w-full max-w-md flex flex-col gap-6 mb-6 scroll-mt-24">
       {/* Create */}
-      <div className="bg-white p-6 rounded-xl shadow-md w-full">
-        <h2 className="text-xl font-semibold mb-4">{t('home.createTitle')}</h2>
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md w-full border border-gray-100 dark:border-gray-800">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">{t('home.createTitle')}</h2>
 
         <input
           type="text"
           placeholder={t('home.puzzleNamePh')}
           aria-label={t('home.puzzleNamePh')}
-          className="w-full p-2 border rounded mb-4"
+          className="w-full p-2 border border-gray-200 dark:border-gray-600 rounded mb-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -444,8 +444,8 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       </div>
 
       {/* Join */}
-      <div className="bg-white p-6 rounded-xl shadow-md w-full">
-        <h2 className="text-xl font-semibold mb-4">{t('home.joinTitle')}</h2>
+      <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md w-full border border-gray-100 dark:border-gray-800">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">{t('home.joinTitle')}</h2>
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Hash size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden />
@@ -453,7 +453,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               type="text"
               placeholder={t('home.codePh')}
               aria-label={t('home.codePh')}
-              className="w-full pl-8 p-2 border rounded uppercase tracking-widest font-mono"
+              className="w-full pl-8 p-2 border border-gray-200 dark:border-gray-600 rounded uppercase tracking-widest font-mono bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
               onKeyDown={(e) => e.key === 'Enter' && !pendingPuzzle && handleJoin()}
@@ -519,20 +519,20 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       </div>
 
       {/* Footer */}
-      <footer className="mt-12 flex flex-col items-center gap-3 text-gray-400 text-xs">
+      <footer className="mt-12 flex flex-col items-center gap-3 text-gray-400 dark:text-gray-500 text-xs">
         <div className="flex items-center gap-2">
           <span className="text-gray-500">{t('home.langLabel')}</span>
           <button
             type="button"
             onClick={() => setLocale('fr')}
-            className={`px-2 py-1 rounded text-xs font-semibold border ${locale === 'fr' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white border-gray-200 text-gray-600'}`}
+            className={`px-2 py-1 rounded text-xs font-semibold border ${locale === 'fr' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300'}`}
           >
             {t('home.langFr')}
           </button>
           <button
             type="button"
             onClick={() => setLocale('en')}
-            className={`px-2 py-1 rounded text-xs font-semibold border ${locale === 'en' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white border-gray-200 text-gray-600'}`}
+            className={`px-2 py-1 rounded text-xs font-semibold border ${locale === 'en' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300'}`}
           >
             {t('home.langEn')}
           </button>
