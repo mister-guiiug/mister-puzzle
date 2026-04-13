@@ -3,7 +3,7 @@ import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus,
 import { differenceInMinutes } from 'date-fns';
 import { type PuzzleState, type Member, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, updateGridSize, deletePuzzle, joinMember, leaveMember, changePassword, updateVisibility, hashPassword, renamePuzzle } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
-import { getPseudo, setPseudo as savePseudo, getSessionId, isPseudoLocked, setPseudoLocked } from '../utils/pseudo';
+import { getPseudo, setPseudo as savePseudo, getSessionId, isPseudoLocked, setPseudoLocked, getInputMode, setInputModePreference } from '../utils/pseudo';
 
 interface DashboardProps {
   puzzle: PuzzleState;
@@ -12,7 +12,12 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
   const [newPieces, setNewPieces] = useState(puzzle.placedPieces);
-  const [inputMode, setInputMode] = useState<'placed' | 'remaining'>('placed');
+  const [inputMode, setInputMode] = useState<'placed' | 'remaining'>(getInputMode);
+
+  const handleSetInputMode = (mode: 'placed' | 'remaining') => {
+    setInputMode(mode);
+    setInputModePreference(mode);
+  };
   const [error, setError] = useState<string | null>(null);
   const [newCheckpointName, setNewCheckpointName] = useState('');
   const [showGridEditor, setShowGridEditor] = useState(false);
@@ -500,7 +505,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
               {/* Two-stat cards — click to switch mode */}
               <div className="grid grid-cols-2 gap-3 mb-5">
                 <button
-                  onClick={() => setInputMode('placed')}
+                  onClick={() => handleSetInputMode('placed')}
                   className={`rounded-xl p-4 text-left border-2 transition ${inputMode === 'placed' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-100 bg-gray-50 hover:border-indigo-200'}`}
                 >
                   <p className="text-xs font-bold uppercase tracking-wider text-indigo-500 mb-1">Placées</p>
@@ -508,7 +513,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
                   <p className="text-xs text-gray-400 mt-1">sur {puzzle.totalPieces.toLocaleString('fr-FR')}</p>
                 </button>
                 <button
-                  onClick={() => setInputMode('remaining')}
+                  onClick={() => handleSetInputMode('remaining')}
                   className={`rounded-xl p-4 text-left border-2 transition ${inputMode === 'remaining' ? 'border-orange-400 bg-orange-50' : 'border-gray-100 bg-gray-50 hover:border-orange-200'}`}
                 >
                   <p className="text-xs font-bold uppercase tracking-wider text-orange-500 mb-1">Restantes</p>

@@ -3,6 +3,7 @@ const PSEUDO_LOCKED_KEY = 'mister_puzzle_pseudo_locked';
 const GRID_LOCKED_KEY = 'mister_puzzle_grid_locked';
 const GRID_ROWS_KEY = 'mister_puzzle_grid_rows';
 const GRID_COLS_KEY = 'mister_puzzle_grid_cols';
+const INPUT_MODE_KEY = 'mister_puzzle_input_mode';
 const SESSION_KEY = 'mister_puzzle_session';
 
 export const getPseudo = (): string =>
@@ -36,6 +37,15 @@ export const getSavedGrid = (): { rows: number; cols: number } | null => {
 export const saveGrid = (rows: number, cols: number): void => {
   localStorage.setItem(GRID_ROWS_KEY, String(rows));
   localStorage.setItem(GRID_COLS_KEY, String(cols));
+};
+
+export const getInputMode = (): 'placed' | 'remaining' => {
+  const v = localStorage.getItem(INPUT_MODE_KEY);
+  return v === 'remaining' ? 'remaining' : 'placed';
+};
+
+export const setInputModePreference = (mode: 'placed' | 'remaining'): void => {
+  localStorage.setItem(INPUT_MODE_KEY, mode);
 };
 
 /** Unique per-browser-tab ID used for member presence tracking. */

@@ -566,7 +566,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
       <footer className="mt-12 flex flex-col items-center gap-3 text-gray-400 text-xs">
         <div className="flex items-center gap-4">
           <a
-            href="https://github.com/MisterGuiiuG/mister-puzzle"
+            href="https://github.com/mister-guiiug/mister-puzzle"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1 hover:text-gray-600 transition"
