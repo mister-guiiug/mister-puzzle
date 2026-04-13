@@ -24,6 +24,8 @@ import {
   GripVertical,
   MoreVertical,
   CircleHelp,
+  History,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
@@ -56,6 +58,8 @@ import { useI18n } from '../i18n/I18nContext';
 import { ProgressChart } from './ProgressChart';
 import { exportProgressPng } from '../utils/exportProgressCard';
 import { reportError } from '../utils/reportError';
+import { notifySaveSuccess } from '../utils/haptic';
+import { downloadHistoryCsv, downloadHistoryJson } from '../utils/exportHistory';
 
 const MEMBER_TTL_MS = 5 * 60 * 1000;
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
@@ -119,6 +123,29 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const [actionsOpen, setActionsOpen] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [liveProgressAnnounce, setLiveProgressAnnounce] = useState('');
+  const lastAnnouncedPlacedRef = useRef(puzzle.placedPieces);
+  const prevRoomForLiveRef = useRef(puzzle.id);
+
+  useEffect(() => {
+    if (prevRoomForLiveRef.current !== puzzle.id) {
+      prevRoomForLiveRef.current = puzzle.id;
+      lastAnnouncedPlacedRef.current = puzzle.placedPieces;
+      return;
+    }
+    if (lastAnnouncedPlacedRef.current === puzzle.placedPieces) return;
+    lastAnnouncedPlacedRef.current = puzzle.placedPieces;
+    const rem = puzzle.totalPieces - puzzle.placedPieces;
+    const pct = puzzle.totalPieces > 0 ? Math.round((puzzle.placedPieces / puzzle.totalPieces) * 100) : 0;
+    setLiveProgressAnnounce(
+      t('dashboard.liveProgressAnnounced')
+        .replace('{placed}', puzzle.placedPieces.toLocaleString(numberLocale))
+        .replace('{remaining}', rem.toLocaleString(numberLocale))
+        .replace('{pct}', String(pct)),
+    );
+    const tid = window.setTimeout(() => setLiveProgressAnnounce(''), 1600);
+    return () => window.clearTimeout(tid);
+  }, [puzzle.id, puzzle.placedPieces, puzzle.totalPieces, numberLocale, t]);
 
   useEffect(() => {
     setInputMode(getInputMode(pseudo));
@@ -179,6 +206,16 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     }
   };
 
+  /** deltaPlaced : +10 = dix pièces placées de plus (en mode « restantes », le compteur affiché diminue). */
+  const bumpPlacedBy = (deltaPlaced: number) => {
+    if (readOnly) return;
+    if (inputMode === 'placed') {
+      handleInputChange(displayedValue + deltaPlaced);
+    } else {
+      handleInputChange(displayedValue - deltaPlaced);
+    }
+  };
+
   const checkpointSuggestions = useMemo(() => {
     const pct = Math.round(progress);
     const pStr = puzzle.placedPieces.toLocaleString(numberLocale);
@@ -207,6 +244,16 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     t('dashboard.preset75'),
   ];
 
+  const activityLogDescending = useMemo(
+    () => [...puzzle.history].sort((a, b) => b.timestamp - a.timestamp).slice(0, 60),
+    [puzzle.history],
+  );
+
+  const historyExportBase = useMemo(
+    () => puzzle.name.replace(/[^a-zA-ZÀ-ÿ0-9\-_\s]/g, '').trim().slice(0, 48).replace(/\s+/g, '-') || puzzle.id,
+    [puzzle.name, puzzle.id],
+  );
+
   const handlePiecesUpdate = async () => {
     if (readOnly) return;
     if (newPieces < 0 || newPieces > puzzle.totalPieces) {
@@ -217,6 +264,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       await updatePieces(puzzle.id, newPieces, pseudo || undefined);
       isDirtyRef.current = false;
       setRemoteConflict(false);
+      notifySaveSuccess();
     } catch (err) {
       setError(t('dashboard.errorUpdatePieces'));
       reportError('handlePiecesUpdate', err, { puzzleId: puzzle.id });
@@ -358,16 +406,18 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}${window.location.pathname}#${puzzle.id}`;
-    const text = `${t('dashboard.shareText')} "${puzzle.name}" ${t('dashboard.shareOn')} ${puzzle.id}`;
+    const base = `${window.location.origin}${window.location.pathname}`;
+    const inviteUrl = `${base}?join=${encodeURIComponent(puzzle.id)}`;
+    const hashUrl = `${base}#${puzzle.id}`;
+    const text = `${t('dashboard.shareText')} "${puzzle.name}" ${t('dashboard.shareOn')} ${puzzle.id}\n${t('dashboard.shareInvite')}: ${inviteUrl}\n${t('dashboard.shareDirect')}: ${hashUrl}`;
     if (navigator.share) {
       try {
-        await navigator.share({ title: t('common.appName'), text, url });
+        await navigator.share({ title: t('common.appName'), text, url: inviteUrl });
       } catch {
         // user cancelled
       }
     } else {
-      await navigator.clipboard.writeText(`${text}\n${url}`);
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -479,6 +529,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   return (
     <div className="min-h-dvh bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 p-4 md:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
       <ErrorModal message={error} onClose={() => setError(null)} />
+
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {liveProgressAnnounce}
+      </p>
 
       <div className="max-w-4xl mx-auto">
         {readOnly && (
@@ -933,6 +987,25 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 ))}
               </div>
 
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <span className="text-xs text-gray-500 dark:text-gray-400">{t('dashboard.quickBump')}</span>
+                {([-10, -1, 1, 10] as const).map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => bumpPlacedBy(d)}
+                    disabled={readOnly}
+                    className={`rounded-lg border px-2.5 py-1 text-xs font-bold transition disabled:opacity-40 focus:outline-none focus-visible:ring-2 ${
+                      inputMode === 'placed'
+                        ? 'border-indigo-200 bg-white text-indigo-700 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-gray-900 dark:text-indigo-200 dark:hover:bg-indigo-950/50'
+                        : 'border-orange-200 bg-white text-orange-800 hover:bg-orange-100 dark:border-orange-800 dark:bg-gray-900 dark:text-orange-200 dark:hover:bg-orange-950/30'
+                    }`}
+                  >
+                    {d > 0 ? `+${d}` : `${d}`}
+                  </button>
+                ))}
+              </div>
+
               <div className={`flex items-center gap-3 p-4 rounded-2xl border-2 ${inputMode === 'placed' ? 'border-indigo-200 bg-indigo-50' : 'border-orange-200 bg-orange-50'}`}>
                 <button
                   type="button"
@@ -1047,6 +1120,59 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   {formatDistanceToNow(new Date(lastHistory.timestamp), { addSuffix: true, locale: dateLocale })}
                 </p>
               )}
+
+              <details className="mt-4 rounded-xl border border-gray-200 bg-white/60 p-3 dark:border-gray-700 dark:bg-gray-900/50">
+                <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-gray-800 marker:content-none dark:text-gray-100 [&::-webkit-details-marker]:hidden">
+                  <History size={16} className="shrink-0 text-indigo-500" aria-hidden />
+                  {t('dashboard.activityLogToggle')}
+                </summary>
+                {activityLogDescending.length === 0 ? (
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">{t('dashboard.activityLogEmpty')}</p>
+                ) : (
+                  <ul className="mt-2 max-h-52 space-y-1.5 overflow-y-auto overscroll-y-contain text-xs [-webkit-overflow-scrolling:touch]">
+                    {activityLogDescending.map((h, idx) => (
+                      <li
+                        key={`${h.timestamp}-${idx}`}
+                        className="flex items-start justify-between gap-2 border-b border-gray-100 pb-1.5 last:border-0 dark:border-gray-800"
+                      >
+                        <span className="text-gray-700 dark:text-gray-200">
+                          {h.placedPieces.toLocaleString(numberLocale)} {t('common.pieces')}
+                          {h.pseudo ? (
+                            <span className="text-gray-500 dark:text-gray-400">
+                              {' '}
+                              · {h.pseudo}
+                            </span>
+                          ) : null}
+                        </span>
+                        <time
+                          dateTime={new Date(h.timestamp).toISOString()}
+                          className="shrink-0 text-gray-400 dark:text-gray-500"
+                        >
+                          {formatDistanceToNow(new Date(h.timestamp), { addSuffix: true, locale: dateLocale })}
+                        </time>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => downloadHistoryCsv(puzzle.history, historyExportBase)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                  >
+                    <FileSpreadsheet size={14} aria-hidden />
+                    {t('dashboard.exportHistoryCsv')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => downloadHistoryJson(puzzle.history, historyExportBase)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                  >
+                    <Download size={14} aria-hidden />
+                    {t('dashboard.exportHistoryJson')}
+                  </button>
+                </div>
+              </details>
             </div>
 
             <div className="mt-4">

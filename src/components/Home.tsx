@@ -82,6 +82,30 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
     setHistory(getHistory());
   }, []);
 
+  /** Lien d'invitation ?join=CODE (ou room / code) : pré-remplit le champ rejoindre. */
+  useEffect(() => {
+    let params: URLSearchParams;
+    try {
+      params = new URLSearchParams(window.location.search);
+    } catch {
+      return;
+    }
+    const raw = (params.get('join') ?? params.get('room') ?? params.get('code'))?.trim();
+    if (!raw) return;
+    const code = raw.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (code.length < 3 || code.length > 20) return;
+    setRoomCode(code);
+    requestAnimationFrame(() => {
+      document.getElementById('home-join')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    try {
+      const path = window.location.pathname;
+      window.history.replaceState({}, '', path + (window.location.hash || ''));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const handleRowsChange = (val: number) => {
     if (gridLocked) return;
     setRows(val);
@@ -496,7 +520,10 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       </div>
 
       {/* Join */}
-      <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md w-full border border-gray-100 dark:border-gray-800">
+      <div
+        id="home-join"
+        className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md w-full border border-gray-100 dark:border-gray-800 scroll-mt-24"
+      >
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">{t('home.joinTitle')}</h2>
         <div className="flex gap-2">
           <div className="relative flex-1">
