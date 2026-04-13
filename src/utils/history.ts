@@ -7,6 +7,16 @@ export interface HistoryPuzzle {
 const HISTORY_KEY = 'mister_puzzle_history';
 const MAX_HISTORY = 3;
 
+export const getHistory = (): HistoryPuzzle[] => {
+  try {
+    const data = localStorage.getItem(HISTORY_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (err) {
+    console.error('Failed to get history', err);
+    return [];
+  }
+};
+
 export const saveToHistory = (code: string, name: string) => {
   try {
     const history = getHistory();
@@ -21,12 +31,13 @@ export const saveToHistory = (code: string, name: string) => {
   }
 };
 
-export const getHistory = (): HistoryPuzzle[] => {
+export const removeFromHistory = (code: string) => {
   try {
-    const data = localStorage.getItem(HISTORY_KEY);
-    return data ? JSON.parse(data) : [];
+    const history = getHistory();
+    const updated = history.filter(p => p.code !== code.toUpperCase());
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
   } catch (err) {
-    console.error('Failed to get history', err);
-    return [];
+    console.error('Failed to remove from history', err);
   }
 };
+

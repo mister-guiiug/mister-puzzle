@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ref, set, get, update, push, onValue, off } from 'firebase/database';
+import { ref, set, get, update, push, onValue, off, remove } from 'firebase/database';
 import { db } from '../firebase';
 
 export interface Checkpoint {
@@ -128,4 +128,8 @@ export const updateGridSize = async (roomCode: string, rows: number, cols: numbe
     cols,
     totalPieces: rows * cols,
   });
+};
+
+export const deletePuzzle = async (roomCode: string): Promise<void> => {
+  await remove(ref(db, `puzzles/${roomCode}`));
 };

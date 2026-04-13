@@ -3,7 +3,7 @@
     "puzzles": {
       "$roomCode": {
         ".read": true,
-        ".write": "!data.exists()",
+        ".write": "!data.exists() || newData.val() === null",
 
         "rows": {
           ".write": "data.parent().exists()",
