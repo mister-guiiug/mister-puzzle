@@ -1,5 +1,8 @@
 const PSEUDO_KEY = 'mister_puzzle_pseudo';
 const PSEUDO_LOCKED_KEY = 'mister_puzzle_pseudo_locked';
+const GRID_LOCKED_KEY = 'mister_puzzle_grid_locked';
+const GRID_ROWS_KEY = 'mister_puzzle_grid_rows';
+const GRID_COLS_KEY = 'mister_puzzle_grid_cols';
 const SESSION_KEY = 'mister_puzzle_session';
 
 export const getPseudo = (): string =>
@@ -14,6 +17,25 @@ export const isPseudoLocked = (): boolean =>
 
 export const setPseudoLocked = (locked: boolean): void => {
   localStorage.setItem(PSEUDO_LOCKED_KEY, locked ? 'true' : 'false');
+};
+
+export const isGridLocked = (): boolean =>
+  localStorage.getItem(GRID_LOCKED_KEY) === 'true';
+
+export const setGridLocked = (locked: boolean): void => {
+  localStorage.setItem(GRID_LOCKED_KEY, locked ? 'true' : 'false');
+};
+
+export const getSavedGrid = (): { rows: number; cols: number } | null => {
+  const r = parseInt(localStorage.getItem(GRID_ROWS_KEY) ?? '', 10);
+  const c = parseInt(localStorage.getItem(GRID_COLS_KEY) ?? '', 10);
+  if (isNaN(r) || isNaN(c)) return null;
+  return { rows: r, cols: c };
+};
+
+export const saveGrid = (rows: number, cols: number): void => {
+  localStorage.setItem(GRID_ROWS_KEY, String(rows));
+  localStorage.setItem(GRID_COLS_KEY, String(cols));
 };
 
 /** Unique per-browser-tab ID used for member presence tracking. */
