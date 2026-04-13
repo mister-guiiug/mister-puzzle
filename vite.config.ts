@@ -6,6 +6,9 @@ import { VitePWA } from 'vite-plugin-pwa';
 // https://vite.dev/config/
 export default defineConfig({
   base: '/mister-puzzle/',
+  build: {
+    sourcemap: true,
+  },
   plugins: [
     react(),
     tailwindcss(),
