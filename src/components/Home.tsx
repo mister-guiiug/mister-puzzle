@@ -84,13 +84,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
     try {
       const puzzle = await joinPuzzle(codeToJoin);
       if (!puzzle) {
-        // If the missing code came from history, offer to remove it
-        const fromHistory = history.find((h) => h.code === codeToJoin);
-        if (fromHistory) {
-          setDeletedCode(codeToJoin);
-        } else {
-          setError('Puzzle introuvable. Vérifiez le code.');
-        }
+        setDeletedCode(codeToJoin);
         return;
       }
       if (puzzle.passwordHash) {
@@ -155,37 +149,40 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
       <ErrorModal message={error} onClose={() => setError(null)} />
 
       {/* Deleted puzzle popup */}
-      {deletedCode && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Puzzle introuvable</h3>
-            <p className="text-sm text-gray-500 mb-1">
-              Le puzzle <span className="font-mono font-bold text-gray-700">{deletedCode}</span> n&apos;existe plus.
-            </p>
-            <p className="text-sm text-gray-500 mb-5">
-              Voulez-vous le retirer de vos puzzles récents ?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setDeletedCode(null)}
-                className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-100 transition"
-              >
-                Ignorer
-              </button>
-              <button
-                onClick={() => {
-                  removeFromHistory(deletedCode);
-                  setHistory(getHistory());
-                  setDeletedCode(null);
-                }}
-                className="px-4 py-2 rounded-xl text-sm font-bold bg-red-500 text-white hover:bg-red-600 transition"
-              >
-                Retirer de l&apos;historique
-              </button>
+      {deletedCode && (() => {
+        const inHistory = history.some((h) => h.code === deletedCode);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+              <h3 className="text-lg font-bold text-gray-800 mb-2">Puzzle introuvable</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Le puzzle <span className="font-mono font-bold text-gray-700">{deletedCode}</span> n&apos;existe pas ou a été supprimé.
+                {inHistory && <><br /><br />Il est présent dans vos puzzles récents. Voulez-vous le retirer ?</>}
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setDeletedCode(null)}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-100 transition"
+                >
+                  Fermer
+                </button>
+                {inHistory && (
+                  <button
+                    onClick={() => {
+                      removeFromHistory(deletedCode);
+                      setHistory(getHistory());
+                      setDeletedCode(null);
+                    }}
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-red-500 text-white hover:bg-red-600 transition"
+                  >
+                    Retirer de l&apos;historique
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Logo + title */}
       <img
