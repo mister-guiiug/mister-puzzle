@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2, Lock, Unlock, Globe, Eye, EyeOff, Settings, Pencil, Check, X as XIcon, Flag, RotateCw } from 'lucide-react';
-import { differenceInMinutes } from 'date-fns';
+import { Camera, CheckCircle, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2, Lock, Unlock, Globe, Eye, EyeOff, Settings, Pencil, Check, X as XIcon, Flag, RotateCw } from 'lucide-react';
 import { type PuzzleState, type Member, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, deletePhoto, rotatePhoto, updateGridSize, deletePuzzle, joinMember, leaveMember, changePassword, updateVisibility, hashPassword, renamePuzzle } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
 import { getPseudo, setPseudo as savePseudo, getSessionId, isPseudoLocked, setPseudoLocked, getInputMode, setInputModePreference } from '../utils/pseudo';
@@ -12,11 +11,11 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
   const [newPieces, setNewPieces] = useState(puzzle.placedPieces);
-  const [inputMode, setInputMode] = useState<'placed' | 'remaining'>(getInputMode);
+  const [inputMode, setInputMode] = useState<'placed' | 'remaining'>(() => getInputMode(getPseudo()));
 
   const handleSetInputMode = (mode: 'placed' | 'remaining') => {
     setInputMode(mode);
-    setInputModePreference(mode);
+    setInputModePreference(pseudo, mode);
   };
   const [error, setError] = useState<string | null>(null);
   const [newCheckpointName, setNewCheckpointName] = useState('');
@@ -32,7 +31,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
   const [pseudoLocked, setPseudoLockedState] = useState(isPseudoLocked);
 
   const handleTogglePseudoLock = () => {
-    if (!pseudoLocked) savePseudo(pseudo);
+    if (!pseudoLocked) {
+      savePseudo(pseudo);
+      setInputMode(getInputMode(pseudo));
+    }
     const next = !pseudoLocked;
     setPseudoLocked(next);
     setPseudoLockedState(next);
@@ -79,28 +81,6 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
     `${puzzle.placedPieces.toLocaleString('fr-FR')} pièces placées`,
     `${remainingPieces.toLocaleString('fr-FR')} pièces restantes`,
   ];
-
-  const calculateEstimates = () => {
-    if (puzzle.history.length < 2) return null;
-    const first = puzzle.history[0];
-    const last = puzzle.history[puzzle.history.length - 1];
-    const minutesElapsed = differenceInMinutes(last.timestamp, first.timestamp);
-    const piecesPlaced = last.placedPieces - first.placedPieces;
-    if (piecesPlaced <= 0 || minutesElapsed <= 0) return null;
-    const piecesPerMinute = piecesPlaced / minutesElapsed;
-    const formatTime = (mins: number) => {
-      const h = Math.floor(mins / 60);
-      const m = Math.round(mins % 60);
-      return `${h}h ${m}m`;
-    };
-    return {
-      optimistic: formatTime(remainingPieces / (piecesPerMinute * 1.2)),
-      realistic: formatTime(remainingPieces / piecesPerMinute),
-      pessimistic: formatTime(remainingPieces / (piecesPerMinute * 0.8)),
-    };
-  };
-
-  const estimates = calculateEstimates();
 
   const handlePiecesUpdate = async () => {
     if (newPieces < 0 || newPieces > puzzle.totalPieces) {
@@ -317,7 +297,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
                   type="text"
                   value={pseudo}
                   onChange={(e) => !pseudoLocked && setPseudoState(e.target.value)}
-                  onBlur={() => !pseudoLocked && savePseudo(pseudo)}
+                  onBlur={() => {
+                    if (!pseudoLocked) {
+                      savePseudo(pseudo);
+                      setInputMode(getInputMode(pseudo));
+                    }
+                  }}
                   readOnly={pseudoLocked}
                   className={`text-xs font-medium bg-transparent border-b outline-none transition w-28 ${pseudoLocked ? 'text-gray-400 border-transparent cursor-not-allowed' : 'text-gray-600 border-dashed border-gray-300 focus:border-indigo-400'}`}
                   placeholder="Votre pseudo"
@@ -476,9 +461,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 gap-6 mb-8">
           {/* Progression */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 col-span-2">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <h2 className="text-xl font-semibold mb-4">Progression</h2>
             <div className="flex mb-2 items-center justify-between">
               <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-indigo-600 bg-indigo-50">
@@ -693,34 +678,6 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Estimates */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <Clock className="mr-2" size={20} /> Estimation
-            </h2>
-            {estimates ? (
-              <div className="space-y-4">
-                <div className="bg-green-50 p-3 rounded-xl border border-green-100">
-                  <p className="text-[10px] uppercase font-bold text-green-600">Optimiste</p>
-                  <p className="text-xl font-bold text-green-700">{estimates.optimistic}</p>
-                </div>
-                <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
-                  <p className="text-[10px] uppercase font-bold text-indigo-600">Réaliste</p>
-                  <p className="text-xl font-bold text-indigo-700">{estimates.realistic}</p>
-                </div>
-                <div className="bg-red-50 p-3 rounded-xl border border-red-100">
-                  <p className="text-[10px] uppercase font-bold text-red-600">Pessimiste</p>
-                  <p className="text-xl font-bold text-red-700">{estimates.pessimistic}</p>
-                </div>
-              </div>
-            ) : (
-              <div className="h-full flex flex-col justify-center items-center text-center py-4">
-                <Clock className="text-gray-200 mb-2" size={40} />
-                <p className="text-gray-400 text-sm">Continuez à avancer pour obtenir une estimation...</p>
-              </div>
-            )}
           </div>
         </div>
 
