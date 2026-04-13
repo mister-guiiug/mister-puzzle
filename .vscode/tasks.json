@@ -15,10 +15,13 @@
     {
       "label": "Start: Client Dev",
       "type": "shell",
-      "command": "npm",
-      "args": ["run", "dev"],
+      "command": "npm run dev",
       "options": {
-        "cwd": "${workspaceFolder}/puzzle-tracker/client"
+        "cwd": "${workspaceFolder}/puzzle-tracker/client",
+        "shell": {
+          "executable": "cmd.exe",
+          "args": ["/d", "/c"]
+        }
       },
       "isBackground": true,
       "problemMatcher": {
