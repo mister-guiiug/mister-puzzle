@@ -45,6 +45,7 @@ import {
   hashPassword,
   renamePuzzle,
   uncheckAllCheckpoints,
+  deleteCheckpoint,
   reorderPhotos,
   updatePhoto,
 } from '../hooks/useSocket';
@@ -259,6 +260,17 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       );
     } catch (err) {
       setError(t('dashboard.errorCheckpoint'));
+      console.error(err);
+    }
+  };
+
+  const handleDeleteCheckpoint = async (checkpointId: string) => {
+    if (readOnly) return;
+    try {
+      await deleteCheckpoint(puzzle.id, checkpointId);
+    } catch (err) {
+      setError(t('dashboard.errorCheckpointDelete'));
+      reportError('handleDeleteCheckpoint', err, { puzzleId: puzzle.id, checkpointId });
       console.error(err);
     }
   };
@@ -1052,30 +1064,30 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 {showGridEditor ? t('dashboard.gridCancel') : t('dashboard.adjustGrid')}
               </button>
               {showGridEditor && (
-                <div className="mt-3 flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200 flex-wrap">
-                  <div className="flex-1 min-w-[100px]">
-                    <label className="block text-xs text-gray-500 mb-1">{t('home.rows')}</label>
+                <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-gray-600 dark:bg-gray-800/60">
+                  <div className="min-w-[100px] flex-1">
+                    <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">{t('home.rows')}</label>
                     <input
                       type="number"
                       min={1}
                       value={gridRows}
                       onChange={(e) => setGridRows(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                      className="w-full p-2 border rounded-lg text-center font-bold text-sm focus:ring-2 focus:ring-indigo-400 outline-none"
+                      className="w-full rounded-lg border border-gray-200 bg-white p-2 text-center text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-indigo-400 dark:border-gray-600 dark:bg-gray-950 dark:text-gray-100 dark:focus:ring-indigo-500 [color-scheme:light] dark:[color-scheme:dark]"
                     />
                   </div>
-                  <span className="text-gray-400 text-xl mt-4">×</span>
-                  <div className="flex-1 min-w-[100px]">
-                    <label className="block text-xs text-gray-500 mb-1">{t('home.cols')}</label>
+                  <span className="mt-4 text-xl text-gray-400 dark:text-gray-500">×</span>
+                  <div className="min-w-[100px] flex-1">
+                    <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">{t('home.cols')}</label>
                     <input
                       type="number"
                       min={1}
                       value={gridCols}
                       onChange={(e) => setGridCols(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                      className="w-full p-2 border rounded-lg text-center font-bold text-sm focus:ring-2 focus:ring-indigo-400 outline-none"
+                      className="w-full rounded-lg border border-gray-200 bg-white p-2 text-center text-sm font-bold text-gray-900 outline-none focus:ring-2 focus:ring-indigo-400 dark:border-gray-600 dark:bg-gray-950 dark:text-gray-100 dark:focus:ring-indigo-500 [color-scheme:light] dark:[color-scheme:dark]"
                     />
                   </div>
-                  <div className="flex-1 mt-4 min-w-[80px]">
-                    <div className="text-center text-sm font-bold text-indigo-700 bg-indigo-50 p-2 rounded-lg">
+                  <div className="mt-4 min-w-[80px] flex-1">
+                    <div className="rounded-lg bg-indigo-50 p-2 text-center text-sm font-bold text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-200">
                       = {(gridRows * gridCols).toLocaleString(numberLocale)}
                     </div>
                   </div>
@@ -1191,30 +1203,48 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 {puzzle.checkpoints.map((cp) => (
                   <div
                     key={cp.id}
-                    role="button"
-                    tabIndex={readOnly ? -1 : 0}
-                    className={`flex items-center p-3 rounded-xl border transition ${readOnly ? 'cursor-default' : 'cursor-pointer'} ${cp.completed ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-600'}`}
-                    onClick={() => !readOnly && toggleCheckpoint(puzzle.id, cp.id, cp.completed)}
-                    onKeyDown={(e) => {
-                      if (!readOnly && (e.key === 'Enter' || e.key === ' ')) {
-                        e.preventDefault();
-                        toggleCheckpoint(puzzle.id, cp.id, cp.completed);
-                      }
-                    }}
+                    className={`flex items-stretch gap-1 rounded-xl border transition ${cp.completed ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800' : 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700'}`}
                   >
                     <div
-                      className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center transition-colors shrink-0 ${cp.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-900'}`}
+                      role="button"
+                      tabIndex={readOnly ? -1 : 0}
+                      className={`flex min-w-0 flex-1 cursor-pointer items-center p-3 rounded-l-xl transition ${!readOnly && !cp.completed ? 'hover:border-indigo-200 dark:hover:border-indigo-600' : ''} ${readOnly ? 'cursor-default' : ''}`}
+                      onClick={() => !readOnly && toggleCheckpoint(puzzle.id, cp.id, cp.completed)}
+                      onKeyDown={(e) => {
+                        if (!readOnly && (e.key === 'Enter' || e.key === ' ')) {
+                          e.preventDefault();
+                          toggleCheckpoint(puzzle.id, cp.id, cp.completed);
+                        }
+                      }}
                     >
-                      {cp.completed && <CheckCircle size={14} aria-hidden />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <span
-                        className={`font-medium text-sm break-words ${cp.completed ? 'text-green-800 dark:text-green-200 line-through' : 'text-gray-700 dark:text-gray-200'}`}
+                      <div
+                        className={`mr-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${cp.completed ? 'border-green-500 bg-green-500 text-white' : 'border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-900'}`}
                       >
-                        {cp.name}
-                      </span>
-                      {cp.createdBy && <p className="text-xs text-gray-400 dark:text-gray-500">{cp.createdBy}</p>}
+                        {cp.completed && <CheckCircle size={14} aria-hidden />}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span
+                          className={`break-words text-sm font-medium ${cp.completed ? 'text-green-800 line-through dark:text-green-200' : 'text-gray-700 dark:text-gray-200'}`}
+                        >
+                          {cp.name}
+                        </span>
+                        {cp.createdBy && <p className="text-xs text-gray-400 dark:text-gray-500">{cp.createdBy}</p>}
+                      </div>
                     </div>
+                    {!readOnly && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void handleDeleteCheckpoint(cp.id);
+                        }}
+                        className="flex shrink-0 items-center justify-center rounded-r-xl border-l border-gray-200/80 px-3 text-gray-400 transition hover:bg-red-50 hover:text-red-600 dark:border-gray-600/80 dark:hover:bg-red-950/40 dark:hover:text-red-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-400"
+                        title={t('dashboard.deleteCheckpoint')}
+                        aria-label={t('dashboard.deleteCheckpoint')}
+                      >
+                        <Trash2 size={18} aria-hidden />
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>

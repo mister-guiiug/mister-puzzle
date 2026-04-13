@@ -50,6 +50,7 @@
         "checkpoints": {
           "$checkpointId": {
             ".write": "data.parent().parent().exists()",
+            ".validate": "!newData.exists() || (newData.hasChildren(['id', 'name', 'completed']) && newData.child('id').isString() && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length < 100 && newData.child('completed').isBoolean())",
             "completed": {
               ".validate": "newData.isBoolean()"
             },
