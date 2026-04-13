@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2, Lock, Unlock, Globe, Eye, EyeOff, Settings, Pencil, Check, X as XIcon } from 'lucide-react';
+import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2, Lock, Unlock, Globe, Eye, EyeOff, Settings, Pencil, Check, X as XIcon, Flag } from 'lucide-react';
 import { differenceInMinutes } from 'date-fns';
 import { type PuzzleState, type Member, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, updateGridSize, deletePuzzle, joinMember, leaveMember, changePassword, updateVisibility, hashPassword, renamePuzzle } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
@@ -41,6 +41,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
   const [pwMessage, setPwMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
 
   const [step, setStep] = useState(1);
+  const [flagConfirm, setFlagConfirm] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(puzzle.name);
 
@@ -573,14 +574,53 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
                 </button>
               </div>
 
-              {/* Save button */}
-              <button
-                onClick={handlePiecesUpdate}
-                disabled={newPieces === puzzle.placedPieces}
-                className="mt-3 w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Enregistrer
-              </button>
+              {/* Save + Flag buttons */}
+              <div className="mt-3 flex gap-2">
+                <button
+                  onClick={handlePiecesUpdate}
+                  disabled={newPieces === puzzle.placedPieces}
+                  className="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Enregistrer
+                </button>
+                <button
+                  onClick={() => setFlagConfirm(true)}
+                  title="Marquer un checkpoint à l'étape actuelle"
+                  className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 px-4 rounded-xl transition shadow-sm font-bold"
+                >
+                  <Flag size={20} />
+                </button>
+              </div>
+
+              {/* Flag confirmation */}
+              {flagConfirm && (
+                <div className="mt-3 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                  <p className="text-sm font-semibold text-yellow-800 mb-1 flex items-center gap-2">
+                    <Flag size={14} /> Poser un checkpoint ici ?
+                  </p>
+                  <p className="text-xs text-yellow-700 mb-3">
+                    Un checkpoint sera créé avec l'étape actuelle ({puzzle.placedPieces.toLocaleString('fr-FR')} pièces placées, {Math.round(progress)}% terminé).
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={async () => {
+                        const name = `🚩 ${Math.round(progress)}% — ${puzzle.placedPieces.toLocaleString('fr-FR')} pièces`;
+                        await addCheckpoint(puzzle.id, name, pseudo || undefined);
+                        setFlagConfirm(false);
+                      }}
+                      className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 py-2 rounded-lg text-sm font-bold transition"
+                    >
+                      Confirmer
+                    </button>
+                    <button
+                      onClick={() => setFlagConfirm(false)}
+                      className="px-4 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:bg-gray-100 transition"
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              )}
               {puzzle.history.length > 0 && (() => {
                 const last = puzzle.history[puzzle.history.length - 1];
                 const date = new Date(last.timestamp);
