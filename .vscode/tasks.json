@@ -7,7 +7,7 @@
       "command": "tsc",
       "args": ["--project", "tsconfig.json"],
       "options": {
-        "cwd": "${workspaceFolder}/puzzle-tracker/server"
+        "cwd": "${workspaceFolder}/server"
       },
       "group": "build",
       "problemMatcher": "$tsc"
@@ -17,7 +17,7 @@
       "type": "shell",
       "command": "npm run dev",
       "options": {
-        "cwd": "${workspaceFolder}/puzzle-tracker/client",
+        "cwd": "${workspaceFolder}",
         "shell": {
           "executable": "cmd.exe",
           "args": ["/d", "/c"]
