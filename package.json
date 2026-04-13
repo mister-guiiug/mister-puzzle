@@ -1,6 +1,6 @@
 {
   "name": "mister-puzzle",
-  "description": "Suivi collaboratif de vos puzzles en temps réel — partagez un code, placez des pièces ensemble, estimez le temps restant.",
+  "description": "Suivi collaboratif de puzzles en temps réel — progression, photos, checkpoints, export, FR/EN.",
   "private": true,
   "version": "1.0.0",
   "type": "module",
