@@ -1,40 +1,47 @@
-# Puzzle Tracker PWA
+# 🧩 Mister Puzzle
 
-Application collaborative pour gérer l'avancement d'un puzzle de A à Z.
+Application web progressive (PWA) collaborative pour suivre l'avancement de vos puzzles en temps réel.
 
-## Fonctionnalités
+## ✨ Fonctionnalités
 
-- **Suivi des pièces** : Décompte en temps réel du nombre de pièces restantes.
-- **Checkpoints** : Marquez les étapes clés (contour fini, 50%, etc.).
-- **Collaboration** : Partagez un code unique pour synchroniser l'état entre plusieurs téléphones.
-- **Photos** : Prenez des photos de l'avancement pour visualiser vos progrès.
-- **Estimations** : Calcul automatique du temps restant selon trois scénarios (optimiste, réaliste, pessimiste).
-- **PWA** : Installable sur mobile pour une expérience fluide.
+- **👥 Collaboration en temps réel** : Synchronisation instantanée entre plusieurs appareils grâce à Firebase.
+- **📊 Suivi de progression** : Visualisation claire du nombre de pièces posées et du pourcentage de complétion.
+- **⏱️ Estimations intelligentes** : Calcul automatique du temps restant (scénarios optimiste, réaliste et pessimiste) basé sur votre rythme actuel.
+- **📸 Galerie photo** : Capturez et conservez des photos de l'évolution de votre puzzle.
+- **✅ Checkpoints** : Marquez les étapes clés (contour, 50%, 75%).
+- **📱 PWA** : Installable sur votre écran d'accueil pour une expérience fluide comme une application native.
+- **🔔 Mises à jour** : Système de notification interne pour vous proposer les dernières versions de l'application.
 
-## Installation & Déploiement
+## 🚀 Technologies
 
-### Backend (Serveur)
+- **Frontend** : [React 19](https://react.dev/), [Vite](https://vitejs.dev/)
+- **Style** : [Tailwind CSS v4](https://tailwindcss.com/)
+- **Base de données** : [Firebase Realtime Database](https://firebase.google.com/docs/database)
+- **Icônes** : [Lucide React](https://lucide.dev/)
+- **Animations** : [Framer Motion](https://www.framer.com/motion/)
 
-Le serveur gère la synchronisation en temps réel et la persistance des données.
+## 🛠️ Installation
 
-1. Allez dans le dossier `server`.
-2. Installez les dépendances : `npm install`.
-3. Lancez le serveur : `npm run start` (ou `node dist/index.js`).
+1. Clonez le dépôt.
+2. Installez les dépendances :
+   ```bash
+   npm install
+   ```
+3. Configurez vos variables d'environnement. Créez un fichier `.env.local` en vous basant sur `.env.example` et ajoutez vos clés Firebase.
+4. Lancez le serveur de développement :
+   ```bash
+   npm run dev
+   ```
 
-Note : Pour un usage public, déployez ce serveur sur une plateforme comme Heroku, Render ou Railway.
+## 📦 Déploiement
 
-### Frontend (Client)
+L'application est configurée pour un déploiement automatique sur **GitHub Pages** via GitHub Actions lors d'un push sur la branche `main`.
 
-L'application client est configurée pour être déployée sur GitHub Pages.
+Le chemin de base est configuré sur `/mister-puzzle/`.
 
-1. Allez dans le dossier `client`.
-2. Installez les dépendances : `npm install`.
-3. Créez un fichier `.env` et ajoutez l'URL de votre serveur : `VITE_SOCKET_URL=https://votre-serveur.com`.
-4. Construisez l'application : `npm run build`.
-5. Déployez le contenu du dossier `dist` sur GitHub Pages.
+## 🔒 Sécurité (Firebase)
 
-## Tech Stack
+Les règles de sécurité de la base de données sont définies dans `database.rules.json` et sont automatiquement déployées via l'Action GitHub.
 
-- **Frontend** : React, Tailwind CSS, Lucide React, Socket.io-client.
-- **Backend** : Node.js, Express, Socket.io.
-- **PWA** : Vite PWA Plugin.
+---
+Développé avec ❤️ pour les passionnés de puzzles.
