@@ -75,7 +75,7 @@
         "photos": {
           "$photoId": {
             ".write": "data.parent().parent().exists()",
-            ".validate": "newData.isString() && newData.val().length < 2000000"
+            ".validate": "!newData.exists() || (newData.hasChildren(['data', 'rotation']) && newData.child('data').isString() && newData.child('data').val().length < 2000000 && newData.child('rotation').isNumber())"
           }
         },
 
