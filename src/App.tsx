@@ -87,11 +87,11 @@ function App() {
       />
       <main
         id="contenu-principal"
-        className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100"
+        className="min-h-screen bg-canvas text-fg"
       >
         {!online && (
           <div
-            className="bg-amber-50 border-b border-amber-200 text-amber-950 text-sm px-4 py-3 text-center dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-100"
+            className="bg-warning-soft border-b border-warning-border text-warning-fg text-sm px-4 py-3 text-center"
             role="alert"
           >
             <strong className="font-semibold">{t('app.offlineTitle')}</strong> — {t('app.offlineDetail')}
@@ -100,22 +100,22 @@ function App() {
         {roomCode ? (
           loading ? (
             <div className="flex items-center justify-center min-h-[50vh]">
-              <p className="text-gray-400 dark:text-gray-500 text-lg animate-pulse">{t('app.loading')}</p>
+              <p className="text-fg-faint text-lg animate-pulse">{t('app.loading')}</p>
             </div>
           ) : loadError ? (
             <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4 max-w-md mx-auto text-center">
-              <p className="text-gray-700 dark:text-gray-300">{t('app.loadError')}</p>
+              <p className="text-fg-muted">{t('app.loadError')}</p>
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="bg-primary-fill text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-fill-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
               >
                 {t('app.retryLoad')}
               </button>
               <button
                 type="button"
                 onClick={handleBack}
-                className="text-indigo-600 dark:text-indigo-400 underline text-sm focus:outline-none focus-visible:ring-2 rounded"
+                className="text-primary underline text-sm focus:outline-none focus-visible:ring-2 rounded"
               >
                 {t('app.backHome')}
               </button>
@@ -129,17 +129,17 @@ function App() {
             />
           ) : (
             <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4 max-w-md mx-auto text-center">
-              <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">{t('app.notFound')}</p>
+              <p className="text-lg font-semibold text-fg-heading">{t('app.notFound')}</p>
               {roomCode && (
-                <p className="text-sm font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-lg">
+                <p className="text-sm font-mono text-fg-muted bg-surface-muted px-3 py-1 rounded-lg">
                   {roomCode}
                 </p>
               )}
-              <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{t('app.notFoundDetail')}</p>
+              <p className="text-fg-muted text-sm leading-relaxed">{t('app.notFoundDetail')}</p>
               <button
                 type="button"
                 onClick={handleBack}
-                className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="bg-primary-fill text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-primary-fill-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
               >
                 {t('app.backHome')}
               </button>

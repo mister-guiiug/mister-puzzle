@@ -11,28 +11,28 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ message, onClose }) => {
   return (
     <AnimatePresence>
       {message && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-overlay-strong backdrop-blur-sm">
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-gray-100 dark:border-gray-800"
+            className="bg-surface rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-divide"
           >
             <div className="p-6">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 dark:bg-red-950/50 rounded-full text-red-600 dark:text-red-400">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-danger-icon-bg rounded-full text-danger-icon-text">
                 <AlertCircle size={24} />
               </div>
-              <h3 className="text-lg font-bold text-center text-gray-900 dark:text-gray-100 mb-2">
+              <h3 className="text-lg font-bold text-center text-fg mb-2">
                 Oups ! Une erreur est survenue
               </h3>
-              <p className="text-sm text-center text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-center text-fg-muted">
                 {message}
               </p>
             </div>
-            <div className="p-4 bg-gray-50 dark:bg-gray-800/80 border-t border-gray-100 dark:border-gray-800">
+            <div className="p-4 bg-surface-muted/90 border-t border-divide">
               <button
                 onClick={onClose}
-                className="w-full flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                className="w-full flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-danger-fill rounded-xl hover:bg-danger-fill-hover transition-colors focus:outline-none focus:ring-2 focus:ring-danger-ring focus:ring-offset-2"
               >
                 J'ai compris
               </button>

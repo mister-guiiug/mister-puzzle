@@ -38,7 +38,7 @@ export const ProgressChart: FC<ProgressChartProps> = ({
 
   if (sorted.length < 2) {
     return (
-      <p className="text-xs text-gray-400 dark:text-gray-500 mb-2" role="status">
+      <p className="text-xs text-fg-faint mb-2" role="status">
         {emptyHint}
       </p>
     );
@@ -78,14 +78,14 @@ export const ProgressChart: FC<ProgressChartProps> = ({
     metric === 'placed' ? `${first.x},${y0 + ph} ${linePoints} ${last.x},${y0 + ph}` : null;
 
   const strokeClass =
-    metric === 'placed' ? 'text-indigo-500 dark:text-indigo-400' : 'text-orange-600 dark:text-orange-400';
-  const gridClass = 'text-gray-200 dark:text-gray-700';
+    metric === 'placed' ? 'text-primary-muted' : 'text-warm-muted';
+  const gridClass = 'text-divide-strong';
 
   const tableRows = sortedFull.slice(-12).reverse();
 
   return (
     <div className="mb-4">
-      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">{label}</p>
+      <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider mb-2">{label}</p>
 
       <div className="sr-only">
         <table>
@@ -134,17 +134,17 @@ export const ProgressChart: FC<ProgressChartProps> = ({
                 stroke="currentColor"
                 strokeWidth={0.75}
               />
-              <text x={4} y={gy + 3} className="fill-gray-500 dark:fill-gray-400 text-[9px]" fontSize="9">
+              <text x={4} y={gy + 3} className="fill-fg-muted text-[9px]" fontSize="9">
                 {fmtNum(tv)}
               </text>
             </g>
           );
         })}
 
-        <text x={x0} y={h - 4} className="fill-gray-500 dark:fill-gray-400 text-[9px]" fontSize="9">
+        <text x={x0} y={h - 4} className="fill-fg-muted text-[9px]" fontSize="9">
           {fmtTime(minT)}
         </text>
-        <text x={x0 + pw} y={h - 4} textAnchor="end" className="fill-gray-500 dark:fill-gray-400 text-[9px]" fontSize="9">
+        <text x={x0 + pw} y={h - 4} textAnchor="end" className="fill-fg-muted text-[9px]" fontSize="9">
           {fmtTime(maxT)}
         </text>
 
@@ -157,7 +157,7 @@ export const ProgressChart: FC<ProgressChartProps> = ({
             y1={y0 + ph}
             x2={x0 + pw}
             y2={y0 + ph}
-            className="text-orange-200"
+            className="text-warm-axis"
             stroke="currentColor"
             strokeWidth={1}
             strokeDasharray="4 4"

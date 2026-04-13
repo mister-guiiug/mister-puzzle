@@ -193,7 +193,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   };
 
   return (
-    <div className="min-h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px))] bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 flex flex-col items-center py-6 sm:py-8 px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+    <div className="min-h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px))] bg-canvas text-fg flex flex-col items-center py-6 sm:py-8 px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
       <ErrorModal message={error} onClose={() => setError(null)} />
 
       {/* Deleted puzzle popup */}
@@ -201,17 +201,17 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         const inHistory = history.some((h) => h.code === deletedCode);
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 w-full max-w-sm border border-gray-100 dark:border-gray-800">
-              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">{t('home.deletedTitle')}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                <span className="font-mono font-bold text-gray-700 dark:text-gray-200">{deletedCode}</span> {t('home.deletedBody')}
+            <div className="bg-surface rounded-2xl shadow-xl p-6 w-full max-w-sm border border-divide">
+              <h3 className="text-lg font-bold text-fg-heading mb-2">{t('home.deletedTitle')}</h3>
+              <p className="text-sm text-fg-muted mb-4">
+                <span className="font-mono font-bold text-fg">{deletedCode}</span> {t('home.deletedBody')}
                 {inHistory && <><br /><br />{t('home.deletedHistory')}</>}
               </p>
               <div className="flex gap-3 justify-end">
                 <button
                   type="button"
                   onClick={() => setDeletedCode(null)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition"
+                  className="px-4 py-2 rounded-xl text-sm font-semibold text-fg-muted hover:bg-surface-muted dark:text-fg-muted dark:hover:bg-surface-muted transition"
                 >
                   {t('home.close')}
                 </button>
@@ -223,7 +223,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                       setHistory(getHistory());
                       setDeletedCode(null);
                     }}
-                    className="px-4 py-2 rounded-xl text-sm font-bold bg-red-500 text-white hover:bg-red-600 transition"
+                    className="px-4 py-2 rounded-xl text-sm font-bold bg-danger-fill text-white hover:bg-danger-fill-hover transition"
                   >
                     {t('home.removeFromHistoryBtn')}
                   </button>
@@ -245,10 +245,10 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             className="h-24 w-24 shrink-0 drop-shadow-lg transition-transform duration-300 hover:scale-[1.03] sm:h-28 sm:w-28"
           />
           <div className="flex max-w-md flex-col items-center text-center sm:items-start sm:text-left">
-            <h1 className="bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 bg-clip-text text-3xl font-bold tracking-tight text-transparent dark:from-indigo-400 dark:via-violet-400 dark:to-indigo-400 sm:text-4xl">
+            <h1 className="bg-gradient-to-r from-brand-from via-brand-via to-brand-to bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
               {t('common.appName')}
             </h1>
-            <p className="mt-2 text-sm font-medium leading-relaxed text-gray-600 dark:text-gray-400 sm:text-base">
+            <p className="mt-2 text-sm font-medium leading-relaxed text-fg-muted sm:text-base">
               {t('home.tagline')}
             </p>
           </div>
@@ -260,74 +260,74 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         aria-label={t('home.tourTitle')}
       >
         {!showTour ? (
-          <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/90 px-4 py-3 text-center shadow-sm">
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{t('home.tourDismissedHint')}</p>
+          <div className="rounded-2xl border border-border-ui-strong bg-surface/80 px-4 py-3 text-center shadow-sm">
+            <p className="text-sm text-fg-muted mb-2">{t('home.tourDismissedHint')}</p>
             <button
               type="button"
               onClick={restoreTour}
-              className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
+              className="text-sm font-semibold text-primary hover:text-primary-strong underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring rounded"
             >
               {t('home.tourShowAgain')}
             </button>
           </div>
         ) : (
-          <div className="rounded-2xl border border-indigo-100 dark:border-indigo-900/60 bg-gradient-to-b from-white to-indigo-50/40 dark:from-gray-900 dark:to-indigo-950/30 shadow-md overflow-hidden">
+          <div className="rounded-2xl border border-primary-border-muted bg-gradient-to-b from-surface to-primary-soft/50 dark:from-surface dark:to-primary-soft/35 shadow-md overflow-hidden">
             <div className="px-4 pt-4 pb-2 sm:px-6 sm:pt-5">
-              <p className="text-sm text-gray-600 dark:text-gray-400 text-center">{t('home.tourIntro')}</p>
-              <h2 className="text-center text-lg font-bold text-gray-900 dark:text-gray-100 mt-2 mb-4">{t('home.tourTitle')}</h2>
+              <p className="text-sm text-fg-muted text-center">{t('home.tourIntro')}</p>
+              <h2 className="text-center text-lg font-bold text-fg mt-2 mb-4">{t('home.tourTitle')}</h2>
             </div>
-            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-0 sm:gap-0 divide-y sm:divide-y-0 sm:divide-x divide-indigo-100 dark:divide-gray-700 list-none m-0 p-0">
+            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-0 sm:gap-0 divide-y sm:divide-y-0 sm:divide-x divide-primary-border-muted dark:divide-border-ui-strong list-none m-0 p-0">
               <li className="flex gap-3 p-4 sm:p-5">
                 <span
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white text-sm font-black"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-fill text-white text-sm font-black"
                   aria-hidden
                 >
                   1
                 </span>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <Menu size={18} className="text-indigo-600 dark:text-indigo-400 shrink-0" aria-hidden />
+                  <p className="font-semibold text-fg flex items-center gap-2">
+                    <Menu size={18} className="text-primary shrink-0" aria-hidden />
                     {t('home.tourStep1Title')}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-snug">{t('home.tourStep1Body')}</p>
+                  <p className="text-sm text-fg-muted mt-1 leading-snug">{t('home.tourStep1Body')}</p>
                 </div>
               </li>
               <li className="flex gap-3 p-4 sm:p-5">
                 <span
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white text-sm font-black"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-fill text-white text-sm font-black"
                   aria-hidden
                 >
                   2
                 </span>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <User size={18} className="text-indigo-600 dark:text-indigo-400 shrink-0" aria-hidden />
+                  <p className="font-semibold text-fg flex items-center gap-2">
+                    <User size={18} className="text-primary shrink-0" aria-hidden />
                     {t('home.tourStep2Title')}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-snug">{t('home.tourStep2Body')}</p>
+                  <p className="text-sm text-fg-muted mt-1 leading-snug">{t('home.tourStep2Body')}</p>
                 </div>
               </li>
               <li className="flex gap-3 p-4 sm:p-5">
                 <span
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white text-sm font-black"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-fill text-white text-sm font-black"
                   aria-hidden
                 >
                   3
                 </span>
                 <div className="min-w-0">
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <LayoutTemplate size={18} className="text-indigo-600 dark:text-indigo-400 shrink-0" aria-hidden />
+                  <p className="font-semibold text-fg flex items-center gap-2">
+                    <LayoutTemplate size={18} className="text-primary shrink-0" aria-hidden />
                     {t('home.tourStep3Title')}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-snug">{t('home.tourStep3Body')}</p>
+                  <p className="text-sm text-fg-muted mt-1 leading-snug">{t('home.tourStep3Body')}</p>
                 </div>
               </li>
             </ol>
-            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2 px-4 pb-4 sm:px-6 sm:pb-5 pt-1 border-t border-indigo-100 dark:border-gray-700 bg-white/60 dark:bg-gray-900/50">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2 px-4 pb-4 sm:px-6 sm:pb-5 pt-1 border-t border-primary-border-muted dark:border-border-ui-strong bg-surface/60">
               <button
                 type="button"
                 onClick={scrollToForms}
-                className="inline-flex items-center justify-center gap-2 min-h-11 px-4 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 active:bg-indigo-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                className="inline-flex items-center justify-center gap-2 min-h-11 px-4 rounded-xl bg-primary-fill text-white text-sm font-bold hover:bg-primary-fill-hover active:bg-primary-fill-active transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring focus-visible:ring-offset-2"
               >
                 <ArrowDown size={18} className="shrink-0" aria-hidden />
                 {t('home.tourScrollToForms')}
@@ -335,7 +335,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               <button
                 type="button"
                 onClick={dismissTour}
-                className="inline-flex items-center justify-center min-h-11 px-4 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+                className="inline-flex items-center justify-center min-h-11 px-4 rounded-xl border border-border-ui bg-surface-muted text-sm font-semibold text-fg-muted hover:bg-surface-muted dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-border-ui-strong"
               >
                 {t('home.tourDismiss')}
               </button>
@@ -346,14 +346,14 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
 
       <div ref={formsAnchorRef} id="home-forms" className="w-full max-w-md flex flex-col gap-6 mb-6 scroll-mt-24">
       {/* Create */}
-      <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md w-full border border-gray-100 dark:border-gray-800">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">{t('home.createTitle')}</h2>
+      <div className="bg-surface p-6 rounded-xl shadow-md w-full border border-divide">
+        <h2 className="text-xl font-semibold mb-4 text-fg">{t('home.createTitle')}</h2>
 
         <input
           type="text"
           placeholder={t('home.puzzleNamePh')}
           aria-label={t('home.puzzleNamePh')}
-          className="w-full p-2 border border-gray-200 dark:border-gray-600 rounded mb-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
+          className="w-full p-2 border border-border-ui rounded mb-4 bg-surface-muted text-fg placeholder:text-fg-faint"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -362,14 +362,14 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         <div
           className={`rounded-xl p-4 mb-4 border transition ${
             gridLocked
-              ? 'bg-gray-50 border-gray-200 dark:bg-gray-800/70 dark:border-gray-600'
-              : 'bg-indigo-50 border-indigo-100 dark:bg-indigo-950/45 dark:border-indigo-800/50'
+              ? 'bg-surface-muted border-border-ui dark:bg-surface-muted/70 dark:border-border-ui'
+              : 'bg-primary-soft border-primary-border-muted dark:bg-primary-soft dark:border-primary-border/50'
           }`}
         >
           <div className="flex items-center justify-between mb-3">
             <p
               className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${
-                gridLocked ? 'text-gray-400 dark:text-gray-500' : 'text-indigo-600 dark:text-indigo-300'
+                gridLocked ? 'text-fg-faint' : 'text-primary-hover'
               }`}
             >
               <Grid size={12} aria-hidden /> {t('home.gridTitle')}
@@ -381,8 +381,8 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               aria-label={gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')}
               className={`p-1.5 rounded-lg border transition ${
                 gridLocked
-                  ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:border-indigo-800 dark:text-indigo-300 dark:hover:bg-indigo-900/50'
-                  : 'bg-white border-gray-200 text-gray-500 hover:text-indigo-600 hover:border-indigo-300 dark:bg-gray-900/80 dark:border-gray-600 dark:text-gray-400 dark:hover:text-indigo-300 dark:hover:border-indigo-500'
+                  ? 'bg-primary-soft border-primary-border text-primary hover:bg-primary-soft-hover dark:bg-primary-soft dark:border-primary-border dark:text-primary-hover dark:hover:bg-primary-soft-hover'
+                  : 'bg-surface border-border-ui text-fg-muted hover:text-primary hover:border-primary-border-strong dark:bg-surface/80 dark:border-border-ui dark:text-fg-muted dark:hover:text-primary-hover dark:hover:border-primary-muted'
               }`}
             >
               {gridLocked ? <Lock size={14} /> : <Unlock size={14} />}
@@ -390,7 +390,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
           </div>
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">{t('home.rows')}</label>
+              <label className="mb-1 block text-xs text-fg-muted">{t('home.rows')}</label>
               <input
                 type="number"
                 min={1}
@@ -399,14 +399,14 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 onChange={(e) => handleRowsChange(Math.max(1, parseInt(e.target.value) || 1))}
                 className={`w-full rounded-lg border p-2 text-center text-lg font-bold outline-none transition [color-scheme:light] dark:[color-scheme:dark] ${
                   gridLocked
-                    ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-500 dark:border-gray-600 dark:bg-gray-900/80 dark:text-gray-500'
-                    : 'border-indigo-200 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-400 dark:border-indigo-600/70 dark:bg-gray-950 dark:text-gray-100 dark:focus:ring-indigo-500'
+                    ? 'cursor-not-allowed border-border-ui bg-surface-muted text-fg-muted dark:border-border-ui dark:bg-surface-muted/80 dark:text-fg-faint'
+                    : 'border-primary-border bg-surface text-fg focus:ring-2 focus:ring-primary-ring dark:border-primary-border-strong dark:bg-surface-input dark:text-fg dark:focus:ring-primary-ring'
                 }`}
               />
             </div>
-            <span className="mt-4 text-2xl font-light text-indigo-400 dark:text-indigo-400/90">×</span>
+            <span className="mt-4 text-2xl font-light text-primary-muted">×</span>
             <div className="flex-1">
-              <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">{t('home.cols')}</label>
+              <label className="mb-1 block text-xs text-fg-muted">{t('home.cols')}</label>
               <input
                 type="number"
                 min={1}
@@ -415,19 +415,19 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 onChange={(e) => handleColsChange(Math.max(1, parseInt(e.target.value) || 1))}
                 className={`w-full rounded-lg border p-2 text-center text-lg font-bold outline-none transition [color-scheme:light] dark:[color-scheme:dark] ${
                   gridLocked
-                    ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-500 dark:border-gray-600 dark:bg-gray-900/80 dark:text-gray-500'
-                    : 'border-indigo-200 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-400 dark:border-indigo-600/70 dark:bg-gray-950 dark:text-gray-100 dark:focus:ring-indigo-500'
+                    ? 'cursor-not-allowed border-border-ui bg-surface-muted text-fg-muted dark:border-border-ui dark:bg-surface-muted/80 dark:text-fg-faint'
+                    : 'border-primary-border bg-surface text-fg focus:ring-2 focus:ring-primary-ring dark:border-primary-border-strong dark:bg-surface-input dark:text-fg dark:focus:ring-primary-ring'
                 }`}
               />
             </div>
-            <span className="mt-4 text-2xl font-light text-indigo-400 dark:text-indigo-400/90">=</span>
+            <span className="mt-4 text-2xl font-light text-primary-muted">=</span>
             <div className="flex-1">
-              <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">{t('home.total')}</label>
+              <label className="mb-1 block text-xs text-fg-muted">{t('home.total')}</label>
               <div
                 className={`w-full rounded-lg p-2 text-center text-lg font-bold ${
                   gridLocked
-                    ? 'bg-gray-200 text-gray-600 dark:bg-gray-900 dark:text-gray-300'
-                    : 'bg-indigo-600 text-white dark:bg-indigo-500'
+                    ? 'bg-surface-muted text-fg-muted dark:bg-surface-muted dark:text-fg'
+                    : 'bg-primary-fill text-white'
                 }`}
               >
                 {totalPieces.toLocaleString(numberLocale)}
@@ -435,7 +435,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             </div>
           </div>
           <p
-            className={`mt-2 text-center text-xs ${gridLocked ? 'text-gray-400 dark:text-gray-500' : 'text-indigo-600 dark:text-indigo-300/95'}`}
+            className={`mt-2 text-center text-xs ${gridLocked ? 'text-fg-faint' : 'text-primary-hover'}`}
           >
             {gridLocked ? t('home.gridLockedHint') : t('home.gridUnlockedHint')}
           </p>
@@ -443,17 +443,17 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
 
         {/* Visibility */}
         <div className="mb-4">
-          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-fg-faint">
             {t('home.visibility')}
           </label>
-          <div className="flex overflow-hidden rounded-lg border border-gray-200 dark:border-gray-600">
+          <div className="flex overflow-hidden rounded-lg border border-border-ui">
             <button
               type="button"
               onClick={() => setIsPublic(true)}
               className={`flex flex-1 items-center justify-center gap-2 py-2 text-sm font-medium transition ${
                 isPublic
-                  ? 'bg-green-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-800/90 dark:text-gray-400 dark:hover:bg-gray-700/80'
+                  ? 'bg-success-fill text-white'
+                  : 'bg-surface text-fg-muted hover:bg-surface-muted/90 dark:text-fg-muted dark:hover:bg-surface-muted/80'
               }`}
             >
               <Globe size={14} aria-hidden /> {t('common.public')}
@@ -463,14 +463,14 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               onClick={() => setIsPublic(false)}
               className={`flex flex-1 items-center justify-center gap-2 py-2 text-sm font-medium transition ${
                 !isPublic
-                  ? 'bg-indigo-600 text-white dark:bg-indigo-500'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-800/90 dark:text-gray-400 dark:hover:bg-gray-700/80'
+                  ? 'bg-primary-fill text-white'
+                  : 'bg-surface text-fg-muted hover:bg-surface-muted/90 dark:text-fg-muted dark:hover:bg-surface-muted/80'
               }`}
             >
               <Lock size={14} aria-hidden /> {t('common.private')}
             </button>
           </div>
-          <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+          <p className="mt-1 text-xs text-fg-faint">
             {isPublic ? t('home.visibilityPublicHint') : t('home.visibilityPrivateHint')}
           </p>
         </div>
@@ -478,21 +478,21 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         {/* Password (if private) */}
         {!isPublic && (
           <div className="mb-4 space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            <label className="block text-xs font-bold uppercase tracking-wider text-fg-faint">
               {t('home.passwordOptional')}
             </label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 placeholder={t('home.passwordPh')}
-                className="w-full rounded-lg border border-gray-200 bg-white p-2 pr-10 text-gray-900 placeholder:text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
+                className="w-full rounded-lg border border-border-ui bg-surface p-2 pr-10 text-fg placeholder:text-fg-faint dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:placeholder:text-fg-muted"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-fg-faint hover:text-fg-muted dark:text-fg-faint dark:hover:text-fg-muted"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -501,7 +501,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               <input
                 type={showPassword ? 'text' : 'password'}
                 placeholder={t('home.confirmPasswordPh')}
-                className="w-full rounded-lg border border-gray-200 bg-white p-2 text-gray-900 placeholder:text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
+                className="w-full rounded-lg border border-border-ui bg-surface p-2 text-fg placeholder:text-fg-faint dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:placeholder:text-fg-muted"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
@@ -513,7 +513,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
           type="button"
           onClick={handleCreate}
           disabled={loading}
-          className="w-full bg-indigo-600 text-white p-2 rounded font-bold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="w-full bg-primary-fill text-white p-2 rounded font-bold hover:bg-primary-fill-hover transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
         >
           {loading ? t('home.creating') : t('home.createBtn')}
         </button>
@@ -522,17 +522,17 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       {/* Join */}
       <div
         id="home-join"
-        className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-md w-full border border-gray-100 dark:border-gray-800 scroll-mt-24"
+        className="bg-surface p-6 rounded-xl shadow-md w-full border border-divide scroll-mt-24"
       >
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">{t('home.joinTitle')}</h2>
+        <h2 className="text-xl font-semibold mb-4 text-fg">{t('home.joinTitle')}</h2>
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Hash size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden />
+            <Hash size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-faint" aria-hidden />
             <input
               type="text"
               placeholder={t('home.codePh')}
               aria-label={t('home.codePh')}
-              className="w-full pl-8 p-2 border border-gray-200 dark:border-gray-600 rounded uppercase tracking-widest font-mono bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+              className="w-full pl-8 p-2 border border-border-ui rounded uppercase tracking-widest font-mono bg-surface-muted text-fg"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
               onKeyDown={(e) => e.key === 'Enter' && !pendingPuzzle && handleJoin()}
@@ -542,7 +542,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             type="button"
             onClick={() => handleJoin()}
             disabled={loading || !!pendingPuzzle}
-            className="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+            className="bg-success-fill text-white px-4 py-2 rounded font-bold hover:bg-success-hover transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
             aria-label={t('home.joinBtn')}
           >
             {loading ? '...' : <><span>{t('home.joinBtn')}</span><ArrowRight size={16} aria-hidden /></>}
@@ -551,8 +551,8 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
 
         {/* Password prompt for private puzzle */}
         {pendingPuzzle && (
-          <div className="mt-4 rounded-xl border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-800/70 dark:bg-indigo-950/40">
-            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-indigo-800 dark:text-indigo-200">
+          <div className="mt-4 rounded-xl border border-primary-border bg-primary-soft p-4 dark:border-primary-border dark:bg-primary-soft">
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary-strong dark:text-primary-hover">
               <Lock size={14} aria-hidden /> &quot;{pendingPuzzle.name}&quot; {t('home.protectedPw')}
             </p>
             <div className="flex gap-2">
@@ -560,7 +560,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 <input
                   type={showJoinPassword ? 'text' : 'password'}
                   placeholder={t('home.passwordPh')}
-                  className="w-full rounded-lg border border-indigo-200/80 bg-white p-2 pr-8 text-gray-900 placeholder:text-gray-400 dark:border-indigo-800/60 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
+                  className="w-full rounded-lg border border-primary-border bg-surface p-2 pr-8 text-fg placeholder:text-fg-faint dark:border-primary-border dark:bg-surface dark:text-fg dark:placeholder:text-fg-muted"
                   value={joinPassword}
                   onChange={(e) => setJoinPassword(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleVerifyPassword()}
@@ -569,7 +569,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 <button
                   type="button"
                   onClick={() => setShowJoinPassword(!showJoinPassword)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-fg-muted hover:text-fg-heading dark:text-fg-muted dark:hover:text-fg"
                 >
                   {showJoinPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
@@ -578,14 +578,14 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 type="button"
                 onClick={handleVerifyPassword}
                 disabled={loading || !joinPassword}
-                className="rounded-lg bg-indigo-600 px-4 py-2 font-bold text-white transition hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                className="rounded-lg bg-primary-fill px-4 py-2 font-bold text-white transition hover:bg-primary-fill-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring disabled:opacity-50"
               >
                 OK
               </button>
               <button
                 type="button"
                 onClick={() => { setPendingPuzzle(null); setJoinPassword(''); }}
-                className="rounded-lg p-2 text-gray-500 hover:text-gray-800 focus:outline-none focus-visible:ring-2 dark:text-gray-400 dark:hover:text-gray-200"
+                className="rounded-lg p-2 text-fg-muted hover:text-fg-heading focus:outline-none focus-visible:ring-2 dark:text-fg-faint dark:hover:text-fg"
                 title={t('common.cancel')}
                 aria-label={t('common.cancel')}
               >
@@ -598,20 +598,20 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       </div>
 
       {/* Footer */}
-      <footer className="mt-12 flex flex-col items-center gap-3 text-gray-400 dark:text-gray-500 text-xs">
+      <footer className="mt-12 flex flex-col items-center gap-3 text-fg-faint text-xs">
         <div className="flex items-center gap-2">
-          <span className="text-gray-500 dark:text-gray-400">{t('home.langLabel')}</span>
+          <span className="text-fg-muted">{t('home.langLabel')}</span>
           <button
             type="button"
             onClick={() => setLocale('fr')}
-            className={`px-2 py-1 rounded text-xs font-semibold border ${locale === 'fr' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300'}`}
+            className={`px-2 py-1 rounded text-xs font-semibold border ${locale === 'fr' ? 'bg-primary-fill text-white border-primary-fill' : 'bg-surface-muted border-border-ui text-fg-muted'}`}
           >
             {t('home.langFr')}
           </button>
           <button
             type="button"
             onClick={() => setLocale('en')}
-            className={`px-2 py-1 rounded text-xs font-semibold border ${locale === 'en' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300'}`}
+            className={`px-2 py-1 rounded text-xs font-semibold border ${locale === 'en' ? 'bg-primary-fill text-white border-primary-fill' : 'bg-surface-muted border-border-ui text-fg-muted'}`}
           >
             {t('home.langEn')}
           </button>
@@ -621,7 +621,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             href="https://github.com/mister-guiiug/mister-puzzle"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 text-gray-500 transition hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            className="flex items-center gap-1 text-fg-muted transition hover:text-fg-muted dark:text-fg-faint dark:hover:text-fg"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
