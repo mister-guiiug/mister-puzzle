@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Grid, Hash, ArrowRight, X, Lock, Globe, Eye, EyeOff, Search, Users } from 'lucide-react';
+import { Clock, Grid, Hash, ArrowRight, X, Lock, Unlock, Globe, Eye, EyeOff, Search, Users } from 'lucide-react';
 import { createPuzzle, joinPuzzle, getPublicPuzzles, hashPassword, type PuzzleState } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
 import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
-import { getPseudo, setPseudo } from '../utils/pseudo';
+import { getPseudo, setPseudo, isPseudoLocked, setPseudoLocked } from '../utils/pseudo';
 
 interface HomeProps {
   onJoin: (roomCode: string) => void;
@@ -11,6 +11,7 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ onJoin }) => {
   const [pseudo, setPseudoState] = useState(getPseudo);
+  const [pseudoLocked, setPseudoLockedState] = useState(isPseudoLocked);
   const [name, setName] = useState('');
   const [rows, setRows] = useState(20);
   const [cols, setCols] = useState(50);
@@ -45,6 +46,16 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
 
   const handlePseudoBlur = () => {
     setPseudo(pseudo.trim());
+  };
+
+  const handleTogglePseudoLock = () => {
+    if (!pseudoLocked) {
+      // Saving before locking
+      setPseudo(pseudo.trim());
+    }
+    const next = !pseudoLocked;
+    setPseudoLocked(next);
+    setPseudoLockedState(next);
   };
 
   const handleCreate = async () => {
@@ -198,17 +209,29 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1">
           <Users size={12} /> Votre pseudo
         </label>
-        <input
-          type="text"
-          placeholder="Anonyme"
-          className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"
-          value={pseudo}
-          onChange={(e) => setPseudoState(e.target.value)}
-          onBlur={handlePseudoBlur}
-          maxLength={30}
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            placeholder="Anonyme"
+            className={`flex-1 p-2 border rounded-lg outline-none transition ${pseudoLocked ? 'bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed' : 'border-gray-200 focus:ring-2 focus:ring-indigo-400'}`}
+            value={pseudo}
+            onChange={(e) => !pseudoLocked && setPseudoState(e.target.value)}
+            onBlur={!pseudoLocked ? handlePseudoBlur : undefined}
+            readOnly={pseudoLocked}
+            maxLength={30}
+          />
+          <button
+            onClick={handleTogglePseudoLock}
+            title={pseudoLocked ? 'Déverrouiller le pseudo' : 'Verrouiller le pseudo'}
+            className={`p-2 rounded-lg border transition ${pseudoLocked ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100' : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-indigo-500 hover:border-indigo-300'}`}
+          >
+            {pseudoLocked ? <Lock size={16} /> : <Unlock size={16} />}
+          </button>
+        </div>
         <p className="text-xs text-gray-400 mt-1">
-          Affiché sur vos checkpoints et dans les sessions collaboratives.
+          {pseudoLocked
+            ? '🔒 Pseudo verrouillé — cliquez sur le cadenas pour modifier.'
+            : 'Affiché sur vos checkpoints et dans les sessions collaboratives.'}
         </p>
       </div>
 
