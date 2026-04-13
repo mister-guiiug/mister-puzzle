@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePuzzle } from './hooks/useSocket';
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import { UpdateBanner } from './components/UpdateBanner';
+import { saveToHistory } from './utils/history';
 
 const getHashCode = () => {
   const hash = window.location.hash.slice(1).toUpperCase();
@@ -25,6 +26,15 @@ function AppHeader({ onHome }: { onHome: () => void }) {
 function App() {
   const [roomCode, setRoomCode] = useState<string | null>(getHashCode);
   const { puzzle, loading } = usePuzzle(roomCode);
+  const savedRef = useRef<string | null>(null);
+
+  // Save to history when puzzle loads via direct link
+  useEffect(() => {
+    if (puzzle && puzzle.id !== savedRef.current) {
+      savedRef.current = puzzle.id;
+      saveToHistory(puzzle.id, puzzle.name);
+    }
+  }, [puzzle]);
 
   useEffect(() => {
     const handleHashChange = () => setRoomCode(getHashCode());
