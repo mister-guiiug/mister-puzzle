@@ -9,6 +9,19 @@ const getHashCode = () => {
   return hash || null;
 };
 
+function AppHeader({ onHome }: { onHome: () => void }) {
+  return (
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+      <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
+        <button onClick={onHome} className="flex items-center gap-2 hover:opacity-80 transition" title="Accueil">
+          <img src="/mister-puzzle/logo.png" alt="Mister Puzzle" className="w-8 h-8" />
+          <span className="font-bold text-indigo-600 text-lg tracking-tight">Mister Puzzle</span>
+        </button>
+      </div>
+    </header>
+  );
+}
+
 function App() {
   const [roomCode, setRoomCode] = useState<string | null>(getHashCode);
   const { puzzle, loading } = usePuzzle(roomCode);
@@ -31,6 +44,7 @@ function App() {
 
   return (
     <>
+      <AppHeader onHome={handleBack} />
       <div className="min-h-screen bg-gray-50">
         {roomCode ? (
           loading ? (
