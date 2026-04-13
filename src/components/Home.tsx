@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Grid, Hash, ArrowRight, X, Lock, Unlock, Globe, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Grid, Hash, ArrowRight, ArrowDown, X, Lock, Unlock, Globe, Eye, EyeOff, Menu, User, LayoutTemplate } from 'lucide-react';
 import { createPuzzle, joinPuzzle, hashPassword, type PuzzleState } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
 import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
@@ -10,6 +10,8 @@ interface HomeProps {
   onJoin: (roomCode: string) => void;
   pseudo: string;
 }
+
+const HOME_TOUR_DISMISSED_KEY = 'mister_puzzle_home_tour_dismissed';
 
 const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   const { t, numberLocale, locale, setLocale } = useI18n();
@@ -40,6 +42,37 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
 
   // Prompt to remove a deleted puzzle from history
   const [deletedCode, setDeletedCode] = useState<string | null>(null);
+
+  const formsAnchorRef = useRef<HTMLDivElement>(null);
+  const [showTour, setShowTour] = useState(() => {
+    try {
+      return localStorage.getItem(HOME_TOUR_DISMISSED_KEY) !== '1';
+    } catch {
+      return true;
+    }
+  });
+
+  const dismissTour = useCallback(() => {
+    try {
+      localStorage.setItem(HOME_TOUR_DISMISSED_KEY, '1');
+    } catch {
+      /* ignore */
+    }
+    setShowTour(false);
+  }, []);
+
+  const restoreTour = useCallback(() => {
+    try {
+      localStorage.removeItem(HOME_TOUR_DISMISSED_KEY);
+    } catch {
+      /* ignore */
+    }
+    setShowTour(true);
+  }, []);
+
+  const scrollToForms = useCallback(() => {
+    formsAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
 
   const totalPieces = rows * cols;
 
@@ -134,7 +167,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   };
 
   return (
-    <div className="min-h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px))] bg-gray-50 flex flex-col items-center justify-center p-4 pt-6 sm:pt-8 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
+    <div className="min-h-[calc(100dvh-3.5rem-env(safe-area-inset-top,0px))] bg-gray-50 flex flex-col items-center py-6 sm:py-8 px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]">
       <ErrorModal message={error} onClose={() => setError(null)} />
 
       {/* Deleted puzzle popup */}
@@ -182,11 +215,100 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         className="w-40 h-40 mb-4 drop-shadow-lg hover:scale-105 transition-transform duration-300"
       />
       <h1 className="text-4xl font-bold mb-2 text-indigo-600">{t('common.appName')}</h1>
-      <p className="text-gray-400 text-sm mb-1">{t('home.tagline')}</p>
-      <p className="text-gray-400 text-xs mb-8 text-center max-w-md">{t('home.navHint')}</p>
+      <p className="text-gray-400 text-sm mb-6">{t('home.tagline')}</p>
 
+      <section
+        className="w-full max-w-3xl mb-8"
+        aria-label={t('home.tourTitle')}
+      >
+        {!showTour ? (
+          <div className="rounded-2xl border border-gray-200 bg-white/80 px-4 py-3 text-center shadow-sm">
+            <p className="text-sm text-gray-600 mb-2">{t('home.tourDismissedHint')}</p>
+            <button
+              type="button"
+              onClick={restoreTour}
+              className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
+            >
+              {t('home.tourShowAgain')}
+            </button>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-indigo-100 bg-gradient-to-b from-white to-indigo-50/40 shadow-md overflow-hidden">
+            <div className="px-4 pt-4 pb-2 sm:px-6 sm:pt-5">
+              <p className="text-sm text-gray-600 text-center">{t('home.tourIntro')}</p>
+              <h2 className="text-center text-lg font-bold text-gray-900 mt-2 mb-4">{t('home.tourTitle')}</h2>
+            </div>
+            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-0 sm:gap-0 divide-y sm:divide-y-0 sm:divide-x divide-indigo-100 list-none m-0 p-0">
+              <li className="flex gap-3 p-4 sm:p-5">
+                <span
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white text-sm font-black"
+                  aria-hidden
+                >
+                  1
+                </span>
+                <div className="min-w-0">
+                  <p className="font-semibold text-gray-900 flex items-center gap-2">
+                    <Menu size={18} className="text-indigo-600 shrink-0" aria-hidden />
+                    {t('home.tourStep1Title')}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1 leading-snug">{t('home.tourStep1Body')}</p>
+                </div>
+              </li>
+              <li className="flex gap-3 p-4 sm:p-5">
+                <span
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white text-sm font-black"
+                  aria-hidden
+                >
+                  2
+                </span>
+                <div className="min-w-0">
+                  <p className="font-semibold text-gray-900 flex items-center gap-2">
+                    <User size={18} className="text-indigo-600 shrink-0" aria-hidden />
+                    {t('home.tourStep2Title')}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1 leading-snug">{t('home.tourStep2Body')}</p>
+                </div>
+              </li>
+              <li className="flex gap-3 p-4 sm:p-5">
+                <span
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white text-sm font-black"
+                  aria-hidden
+                >
+                  3
+                </span>
+                <div className="min-w-0">
+                  <p className="font-semibold text-gray-900 flex items-center gap-2">
+                    <LayoutTemplate size={18} className="text-indigo-600 shrink-0" aria-hidden />
+                    {t('home.tourStep3Title')}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1 leading-snug">{t('home.tourStep3Body')}</p>
+                </div>
+              </li>
+            </ol>
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2 px-4 pb-4 sm:px-6 sm:pb-5 pt-1 border-t border-indigo-100 bg-white/60">
+              <button
+                type="button"
+                onClick={scrollToForms}
+                className="inline-flex items-center justify-center gap-2 min-h-11 px-4 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 active:bg-indigo-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+              >
+                <ArrowDown size={18} className="shrink-0" aria-hidden />
+                {t('home.tourScrollToForms')}
+              </button>
+              <button
+                type="button"
+                onClick={dismissTour}
+                className="inline-flex items-center justify-center min-h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm font-semibold text-gray-600 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+              >
+                {t('home.tourDismiss')}
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <div ref={formsAnchorRef} id="home-forms" className="w-full max-w-md flex flex-col gap-6 mb-6 scroll-mt-24">
       {/* Create */}
-      <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md mb-6">
+      <div className="bg-white p-6 rounded-xl shadow-md w-full">
         <h2 className="text-xl font-semibold mb-4">{t('home.createTitle')}</h2>
 
         <input
@@ -322,7 +444,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       </div>
 
       {/* Join */}
-      <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md mb-6">
+      <div className="bg-white p-6 rounded-xl shadow-md w-full">
         <h2 className="text-xl font-semibold mb-4">{t('home.joinTitle')}</h2>
         <div className="flex gap-2">
           <div className="relative flex-1">
@@ -393,6 +515,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             </div>
           </div>
         )}
+      </div>
       </div>
 
       {/* Footer */}
