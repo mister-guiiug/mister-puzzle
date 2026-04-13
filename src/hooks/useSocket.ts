@@ -206,6 +206,10 @@ export const updateGridSize = async (roomCode: string, rows: number, cols: numbe
   });
 };
 
+export const renamePuzzle = async (roomCode: string, name: string): Promise<void> => {
+  await update(ref(db, `puzzles/${roomCode}`), { name });
+};
+
 export const deletePuzzle = async (roomCode: string): Promise<void> => {
   await remove(ref(db, `puzzles/${roomCode}`));
 };

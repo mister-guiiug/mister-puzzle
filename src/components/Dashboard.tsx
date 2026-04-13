@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2, Lock, Globe, Eye, EyeOff, Settings } from 'lucide-react';
+import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2, Lock, Globe, Eye, EyeOff, Settings, Pencil, Check, X as XIcon } from 'lucide-react';
 import { differenceInMinutes } from 'date-fns';
-import { type PuzzleState, type Member, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, updateGridSize, deletePuzzle, joinMember, leaveMember, changePassword, updateVisibility, hashPassword } from '../hooks/useSocket';
+import { type PuzzleState, type Member, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, updateGridSize, deletePuzzle, joinMember, leaveMember, changePassword, updateVisibility, hashPassword, renamePuzzle } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
 import { getPseudo, setPseudo as savePseudo, getSessionId } from '../utils/pseudo';
 
@@ -33,6 +33,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
   const [pwMessage, setPwMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
 
   const [step, setStep] = useState(1);
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState(puzzle.name);
 
   // Member presence
   useEffect(() => {
@@ -145,6 +147,24 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
     }
   };
 
+  const handleRename = async () => {
+    const trimmed = nameInput.trim();
+    if (!trimmed || trimmed === puzzle.name) {
+      setEditingName(false);
+      setNameInput(puzzle.name);
+      return;
+    }
+    try {
+      await renamePuzzle(puzzle.id, trimmed);
+      setEditingName(false);
+    } catch (err) {
+      setError('Impossible de renommer le puzzle.');
+      console.error(err);
+      setNameInput(puzzle.name);
+      setEditingName(false);
+    }
+  };
+
   const handleGridUpdate = async () => {
     if (gridRows <= 0 || gridCols <= 0) {
       setError('Les dimensions de la grille doivent être supérieures à 0.');
@@ -232,7 +252,40 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
               <ArrowLeft size={20} />
             </button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">{puzzle.name}</h1>
+              {/* Inline rename */}
+              {editingName ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleRename();
+                      if (e.key === 'Escape') { setEditingName(false); setNameInput(puzzle.name); }
+                    }}
+                    className="text-2xl font-bold text-gray-800 border-b-2 border-indigo-400 bg-transparent outline-none"
+                    autoFocus
+                    maxLength={100}
+                  />
+                  <button onClick={handleRename} className="p-1 text-green-600 hover:text-green-700" title="Valider">
+                    <Check size={18} />
+                  </button>
+                  <button onClick={() => { setEditingName(false); setNameInput(puzzle.name); }} className="p-1 text-gray-400 hover:text-gray-600" title="Annuler">
+                    <XIcon size={18} />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 group/name">
+                  <h1 className="text-3xl font-bold text-gray-800">{puzzle.name}</h1>
+                  <button
+                    onClick={() => { setEditingName(true); setNameInput(puzzle.name); }}
+                    className="p-1 text-gray-300 hover:text-indigo-500 transition opacity-0 group-hover/name:opacity-100"
+                    title="Renommer"
+                  >
+                    <Pencil size={16} />
+                  </button>
+                </div>
+              )}
               <div className="flex items-center gap-2 flex-wrap mt-0.5">
                 <p className="text-indigo-600 font-mono font-bold text-sm">CODE: {puzzle.id}</p>
                 {puzzle.createdBy && (
