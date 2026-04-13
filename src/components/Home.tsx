@@ -3,7 +3,7 @@ import { Clock, Grid, Hash, ArrowRight, X, Lock, Unlock, Globe, Eye, EyeOff, Sea
 import { createPuzzle, joinPuzzle, getPublicPuzzles, hashPassword, type PuzzleState } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
 import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
-import { getPseudo, setPseudo, isPseudoLocked, setPseudoLocked } from '../utils/pseudo';
+import { getPseudo, setPseudo, isPseudoLocked, setPseudoLocked, isGridLocked, setGridLocked, getSavedGrid, saveGrid } from '../utils/pseudo';
 
 interface HomeProps {
   onJoin: (roomCode: string) => void;
@@ -13,8 +13,16 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
   const [pseudo, setPseudoState] = useState(getPseudo);
   const [pseudoLocked, setPseudoLockedState] = useState(isPseudoLocked);
   const [name, setName] = useState('');
-  const [rows, setRows] = useState(20);
-  const [cols, setCols] = useState(50);
+  const [rows, setRows] = useState(() => getSavedGrid()?.rows ?? 20);
+  const [cols, setCols] = useState(() => getSavedGrid()?.cols ?? 50);
+  const [gridLocked, setGridLockedState] = useState(isGridLocked);
+
+  const handleToggleGridLock = () => {
+    if (!gridLocked) saveGrid(rows, cols);
+    const next = !gridLocked;
+    setGridLocked(next);
+    setGridLockedState(next);
+  };
   const [isPublic, setIsPublic] = useState(true);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -56,6 +64,18 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
     const next = !pseudoLocked;
     setPseudoLocked(next);
     setPseudoLockedState(next);
+  };
+
+  const handleRowsChange = (val: number) => {
+    if (gridLocked) return;
+    setRows(val);
+    saveGrid(val, cols);
+  };
+
+  const handleColsChange = (val: number) => {
+    if (gridLocked) return;
+    setCols(val);
+    saveGrid(rows, val);
   };
 
   const handleCreate = async () => {
@@ -248,10 +268,19 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         />
 
         {/* Grid calculator */}
-        <div className="bg-indigo-50 rounded-xl p-4 mb-4 border border-indigo-100">
-          <p className="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-3 flex items-center gap-1">
-            <Grid size={12} /> Grille de pièces
-          </p>
+        <div className={`rounded-xl p-4 mb-4 border transition ${gridLocked ? 'bg-gray-50 border-gray-200' : 'bg-indigo-50 border-indigo-100'}`}>
+          <div className="flex items-center justify-between mb-3">
+            <p className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${gridLocked ? 'text-gray-400' : 'text-indigo-500'}`}>
+              <Grid size={12} /> Grille de pièces
+            </p>
+            <button
+              onClick={handleToggleGridLock}
+              title={gridLocked ? 'Déverrouiller la grille' : 'Verrouiller la grille'}
+              className={`p-1.5 rounded-lg border transition ${gridLocked ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100' : 'bg-white border-gray-200 text-gray-400 hover:text-indigo-500 hover:border-indigo-300'}`}
+            >
+              {gridLocked ? <Lock size={14} /> : <Unlock size={14} />}
+            </button>
+          </div>
           <div className="flex items-center gap-3">
             <div className="flex-1">
               <label className="block text-xs text-gray-500 mb-1">Lignes</label>
@@ -259,8 +288,9 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
                 type="number"
                 min={1}
                 value={rows}
-                onChange={(e) => setRows(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-full p-2 border border-indigo-200 rounded-lg text-center text-lg font-bold focus:ring-2 focus:ring-indigo-400 outline-none bg-white"
+                readOnly={gridLocked}
+                onChange={(e) => handleRowsChange(Math.max(1, parseInt(e.target.value) || 1))}
+                className={`w-full p-2 border rounded-lg text-center text-lg font-bold outline-none transition ${gridLocked ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed' : 'border-indigo-200 focus:ring-2 focus:ring-indigo-400 bg-white'}`}
               />
             </div>
             <span className="text-2xl text-indigo-300 font-light mt-4">×</span>
@@ -270,20 +300,21 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
                 type="number"
                 min={1}
                 value={cols}
-                onChange={(e) => setCols(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-full p-2 border border-indigo-200 rounded-lg text-center text-lg font-bold focus:ring-2 focus:ring-indigo-400 outline-none bg-white"
+                readOnly={gridLocked}
+                onChange={(e) => handleColsChange(Math.max(1, parseInt(e.target.value) || 1))}
+                className={`w-full p-2 border rounded-lg text-center text-lg font-bold outline-none transition ${gridLocked ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed' : 'border-indigo-200 focus:ring-2 focus:ring-indigo-400 bg-white'}`}
               />
             </div>
             <span className="text-2xl text-indigo-300 font-light mt-4">=</span>
             <div className="flex-1">
               <label className="block text-xs text-gray-500 mb-1">Total</label>
-              <div className="w-full p-2 bg-indigo-600 text-white rounded-lg text-center text-lg font-bold">
+              <div className={`w-full p-2 rounded-lg text-center text-lg font-bold ${gridLocked ? 'bg-gray-200 text-gray-500' : 'bg-indigo-600 text-white'}`}>
                 {totalPieces.toLocaleString('fr-FR')}
               </div>
             </div>
           </div>
-          <p className="text-xs text-indigo-400 mt-2 text-center">
-            Ajustable plus tard depuis le tableau de bord
+          <p className={`text-xs mt-2 text-center ${gridLocked ? 'text-gray-400' : 'text-indigo-400'}`}>
+            {gridLocked ? '🔒 Grille verrouillée — cliquez sur le cadenas pour modifier.' : 'Ajustable plus tard depuis le tableau de bord'}
           </p>
         </div>
 

@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { usePuzzle } from './hooks/useSocket';
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import { UpdateBanner } from './components/UpdateBanner';
 import { saveToHistory } from './utils/history';
+import { usePullToRefresh } from './hooks/usePullToRefresh';
+import PullToRefreshIndicator from './components/PullToRefreshIndicator';
 
 const getHashCode = () => {
   const hash = window.location.hash.slice(1).toUpperCase();
@@ -28,13 +30,15 @@ function App() {
   const { puzzle, loading } = usePuzzle(roomCode);
   const savedRef = useRef<string | null>(null);
 
-  // Save to history when puzzle loads via direct link
+  // Save/update history whenever puzzle loads or its name changes
   useEffect(() => {
-    if (puzzle && puzzle.id !== savedRef.current) {
-      savedRef.current = puzzle.id;
+    if (!puzzle) return;
+    const key = `${puzzle.id}::${puzzle.name}`;
+    if (key !== savedRef.current) {
+      savedRef.current = key;
       saveToHistory(puzzle.id, puzzle.name);
     }
-  }, [puzzle]);
+  }, [puzzle?.id, puzzle?.name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const handleHashChange = () => setRoomCode(getHashCode());
@@ -52,8 +56,15 @@ function App() {
     setRoomCode(null);
   };
 
+  // Pull-to-refresh: reload the page (Firebase listeners will re-connect)
+  const handleRefresh = useCallback(() => {
+    window.location.reload();
+  }, []);
+  const { pullDistance, refreshing, threshold } = usePullToRefresh(handleRefresh);
+
   return (
     <>
+      <PullToRefreshIndicator pullDistance={pullDistance} refreshing={refreshing} threshold={threshold} />
       <AppHeader onHome={handleBack} />
       <div className="min-h-screen bg-gray-50">
         {roomCode ? (
