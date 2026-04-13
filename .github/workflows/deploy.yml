@@ -1,4 +1,4 @@
-name: Deploy Puzzle Tracker
+name: Build & Deploy Puzzle Tracker
 
 on:
   push:
@@ -10,45 +10,37 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: 'npm'
-          cache-dependency-path: './puzzle-tracker/client/package-lock.json'
+          node-version: "22"
+          cache: npm
 
-      - name: Install dependencies (Client)
-        run: |
-          cd puzzle-tracker/client
-          npm install
+      - name: Install & build client
+        run: npm ci && npm run build
 
-      - name: Build (Client)
-        run: |
-          cd puzzle-tracker/client
-          npm run build
+      - name: Vérification TypeScript (server)
+        run: cd server && npm ci && npx tsc --noEmit
 
-      - name: Build (Server Verification)
-        run: |
-          cd puzzle-tracker
-          npm install
-          cd server
-          npx tsc
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
-          path: './puzzle-tracker/client/dist'
+          path: dist
 
-      - name: Deploy to GitHub Pages
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
         id: deployment
-        uses: actions/deploy-pages@v4
