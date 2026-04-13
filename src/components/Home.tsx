@@ -13,6 +13,8 @@ interface HomeProps {
 
 const HOME_TOUR_DISMISSED_KEY = 'mister_puzzle_home_tour_dismissed';
 
+const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
+
 const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   const { t, numberLocale, locale, setLocale } = useI18n();
   const [name, setName] = useState('');
@@ -208,14 +210,26 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         );
       })()}
 
-      {/* Logo + title */}
-      <img
-        src="/mister-puzzle/logo.png"
-        alt=""
-        className="w-40 h-40 mb-4 drop-shadow-lg hover:scale-105 transition-transform duration-300"
-      />
-      <h1 className="text-4xl font-bold mb-2 text-indigo-600 dark:text-indigo-400">{t('common.appName')}</h1>
-      <p className="text-gray-400 dark:text-gray-500 text-sm mb-6">{t('home.tagline')}</p>
+      {/* Marque : icône + titre */}
+      <header className="mb-8 flex w-full max-w-lg flex-col items-center sm:items-stretch">
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-6">
+          <img
+            src={logoSrc}
+            alt=""
+            width={96}
+            height={96}
+            className="h-24 w-24 shrink-0 drop-shadow-lg transition-transform duration-300 hover:scale-[1.03] sm:h-28 sm:w-28"
+          />
+          <div className="flex max-w-md flex-col items-center text-center sm:items-start sm:text-left">
+            <h1 className="bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 bg-clip-text text-3xl font-bold tracking-tight text-transparent dark:from-indigo-400 dark:via-violet-400 dark:to-indigo-400 sm:text-4xl">
+              {t('common.appName')}
+            </h1>
+            <p className="mt-2 text-sm font-medium leading-relaxed text-gray-600 dark:text-gray-400 sm:text-base">
+              {t('home.tagline')}
+            </p>
+          </div>
+        </div>
+      </header>
 
       <section
         className="w-full max-w-3xl mb-8"
