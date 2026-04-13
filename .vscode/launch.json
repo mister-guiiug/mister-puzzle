@@ -6,10 +6,10 @@
       "type": "node",
       "request": "launch",
       "preLaunchTask": "Build: Server",
-      "program": "${workspaceFolder}/puzzle-tracker/dist/server/index.js",
+      "program": "${workspaceFolder}/dist/server/index.js",
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/puzzle-tracker/dist/server/**/*.js"
+        "${workspaceFolder}/dist/server/**/*.js"
       ],
       "env": {
         "NODE_ENV": "development"
@@ -23,7 +23,7 @@
       "request": "launch",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "cwd": "${workspaceFolder}/puzzle-tracker/client",
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "serverReadyAction": {
         "pattern": "Local:.*http://localhost:([0-9]+)",
