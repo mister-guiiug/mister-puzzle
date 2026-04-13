@@ -46,7 +46,10 @@ export const usePuzzle = (roomCode: string | null) => {
       }
     });
 
-    return () => off(puzzleRef, 'value', unsubscribe);
+    return () => {
+      off(puzzleRef, 'value', unsubscribe);
+      setPuzzle(null);
+    };
   }, [roomCode]);
 
   return puzzle;
@@ -70,9 +73,16 @@ export const createPuzzle = async (name: string, totalPieces: number): Promise<s
   return roomCode;
 };
 
-export const joinPuzzle = async (roomCode: string): Promise<boolean> => {
+export const joinPuzzle = async (roomCode: string): Promise<PuzzleState | null> => {
   const snapshot = await get(ref(db, `puzzles/${roomCode}`));
-  return snapshot.exists();
+  if (!snapshot.exists()) return null;
+  const data = snapshot.val();
+  return {
+    ...data,
+    checkpoints: data.checkpoints ? Object.values(data.checkpoints) : [],
+    photos: data.photos ? Object.values(data.photos) : [],
+    history: data.history ? Object.values(data.history) : [],
+  };
 };
 
 export const updatePieces = async (roomCode: string, placedPieces: number): Promise<void> => {
