@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Grid, Hash, ArrowRight } from 'lucide-react';
+import { Clock, Grid, Hash, ArrowRight, X } from 'lucide-react';
 import { createPuzzle, joinPuzzle } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
-import { getHistory, saveToHistory, type HistoryPuzzle } from '../utils/history';
+import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
 
 interface HomeProps {
   onJoin: (roomCode: string) => void;
@@ -168,26 +168,38 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
           </h2>
           <div className="space-y-2">
             {history.map((item) => (
-              <button
-                key={item.code}
-                onClick={() => handleJoin(item.code)}
-                disabled={loading}
-                className="w-full flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition group text-left"
-              >
-                <div>
-                  <p className="font-bold text-gray-800 group-hover:text-indigo-600 transition">
-                    {item.name}
-                  </p>
-                  <p className="text-xs font-mono text-gray-400">{item.code}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {new Date(item.timestamp).toLocaleString('fr-FR', {
-                      day: '2-digit', month: '2-digit', year: '2-digit',
-                      hour: '2-digit', minute: '2-digit',
-                    })}
-                  </p>
-                </div>
-                <ArrowRight size={18} className="text-gray-200 group-hover:text-indigo-500 transition" />
-              </button>
+              <div key={item.code} className="relative group/row">
+                <button
+                  onClick={() => handleJoin(item.code)}
+                  disabled={loading}
+                  className="w-full flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition group text-left pr-10"
+                >
+                  <div>
+                    <p className="font-bold text-gray-800 group-hover:text-indigo-600 transition">
+                      {item.name}
+                    </p>
+                    <p className="text-xs font-mono text-gray-400">{item.code}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {new Date(item.timestamp).toLocaleString('fr-FR', {
+                        day: '2-digit', month: '2-digit', year: '2-digit',
+                        hour: '2-digit', minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                  <ArrowRight size={18} className="text-gray-200 group-hover:text-indigo-500 transition" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeFromHistory(item.code);
+                    setHistory(getHistory());
+                  }}
+                  className="absolute top-2 right-2 p-1 rounded-full text-gray-200 hover:text-red-400 hover:bg-red-50 transition opacity-0 group-hover/row:opacity-100"
+                  title="Retirer de l'historique"
+                >
+                  <X size={14} />
+                </button>
+              </div>
             ))}
           </div>
         </div>
