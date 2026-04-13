@@ -3,8 +3,30 @@ const PSEUDO_LOCKED_KEY = 'mister_puzzle_pseudo_locked';
 const GRID_LOCKED_KEY = 'mister_puzzle_grid_locked';
 const GRID_ROWS_KEY = 'mister_puzzle_grid_rows';
 const GRID_COLS_KEY = 'mister_puzzle_grid_cols';
+/** @deprecated lecture seule pour migration */
 const INPUT_MODE_KEY = 'mister_puzzle_input_mode';
+const INPUT_MODES_BY_PSEUDO_KEY = 'mister_puzzle_input_modes_by_pseudo';
 const SESSION_KEY = 'mister_puzzle_session';
+
+function pseudoStorageKey(pseudo: string): string {
+  const t = pseudo.trim();
+  return t || '__anon__';
+}
+
+function parseInputModesByPseudo(): Record<string, 'placed' | 'remaining'> {
+  try {
+    const raw = localStorage.getItem(INPUT_MODES_BY_PSEUDO_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const out: Record<string, 'placed' | 'remaining'> = {};
+    for (const [k, v] of Object.entries(parsed)) {
+      if (v === 'placed' || v === 'remaining') out[k] = v;
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
 
 export const getPseudo = (): string =>
   localStorage.getItem(PSEUDO_KEY) ?? '';
@@ -39,13 +61,21 @@ export const saveGrid = (rows: number, cols: number): void => {
   localStorage.setItem(GRID_COLS_KEY, String(cols));
 };
 
-export const getInputMode = (): 'placed' | 'remaining' => {
-  const v = localStorage.getItem(INPUT_MODE_KEY);
-  return v === 'remaining' ? 'remaining' : 'placed';
+/** Préférence d'affichage du compteur (placées vs restantes), par pseudo (navigateur). */
+export const getInputMode = (pseudo: string): 'placed' | 'remaining' => {
+  const key = pseudoStorageKey(pseudo);
+  const byPseudo = parseInputModesByPseudo();
+  const stored = byPseudo[key];
+  if (stored) return stored;
+  const legacy = localStorage.getItem(INPUT_MODE_KEY);
+  return legacy === 'remaining' ? 'remaining' : 'placed';
 };
 
-export const setInputModePreference = (mode: 'placed' | 'remaining'): void => {
-  localStorage.setItem(INPUT_MODE_KEY, mode);
+export const setInputModePreference = (pseudo: string, mode: 'placed' | 'remaining'): void => {
+  const key = pseudoStorageKey(pseudo);
+  const byPseudo = parseInputModesByPseudo();
+  byPseudo[key] = mode;
+  localStorage.setItem(INPUT_MODES_BY_PSEUDO_KEY, JSON.stringify(byPseudo));
 };
 
 /** Unique per-browser-tab ID used for member presence tracking. */
