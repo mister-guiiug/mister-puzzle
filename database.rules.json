@@ -1,9 +1,25 @@
 {
   "rules": {
     "puzzles": {
+      ".indexOn": ["isPublic"],
       "$roomCode": {
         ".read": true,
         ".write": "!data.exists() || newData.val() === null",
+
+        "isPublic": {
+          ".write": "data.parent().exists()",
+          ".validate": "newData.isBoolean()"
+        },
+
+        "passwordHash": {
+          ".write": "data.parent().exists()",
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0)"
+        },
+
+        "createdBy": {
+          ".write": "!data.exists()",
+          ".validate": "newData.isString() && newData.val().length < 100"
+        },
 
         "rows": {
           ".write": "data.parent().exists()",
@@ -36,6 +52,9 @@
             },
             "id": {
               ".validate": "newData.isString()"
+            },
+            "createdBy": {
+              ".validate": "newData.isString() && newData.val().length < 100"
             }
           }
         },
@@ -51,6 +70,13 @@
           "$photoId": {
             ".write": "data.parent().parent().exists()",
             ".validate": "newData.isString() && newData.val().length < 2000000"
+          }
+        },
+
+        "members": {
+          "$sessionId": {
+            ".write": "data.parent().parent().exists()",
+            ".validate": "!newData.exists() || (newData.hasChildren(['pseudo', 'lastSeen']) && newData.child('pseudo').isString() && newData.child('lastSeen').isNumber())"
           }
         }
       }

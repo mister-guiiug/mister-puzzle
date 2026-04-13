@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
-import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Camera, CheckCircle, Clock, Image as ImageIcon, Users, ArrowLeft, Plus, Grid, Share2, Trash2, Lock, Globe, Eye, EyeOff, Settings } from 'lucide-react';
 import { differenceInMinutes } from 'date-fns';
-import { type PuzzleState, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, updateGridSize, deletePuzzle } from '../hooks/useSocket';
+import { type PuzzleState, type Member, updatePieces, toggleCheckpoint, addCheckpoint, addPhoto, updateGridSize, deletePuzzle, joinMember, leaveMember, changePassword, updateVisibility, hashPassword } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
+import { getPseudo, setPseudo as savePseudo, getSessionId } from '../utils/pseudo';
 
 interface DashboardProps {
   puzzle: PuzzleState;
@@ -20,6 +21,26 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
   const [gridRows, setGridRows] = useState(puzzle.rows ?? 0);
   const [gridCols, setGridCols] = useState(puzzle.cols ?? 0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Pseudo (editable inline)
+  const [pseudo, setPseudoState] = useState(getPseudo);
+
+  // Settings panel
+  const [showSettings, setShowSettings] = useState(false);
+  const [currentPwd, setCurrentPwd] = useState('');
+  const [newPwd, setNewPwd] = useState('');
+  const [showNewPwd, setShowNewPwd] = useState(false);
+  const [pwMessage, setPwMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
+
+  // Member presence
+  useEffect(() => {
+    const sessionId = getSessionId();
+    joinMember(puzzle.id, sessionId, pseudo || 'Anonyme').catch(console.error);
+    return () => {
+      leaveMember(puzzle.id, sessionId).catch(console.error);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [puzzle.id]);
 
   const remainingPieces = puzzle.totalPieces - puzzle.placedPieces;
   const progress = Math.min((puzzle.placedPieces / puzzle.totalPieces) * 100, 100);
@@ -69,7 +90,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
       return;
     }
     try {
-      await updatePieces(puzzle.id, newPieces);
+      await updatePieces(puzzle.id, newPieces, pseudo || undefined);
     } catch (err) {
       setError('Impossible de mettre à jour le nombre de pièces.');
       console.error(err);
@@ -79,10 +100,45 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
   const handleAddCheckpoint = async () => {
     if (!newCheckpointName.trim()) return;
     try {
-      await addCheckpoint(puzzle.id, newCheckpointName.trim());
+      await addCheckpoint(puzzle.id, newCheckpointName.trim(), pseudo || undefined);
       setNewCheckpointName('');
     } catch (err) {
       setError('Impossible d\'ajouter le checkpoint.');
+      console.error(err);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    setPwMessage(null);
+    if (puzzle.passwordHash) {
+      if (!currentPwd) {
+        setPwMessage({ type: 'error', text: 'Veuillez saisir le mot de passe actuel.' });
+        return;
+      }
+      const currentHash = await hashPassword(currentPwd);
+      if (currentHash !== puzzle.passwordHash) {
+        setPwMessage({ type: 'error', text: 'Mot de passe actuel incorrect.' });
+        return;
+      }
+    }
+    try {
+      const newHash = newPwd ? await hashPassword(newPwd) : null;
+      await changePassword(puzzle.id, newHash);
+      setCurrentPwd('');
+      setNewPwd('');
+      setPwMessage({ type: 'success', text: newPwd ? 'Mot de passe modifié !' : 'Mot de passe supprimé.' });
+      setTimeout(() => setPwMessage(null), 3000);
+    } catch (err) {
+      setPwMessage({ type: 'error', text: 'Impossible de modifier le mot de passe.' });
+      console.error(err);
+    }
+  };
+
+  const handleUpdateVisibility = async (newIsPublic: boolean) => {
+    try {
+      await updateVisibility(puzzle.id, newIsPublic);
+    } catch (err) {
+      setError('Impossible de modifier la visibilité.');
       console.error(err);
     }
   };
@@ -175,14 +231,55 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
             </button>
             <div>
               <h1 className="text-3xl font-bold text-gray-800">{puzzle.name}</h1>
-              <p className="text-indigo-600 font-mono font-bold text-sm">CODE: {puzzle.id}</p>
+              <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                <p className="text-indigo-600 font-mono font-bold text-sm">CODE: {puzzle.id}</p>
+                {puzzle.createdBy && (
+                  <span className="text-xs text-gray-400">· Créé par {puzzle.createdBy}</span>
+                )}
+                {!puzzle.isPublic && (
+                  <span className="flex items-center gap-1 text-xs text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">
+                    <Lock size={10} /> Privé
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-gray-400">Vous :</span>
+                <input
+                  type="text"
+                  value={pseudo}
+                  onChange={(e) => setPseudoState(e.target.value)}
+                  onBlur={() => savePseudo(pseudo)}
+                  className="text-xs text-gray-600 font-medium bg-transparent border-b border-dashed border-gray-300 outline-none focus:border-indigo-400 w-28"
+                  placeholder="Votre pseudo"
+                  maxLength={30}
+                />
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center space-x-2 text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm">
-              <Users size={20} />
-              <span className="text-sm font-medium">Collaboratif en temps réel</span>
-            </div>
+            {/* Active members */}
+            {puzzle.members && Object.keys(puzzle.members).length > 0 ? (
+              <div className="flex items-center gap-1 bg-white px-3 py-2 rounded-full shadow-sm">
+                {(Object.values(puzzle.members) as Member[]).slice(0, 5).map((member, i) => (
+                  <div
+                    key={i}
+                    title={member.pseudo}
+                    className="w-7 h-7 rounded-full bg-indigo-500 text-white text-xs flex items-center justify-center font-bold border-2 border-white -ml-1 first:ml-0"
+                  >
+                    {member.pseudo.charAt(0).toUpperCase()}
+                  </div>
+                ))}
+                {Object.keys(puzzle.members).length > 5 && (
+                  <span className="text-xs text-gray-400 ml-1">+{Object.keys(puzzle.members).length - 5}</span>
+                )}
+                <span className="text-xs text-gray-500 ml-1">en ligne</span>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2 text-gray-500 bg-white px-4 py-2 rounded-full shadow-sm">
+                <Users size={20} />
+                <span className="text-sm font-medium">Collaboratif</span>
+              </div>
+            )}
             <button
               onClick={handleShare}
               className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-full shadow-sm hover:bg-indigo-700 transition font-medium text-sm"
@@ -190,6 +287,13 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
             >
               <Share2 size={16} />
               {copied ? 'Copié !' : 'Partager'}
+            </button>
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className={`p-2 rounded-full shadow-sm transition ${showSettings ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-100'}`}
+              title="Paramètres du puzzle"
+            >
+              <Settings size={18} />
             </button>
             {!confirmDelete ? (
               <button
@@ -220,6 +324,81 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
           </div>
         </header>
 
+        {/* Settings panel */}
+        {showSettings && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Settings size={18} /> Paramètres du puzzle
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Visibility */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Visibilité</label>
+                <div className="flex rounded-lg overflow-hidden border border-gray-200 w-fit">
+                  <button
+                    onClick={() => handleUpdateVisibility(true)}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition ${puzzle.isPublic ? 'bg-green-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                  >
+                    <Globe size={14} /> Public
+                  </button>
+                  <button
+                    onClick={() => handleUpdateVisibility(false)}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition ${!puzzle.isPublic ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                  >
+                    <Lock size={14} /> Privé
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  {puzzle.isPublic ? 'Visible dans la recherche publique.' : 'Non visible dans la recherche.'}
+                </p>
+              </div>
+
+              {/* Change password */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
+                <div className="space-y-2">
+                  {puzzle.passwordHash && (
+                    <input
+                      type="password"
+                      placeholder="Mot de passe actuel"
+                      className="w-full p-2 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-400"
+                      value={currentPwd}
+                      onChange={(e) => setCurrentPwd(e.target.value)}
+                    />
+                  )}
+                  <div className="relative">
+                    <input
+                      type={showNewPwd ? 'text' : 'password'}
+                      placeholder={puzzle.passwordHash ? 'Nouveau mot de passe (vide = supprimer)' : 'Définir un mot de passe'}
+                      className="w-full p-2 pr-8 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-400"
+                      value={newPwd}
+                      onChange={(e) => setNewPwd(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPwd(!showNewPwd)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
+                    >
+                      {showNewPwd ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                  <button
+                    onClick={handleChangePassword}
+                    className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-indigo-700 transition"
+                  >
+                    {puzzle.passwordHash ? 'Modifier' : 'Définir'}
+                  </button>
+                  {pwMessage && (
+                    <p className={`text-xs font-medium ${pwMessage.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>
+                      {pwMessage.text}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Progression */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 col-span-2">
@@ -242,6 +421,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
               <span className="font-bold text-indigo-700">{remainingPieces.toLocaleString('fr-FR')}</span> pièces restantes
               {puzzle.rows && puzzle.cols && (
                 <span className="text-gray-400 ml-2">· {puzzle.rows} × {puzzle.cols}</span>
+              )}
+              {puzzle.history.length > 0 && puzzle.history[puzzle.history.length - 1].pseudo && (
+                <span className="text-gray-400 ml-2">
+                  · Mis à jour par <span className="font-medium text-indigo-600">{puzzle.history[puzzle.history.length - 1].pseudo}</span>
+                </span>
               )}
             </p>
 
@@ -380,7 +564,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack }) => {
                   <div className={`w-6 h-6 rounded-full border-2 mr-3 flex items-center justify-center transition-colors ${cp.completed ? 'bg-green-500 border-green-500 text-white' : 'border-gray-300 bg-white'}`}>
                     {cp.completed && <CheckCircle size={14} />}
                   </div>
-                  <span className={`font-medium text-sm ${cp.completed ? 'text-green-800 line-through' : 'text-gray-700'}`}>{cp.name}</span>
+                  <div className="flex-1 min-w-0">
+                    <span className={`font-medium text-sm ${cp.completed ? 'text-green-800 line-through' : 'text-gray-700'}`}>{cp.name}</span>
+                    {cp.createdBy && (
+                      <p className="text-xs text-gray-400">{cp.createdBy}</p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
