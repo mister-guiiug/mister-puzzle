@@ -243,6 +243,10 @@ export const uncheckAllCheckpoints = async (roomCode: string, checkpointIds: str
   await update(ref(db), updates);
 };
 
+export const deleteCheckpoint = async (roomCode: string, checkpointId: string): Promise<void> => {
+  await remove(ref(db, `puzzles/${roomCode}/checkpoints/${checkpointId}`));
+};
+
 export const addPhoto = async (roomCode: string, photo: string): Promise<void> => {
   const now = Date.now();
   const newRef = push(ref(db, `puzzles/${roomCode}/photos`));

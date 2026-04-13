@@ -176,16 +176,16 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-6 w-full max-w-sm border border-gray-100 dark:border-gray-800">
-              <h3 className="text-lg font-bold text-gray-800 mb-2">{t('home.deletedTitle')}</h3>
-              <p className="text-sm text-gray-500 mb-4">
-                <span className="font-mono font-bold text-gray-700">{deletedCode}</span> {t('home.deletedBody')}
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">{t('home.deletedTitle')}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <span className="font-mono font-bold text-gray-700 dark:text-gray-200">{deletedCode}</span> {t('home.deletedBody')}
                 {inHistory && <><br /><br />{t('home.deletedHistory')}</>}
               </p>
               <div className="flex gap-3 justify-end">
                 <button
                   type="button"
                   onClick={() => setDeletedCode(null)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-100 transition"
+                  className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition"
                 >
                   {t('home.close')}
                 </button>
@@ -227,7 +227,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             <button
               type="button"
               onClick={restoreTour}
-              className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
+              className="text-sm font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 underline underline-offset-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded"
             >
               {t('home.tourShowAgain')}
             </button>
@@ -321,9 +321,19 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         />
 
         {/* Grid calculator */}
-        <div className={`rounded-xl p-4 mb-4 border transition ${gridLocked ? 'bg-gray-50 border-gray-200' : 'bg-indigo-50 border-indigo-100'}`}>
+        <div
+          className={`rounded-xl p-4 mb-4 border transition ${
+            gridLocked
+              ? 'bg-gray-50 border-gray-200 dark:bg-gray-800/70 dark:border-gray-600'
+              : 'bg-indigo-50 border-indigo-100 dark:bg-indigo-950/45 dark:border-indigo-800/50'
+          }`}
+        >
           <div className="flex items-center justify-between mb-3">
-            <p className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${gridLocked ? 'text-gray-400' : 'text-indigo-500'}`}>
+            <p
+              className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${
+                gridLocked ? 'text-gray-400 dark:text-gray-500' : 'text-indigo-600 dark:text-indigo-300'
+              }`}
+            >
               <Grid size={12} aria-hidden /> {t('home.gridTitle')}
             </p>
             <button
@@ -331,70 +341,98 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               onClick={handleToggleGridLock}
               title={gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')}
               aria-label={gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')}
-              className={`p-1.5 rounded-lg border transition ${gridLocked ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100' : 'bg-white border-gray-200 text-gray-400 hover:text-indigo-500 hover:border-indigo-300'}`}
+              className={`p-1.5 rounded-lg border transition ${
+                gridLocked
+                  ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:border-indigo-800 dark:text-indigo-300 dark:hover:bg-indigo-900/50'
+                  : 'bg-white border-gray-200 text-gray-500 hover:text-indigo-600 hover:border-indigo-300 dark:bg-gray-900/80 dark:border-gray-600 dark:text-gray-400 dark:hover:text-indigo-300 dark:hover:border-indigo-500'
+              }`}
             >
               {gridLocked ? <Lock size={14} /> : <Unlock size={14} />}
             </button>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <label className="block text-xs text-gray-500 mb-1">{t('home.rows')}</label>
+              <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">{t('home.rows')}</label>
               <input
                 type="number"
                 min={1}
                 value={rows}
                 readOnly={gridLocked}
                 onChange={(e) => handleRowsChange(Math.max(1, parseInt(e.target.value) || 1))}
-                className={`w-full p-2 border rounded-lg text-center text-lg font-bold outline-none transition ${gridLocked ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed' : 'border-indigo-200 focus:ring-2 focus:ring-indigo-400 bg-white'}`}
+                className={`w-full rounded-lg border p-2 text-center text-lg font-bold outline-none transition [color-scheme:light] dark:[color-scheme:dark] ${
+                  gridLocked
+                    ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-500 dark:border-gray-600 dark:bg-gray-900/80 dark:text-gray-500'
+                    : 'border-indigo-200 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-400 dark:border-indigo-600/70 dark:bg-gray-950 dark:text-gray-100 dark:focus:ring-indigo-500'
+                }`}
               />
             </div>
-            <span className="text-2xl text-indigo-300 font-light mt-4">×</span>
+            <span className="mt-4 text-2xl font-light text-indigo-400 dark:text-indigo-400/90">×</span>
             <div className="flex-1">
-              <label className="block text-xs text-gray-500 mb-1">{t('home.cols')}</label>
+              <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">{t('home.cols')}</label>
               <input
                 type="number"
                 min={1}
                 value={cols}
                 readOnly={gridLocked}
                 onChange={(e) => handleColsChange(Math.max(1, parseInt(e.target.value) || 1))}
-                className={`w-full p-2 border rounded-lg text-center text-lg font-bold outline-none transition ${gridLocked ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed' : 'border-indigo-200 focus:ring-2 focus:ring-indigo-400 bg-white'}`}
+                className={`w-full rounded-lg border p-2 text-center text-lg font-bold outline-none transition [color-scheme:light] dark:[color-scheme:dark] ${
+                  gridLocked
+                    ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-500 dark:border-gray-600 dark:bg-gray-900/80 dark:text-gray-500'
+                    : 'border-indigo-200 bg-white text-gray-900 focus:ring-2 focus:ring-indigo-400 dark:border-indigo-600/70 dark:bg-gray-950 dark:text-gray-100 dark:focus:ring-indigo-500'
+                }`}
               />
             </div>
-            <span className="text-2xl text-indigo-300 font-light mt-4">=</span>
+            <span className="mt-4 text-2xl font-light text-indigo-400 dark:text-indigo-400/90">=</span>
             <div className="flex-1">
-              <label className="block text-xs text-gray-500 mb-1">{t('home.total')}</label>
-              <div className={`w-full p-2 rounded-lg text-center text-lg font-bold ${gridLocked ? 'bg-gray-200 text-gray-500' : 'bg-indigo-600 text-white'}`}>
+              <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">{t('home.total')}</label>
+              <div
+                className={`w-full rounded-lg p-2 text-center text-lg font-bold ${
+                  gridLocked
+                    ? 'bg-gray-200 text-gray-600 dark:bg-gray-900 dark:text-gray-300'
+                    : 'bg-indigo-600 text-white dark:bg-indigo-500'
+                }`}
+              >
                 {totalPieces.toLocaleString(numberLocale)}
               </div>
             </div>
           </div>
-          <p className={`text-xs mt-2 text-center ${gridLocked ? 'text-gray-400' : 'text-indigo-400'}`}>
+          <p
+            className={`mt-2 text-center text-xs ${gridLocked ? 'text-gray-400 dark:text-gray-500' : 'text-indigo-600 dark:text-indigo-300/95'}`}
+          >
             {gridLocked ? t('home.gridLockedHint') : t('home.gridUnlockedHint')}
           </p>
         </div>
 
         {/* Visibility */}
         <div className="mb-4">
-          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
             {t('home.visibility')}
           </label>
-          <div className="flex rounded-lg overflow-hidden border border-gray-200">
+          <div className="flex overflow-hidden rounded-lg border border-gray-200 dark:border-gray-600">
             <button
               type="button"
               onClick={() => setIsPublic(true)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium transition ${isPublic ? 'bg-green-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+              className={`flex flex-1 items-center justify-center gap-2 py-2 text-sm font-medium transition ${
+                isPublic
+                  ? 'bg-green-600 text-white'
+                  : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-800/90 dark:text-gray-400 dark:hover:bg-gray-700/80'
+              }`}
             >
               <Globe size={14} aria-hidden /> {t('common.public')}
             </button>
             <button
               type="button"
               onClick={() => setIsPublic(false)}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium transition ${!isPublic ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+              className={`flex flex-1 items-center justify-center gap-2 py-2 text-sm font-medium transition ${
+                !isPublic
+                  ? 'bg-indigo-600 text-white dark:bg-indigo-500'
+                  : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-800/90 dark:text-gray-400 dark:hover:bg-gray-700/80'
+              }`}
             >
               <Lock size={14} aria-hidden /> {t('common.private')}
             </button>
           </div>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
             {isPublic ? t('home.visibilityPublicHint') : t('home.visibilityPrivateHint')}
           </p>
         </div>
@@ -402,21 +440,21 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         {/* Password (if private) */}
         {!isPublic && (
           <div className="mb-4 space-y-2">
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
               {t('home.passwordOptional')}
             </label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 placeholder={t('home.passwordPh')}
-                className="w-full p-2 pr-10 border rounded"
+                className="w-full rounded-lg border border-gray-200 bg-white p-2 pr-10 text-gray-900 placeholder:text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -425,7 +463,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               <input
                 type={showPassword ? 'text' : 'password'}
                 placeholder={t('home.confirmPasswordPh')}
-                className="w-full p-2 border rounded"
+                className="w-full rounded-lg border border-gray-200 bg-white p-2 text-gray-900 placeholder:text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
@@ -472,8 +510,8 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
 
         {/* Password prompt for private puzzle */}
         {pendingPuzzle && (
-          <div className="mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-200">
-            <p className="text-sm font-semibold text-indigo-700 mb-3 flex items-center gap-2">
+          <div className="mt-4 rounded-xl border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-800/70 dark:bg-indigo-950/40">
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-indigo-800 dark:text-indigo-200">
               <Lock size={14} aria-hidden /> &quot;{pendingPuzzle.name}&quot; {t('home.protectedPw')}
             </p>
             <div className="flex gap-2">
@@ -481,7 +519,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 <input
                   type={showJoinPassword ? 'text' : 'password'}
                   placeholder={t('home.passwordPh')}
-                  className="w-full p-2 pr-8 border rounded"
+                  className="w-full rounded-lg border border-indigo-200/80 bg-white p-2 pr-8 text-gray-900 placeholder:text-gray-400 dark:border-indigo-800/60 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500"
                   value={joinPassword}
                   onChange={(e) => setJoinPassword(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleVerifyPassword()}
@@ -490,7 +528,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 <button
                   type="button"
                   onClick={() => setShowJoinPassword(!showJoinPassword)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 >
                   {showJoinPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                 </button>
@@ -499,14 +537,14 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 type="button"
                 onClick={handleVerifyPassword}
                 disabled={loading || !joinPassword}
-                className="bg-indigo-600 text-white px-4 py-2 rounded font-bold hover:bg-indigo-700 transition disabled:opacity-50 focus:outline-none focus-visible:ring-2"
+                className="rounded-lg bg-indigo-600 px-4 py-2 font-bold text-white transition hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-400"
               >
                 OK
               </button>
               <button
                 type="button"
                 onClick={() => { setPendingPuzzle(null); setJoinPassword(''); }}
-                className="p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus-visible:ring-2 rounded"
+                className="rounded-lg p-2 text-gray-500 hover:text-gray-800 focus:outline-none focus-visible:ring-2 dark:text-gray-400 dark:hover:text-gray-200"
                 title={t('common.cancel')}
                 aria-label={t('common.cancel')}
               >
@@ -521,7 +559,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       {/* Footer */}
       <footer className="mt-12 flex flex-col items-center gap-3 text-gray-400 dark:text-gray-500 text-xs">
         <div className="flex items-center gap-2">
-          <span className="text-gray-500">{t('home.langLabel')}</span>
+          <span className="text-gray-500 dark:text-gray-400">{t('home.langLabel')}</span>
           <button
             type="button"
             onClick={() => setLocale('fr')}
@@ -542,7 +580,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             href="https://github.com/mister-guiiug/mister-puzzle"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-gray-600 transition"
+            className="flex items-center gap-1 text-gray-500 transition hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           >
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
