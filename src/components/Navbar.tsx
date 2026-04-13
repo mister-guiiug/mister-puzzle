@@ -9,6 +9,8 @@ import {
 } from '../utils/pseudo';
 import type { ThemePreference } from '../theme/themeStorage';
 
+const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
+
 export type NavbarProps = {
   pseudo: string;
   onPseudoChange: (value: string) => void;
@@ -112,8 +114,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className="relative shrink-0">
                   <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-400/30 to-violet-500/20 blur-md dark:from-indigo-500/20 dark:to-violet-500/15" aria-hidden />
                   <img
-                    src="/mister-puzzle/logo.png"
+                    src={logoSrc}
                     alt=""
+                    width={32}
+                    height={32}
                     className="relative size-8 shrink-0 rounded-xl shadow-sm ring-1 ring-gray-900/[0.06] dark:ring-white/10"
                   />
                 </span>

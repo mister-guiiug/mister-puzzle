@@ -1,6 +1,6 @@
 {
   "name": "mister-puzzle",
-  "description": "Suivi collaboratif de puzzles en temps réel — progression, photos, checkpoints, export, FR/EN.",
+  "description": "PWA collaborative : progression puzzle en direct, photos, checkpoints, graphique, export PNG, thème clair/sombre, FR/EN.",
   "private": true,
   "version": "1.0.0",
   "type": "module",

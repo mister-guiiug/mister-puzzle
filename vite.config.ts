@@ -17,11 +17,12 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png', 'favicon.svg', 'logo.png'],
+      includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png', 'favicon.svg', 'logo.png', 'logo.svg'],
       manifest: {
-        name: 'Mister Puzzle',
-        short_name: 'MisterPuzzle',
-        description: 'Suivi collaboratif de vos puzzles en temps réel',
+        name: 'Mister Puzzle — progression collaborative',
+        short_name: 'Mister Puzzle',
+        description:
+          'Suivi collaboratif de puzzles en temps réel : pièces, historique, photos, checkpoints, export PNG, thème clair/sombre.',
         start_url: '/mister-puzzle/',
         scope: '/mister-puzzle/',
         theme_color: '#4f46e5',
@@ -29,17 +30,23 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
+            src: 'logo.svg',
+            sizes: '64x64',
+            type: 'image/svg+xml',
+            purpose: 'any',
+          },
+          {
             src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
-      }
+            type: 'image/png',
+          },
+        ],
+      },
     })
   ],
 });
