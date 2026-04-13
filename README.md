@@ -1,47 +1,54 @@
-# 🧩 Mister Puzzle
+# Mister Puzzle
 
 Application web progressive (PWA) collaborative pour suivre l'avancement de vos puzzles en temps réel.
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
-- **👥 Collaboration en temps réel** : Synchronisation instantanée entre plusieurs appareils grâce à Firebase.
-- **📊 Suivi de progression** : Visualisation claire du nombre de pièces posées et du pourcentage de complétion.
-- **⏱️ Estimations intelligentes** : Calcul automatique du temps restant (scénarios optimiste, réaliste et pessimiste) basé sur votre rythme actuel.
-- **📸 Galerie photo** : Capturez et conservez des photos de l'évolution de votre puzzle.
-- **✅ Checkpoints** : Marquez les étapes clés (contour, 50%, 75%).
-- **📱 PWA** : Installable sur votre écran d'accueil pour une expérience fluide comme une application native.
-- **🔔 Mises à jour** : Système de notification interne pour vous proposer les dernières versions de l'application.
+- **Collaboration en temps réel** : synchronisation via Firebase Realtime Database entre appareils.
+- **Suivi de progression** : pièces placées ou restantes, barre de progression, courbe d’historique.
+- **Préférences par pseudo** : mode d’affichage du compteur mémorisé localement pour chaque pseudo.
+- **Mode lecture seule** : suivre un puzzle sans modifier les données (paramètres).
+- **Photos** : galerie avec légende, date d’ajout, réordonnancement (glisser-déposer ou flèches), rotation et limite de taille à l’envoi.
+- **Checkpoints** : modèles rapides, tout décocher, création manuelle ou drapeau sur l’étape courante.
+- **Export** : image PNG récapitulative (nom, progression, lien).
+- **Internationalisation** : français et anglais (sélecteur sur l’accueil et dans les paramètres du puzzle).
+- **Présence** : membres « en ligne » avec rafraîchissement régulier et filtre d’activité récente.
+- **Historique** : entrées limitées automatiquement (taille maîtrisée côté base).
+- **PWA** : installable, mises à jour via bannière interne.
 
-## 🚀 Technologies
+## Technologies
 
 - **Frontend** : [React 19](https://react.dev/), [Vite](https://vitejs.dev/)
 - **Style** : [Tailwind CSS v4](https://tailwindcss.com/)
-- **Base de données** : [Firebase Realtime Database](https://firebase.google.com/docs/database)
+- **Données** : [Firebase Realtime Database](https://firebase.google.com/docs/database)
 - **Icônes** : [Lucide React](https://lucide.dev/)
-- **Animations** : [Framer Motion](https://www.framer.com/motion/)
 
-## 🛠️ Installation
+## Installation
 
 1. Clonez le dépôt.
 2. Installez les dépendances :
    ```bash
    npm install
    ```
-3. Configurez vos variables d'environnement. Créez un fichier `.env.local` en vous basant sur `.env.example` et ajoutez vos clés Firebase.
+3. Configurez les variables d’environnement. Créez un fichier `.env.local` à partir de `.env.example` et renseignez les clés Firebase.
 4. Lancez le serveur de développement :
    ```bash
    npm run dev
    ```
 
-## 📦 Déploiement
+### Build local (Windows)
 
-L'application est configurée pour un déploiement automatique sur **GitHub Pages** via GitHub Actions lors d'un push sur la branche `main`.
+Si `npm run build` échoue avec une erreur du type « Cannot find module @rollup/rollup-win32-x64-msvc », c’est un problème connu des dépendances optionnelles de npm. Essayez une réinstallation propre : supprimez `node_modules` et `package-lock.json`, puis `npm install` à nouveau (ou utilisez une version LTS de Node recommandée par le projet).
+
+## Déploiement
+
+L’application est prévue pour un déploiement automatique sur **GitHub Pages** via GitHub Actions lors d’un push sur la branche `main`.
 
 Le chemin de base est configuré sur `/mister-puzzle/`.
 
-## 🔒 Sécurité (Firebase)
+## Sécurité (Firebase)
 
-Les règles de sécurité de la base de données sont définies dans `database.rules.json` et sont automatiquement déployées via l'Action GitHub.
+Les règles de la base sont dans `database.rules.json` et peuvent être déployées via votre workflow. Le « mot de passe puzzle » est un hash côté client (SHA-256) : c’est une protection d’usage courant, pas un équivalent d’authentification serveur forte. Pour des exigences plus élevées, prévoir Firebase Auth et des règles basées sur l’identité.
 
 ---
-Développé avec ❤️ pour les passionnés de puzzles.
+Développé pour les passionnés de puzzles.

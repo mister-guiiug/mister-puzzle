@@ -6,6 +6,11 @@ export interface Photo {
   id: string;
   data: string;
   rotation: number;
+  caption?: string;
+  /** ms epoch, set when the photo is added */
+  addedAt?: number;
+  /** lower values appear first */
+  sortOrder?: number;
 }
 
 export interface Member {
@@ -48,11 +53,27 @@ const normalizePuzzle = (data: any): PuzzleState => ({
   isPublic: data.isPublic ?? true,
   checkpoints: data.checkpoints ? Object.values(data.checkpoints) : [],
   photos: data.photos
-    ? Object.entries(data.photos as Record<string, unknown>).map(([key, val]) =>
-        typeof val === 'string'
-          ? { id: key, data: val, rotation: 0 }
-          : { ...(val as Omit<Photo, 'id'>), id: key }
-      )
+    ? Object.entries(data.photos as Record<string, unknown>)
+        .map(([key, val]) => {
+          if (typeof val === 'string') {
+            return { id: key, data: val, rotation: 0 } as Photo;
+          }
+          const o = val as Record<string, unknown>;
+          return {
+            id: key,
+            data: String(o.data ?? ''),
+            rotation: typeof o.rotation === 'number' ? o.rotation : 0,
+            ...(typeof o.caption === 'string' ? { caption: o.caption } : {}),
+            ...(typeof o.addedAt === 'number' ? { addedAt: o.addedAt } : {}),
+            ...(typeof o.sortOrder === 'number' ? { sortOrder: o.sortOrder } : {}),
+          } as Photo;
+        })
+        .sort((a, b) => {
+          const ao = a.sortOrder ?? a.addedAt ?? 0;
+          const bo = b.sortOrder ?? b.addedAt ?? 0;
+          if (ao !== bo) return ao - bo;
+          return a.id.localeCompare(b.id);
+        })
     : [],
   history: data.history ? Object.values(data.history) : [],
   members: data.members ?? undefined,
@@ -176,6 +197,24 @@ export const updateVisibility = async (roomCode: string, isPublic: boolean): Pro
   await update(ref(db, `puzzles/${roomCode}`), { isPublic });
 };
 
+const MAX_HISTORY_ENTRIES = 120;
+
+const trimHistoryIfNeeded = async (roomCode: string): Promise<void> => {
+  const snap = await get(ref(db, `puzzles/${roomCode}/history`));
+  if (!snap.exists()) return;
+  const val = snap.val() as Record<string, HistoryEntry>;
+  const keys = Object.keys(val);
+  if (keys.length <= MAX_HISTORY_ENTRIES) return;
+  const rows = keys.map((k) => ({ key: k, ...val[k] }));
+  rows.sort((a, b) => a.timestamp - b.timestamp);
+  const toDelete = rows.slice(0, rows.length - MAX_HISTORY_ENTRIES);
+  const updates: Record<string, null> = {};
+  for (const { key } of toDelete) {
+    updates[`puzzles/${roomCode}/history/${key}`] = null;
+  }
+  await update(ref(db), updates);
+};
+
 export const updatePieces = async (roomCode: string, placedPieces: number, pseudo?: string): Promise<void> => {
   const newKey = push(ref(db, `puzzles/${roomCode}/history`)).key;
   await update(ref(db), {
@@ -186,6 +225,7 @@ export const updatePieces = async (roomCode: string, placedPieces: number, pseud
       ...(pseudo ? { pseudo } : {}),
     },
   });
+  trimHistoryIfNeeded(roomCode).catch(() => {});
 };
 
 export const toggleCheckpoint = async (
@@ -206,9 +246,34 @@ export const addCheckpoint = async (roomCode: string, name: string, pseudo?: str
   });
 };
 
+export const uncheckAllCheckpoints = async (roomCode: string, checkpointIds: string[]): Promise<void> => {
+  const updates: Record<string, boolean> = {};
+  for (const id of checkpointIds) {
+    updates[`puzzles/${roomCode}/checkpoints/${id}/completed`] = false;
+  }
+  await update(ref(db), updates);
+};
+
 export const addPhoto = async (roomCode: string, photo: string): Promise<void> => {
+  const now = Date.now();
   const newRef = push(ref(db, `puzzles/${roomCode}/photos`));
-  await set(newRef, { data: photo, rotation: 0 });
+  await set(newRef, { data: photo, rotation: 0, addedAt: now, sortOrder: now });
+};
+
+export const updatePhoto = async (
+  roomCode: string,
+  photoId: string,
+  patch: { caption?: string | null; sortOrder?: number },
+): Promise<void> => {
+  await update(ref(db, `puzzles/${roomCode}/photos/${photoId}`), patch as Record<string, unknown>);
+};
+
+export const reorderPhotos = async (roomCode: string, orderedIds: string[]): Promise<void> => {
+  const updates: Record<string, number> = {};
+  orderedIds.forEach((id, index) => {
+    updates[`puzzles/${roomCode}/photos/${id}/sortOrder`] = index;
+  });
+  await update(ref(db), updates);
 };
 
 export const deletePhoto = async (roomCode: string, photoId: string): Promise<void> => {

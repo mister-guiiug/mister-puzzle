@@ -68,14 +68,14 @@
         "history": {
           "$entry": {
             ".write": "data.parent().parent().exists()",
-            ".validate": "newData.hasChildren(['timestamp', 'placedPieces']) && newData.child('timestamp').isNumber() && newData.child('placedPieces').isNumber()"
+            ".validate": "newData.hasChildren(['timestamp', 'placedPieces']) && newData.child('timestamp').isNumber() && newData.child('placedPieces').isNumber() && (!newData.child('pseudo').exists() || (newData.child('pseudo').isString() && newData.child('pseudo').val().length < 100))"
           }
         },
 
         "photos": {
           "$photoId": {
             ".write": "data.parent().parent().exists()",
-            ".validate": "!newData.exists() || (newData.hasChildren(['data', 'rotation']) && newData.child('data').isString() && newData.child('data').val().length < 2000000 && newData.child('rotation').isNumber())"
+            ".validate": "!newData.exists() || (newData.child('data').isString() && newData.child('data').val().length < 2000000 && newData.child('rotation').isNumber() && (!newData.child('caption').exists() || (newData.child('caption').isString() && newData.child('caption').val().length < 500)) && (!newData.child('addedAt').exists() || newData.child('addedAt').isNumber()) && (!newData.child('sortOrder').exists() || newData.child('sortOrder').isNumber()))"
           }
         },
 

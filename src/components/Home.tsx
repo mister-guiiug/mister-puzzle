@@ -4,12 +4,14 @@ import { createPuzzle, joinPuzzle, getPublicPuzzles, hashPassword, type PuzzleSt
 import ErrorModal from './ErrorModal';
 import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
 import { getPseudo, setPseudo, isPseudoLocked, setPseudoLocked, isGridLocked, setGridLocked, getSavedGrid, saveGrid } from '../utils/pseudo';
+import { useI18n } from '../i18n/I18nContext';
 
 interface HomeProps {
   onJoin: (roomCode: string) => void;
 }
 
 const Home: React.FC<HomeProps> = ({ onJoin }) => {
+  const { t, numberLocale, locale, setLocale } = useI18n();
   const [pseudo, setPseudoState] = useState(getPseudo);
   const [pseudoLocked, setPseudoLockedState] = useState(isPseudoLocked);
   const [name, setName] = useState('');
@@ -80,15 +82,15 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
 
   const handleCreate = async () => {
     if (!name.trim()) {
-      setError('Veuillez donner un nom à votre puzzle.');
+      setError(t('home.errorName'));
       return;
     }
     if (rows <= 0 || cols <= 0) {
-      setError('Le nombre de lignes et colonnes doit être supérieur à 0.');
+      setError(t('home.errorGrid'));
       return;
     }
     if (!isPublic && password && password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.');
+      setError(t('home.errorPwMatch'));
       return;
     }
     setLoading(true);
@@ -98,7 +100,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
       saveToHistory(code, name.trim());
       onJoin(code);
     } catch (err) {
-      setError('Impossible de créer le puzzle. Vérifiez votre connexion.');
+      setError(t('home.errorCreate'));
       console.error(err);
     } finally {
       setLoading(false);
@@ -108,7 +110,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
   const handleJoin = async (manualCode?: string) => {
     const codeToJoin = (manualCode || roomCode).trim().toUpperCase();
     if (!codeToJoin) {
-      setError('Veuillez entrer un code de puzzle.');
+      setError(t('home.errorCode'));
       return;
     }
     setLoading(true);
@@ -125,7 +127,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         onJoin(puzzle.id);
       }
     } catch (err) {
-      setError('Une erreur est survenue lors de la recherche du puzzle.');
+      setError(t('home.errorJoin'));
       console.error(err);
     } finally {
       setLoading(false);
@@ -141,10 +143,10 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         saveToHistory(pendingPuzzle.id, pendingPuzzle.name);
         onJoin(pendingPuzzle.id);
       } else {
-        setError('Mot de passe incorrect.');
+        setError(t('home.errorPwWrong'));
       }
     } catch (err) {
-      setError('Une erreur est survenue.');
+      setError(t('home.errorGeneric'));
       console.error(err);
     } finally {
       setLoading(false);
@@ -163,7 +165,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
       const puzzles = await getPublicPuzzles();
       setPublicPuzzles(puzzles);
     } catch (err) {
-      setError('Impossible de charger les puzzles publics.');
+      setError(t('home.errorPublic'));
       console.error(err);
     } finally {
       setLoadingPublic(false);
@@ -185,20 +187,22 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
             <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
-              <h3 className="text-lg font-bold text-gray-800 mb-2">Puzzle introuvable</h3>
+              <h3 className="text-lg font-bold text-gray-800 mb-2">{t('home.deletedTitle')}</h3>
               <p className="text-sm text-gray-500 mb-4">
-                Le puzzle <span className="font-mono font-bold text-gray-700">{deletedCode}</span> n&apos;existe pas ou a été supprimé.
-                {inHistory && <><br /><br />Il est présent dans vos puzzles récents. Voulez-vous le retirer ?</>}
+                <span className="font-mono font-bold text-gray-700">{deletedCode}</span> {t('home.deletedBody')}
+                {inHistory && <><br /><br />{t('home.deletedHistory')}</>}
               </p>
               <div className="flex gap-3 justify-end">
                 <button
+                  type="button"
                   onClick={() => setDeletedCode(null)}
                   className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-100 transition"
                 >
-                  Fermer
+                  {t('home.close')}
                 </button>
                 {inHistory && (
                   <button
+                    type="button"
                     onClick={() => {
                       removeFromHistory(deletedCode);
                       setHistory(getHistory());
@@ -206,7 +210,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
                     }}
                     className="px-4 py-2 rounded-xl text-sm font-bold bg-red-500 text-white hover:bg-red-600 transition"
                   >
-                    Retirer de l&apos;historique
+                    {t('home.removeFromHistoryBtn')}
                   </button>
                 )}
               </div>
@@ -218,21 +222,22 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
       {/* Logo + title */}
       <img
         src="/mister-puzzle/logo.png"
-        alt="Mister Puzzle"
+        alt=""
         className="w-40 h-40 mb-4 drop-shadow-lg hover:scale-105 transition-transform duration-300"
       />
-      <h1 className="text-4xl font-bold mb-2 text-indigo-600">Mister Puzzle</h1>
-      <p className="text-gray-400 text-sm mb-8">Suivez votre progression en équipe</p>
+      <h1 className="text-4xl font-bold mb-2 text-indigo-600">{t('common.appName')}</h1>
+      <p className="text-gray-400 text-sm mb-8">{t('home.tagline')}</p>
 
       {/* Pseudo */}
       <div className="bg-white p-4 rounded-xl shadow-md w-full max-w-md mb-6">
         <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1">
-          <Users size={12} /> Votre pseudo
+          <Users size={12} aria-hidden /> {t('home.yourPseudo')}
         </label>
         <div className="flex items-center gap-2">
           <input
             type="text"
-            placeholder="Anonyme"
+            placeholder={t('home.pseudoPlaceholder')}
+            aria-label={t('home.yourPseudo')}
             className={`flex-1 p-2 border rounded-lg outline-none transition ${pseudoLocked ? 'bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed' : 'border-gray-200 focus:ring-2 focus:ring-indigo-400'}`}
             value={pseudo}
             onChange={(e) => !pseudoLocked && setPseudoState(e.target.value)}
@@ -241,41 +246,44 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
             maxLength={30}
           />
           <button
+            type="button"
             onClick={handleTogglePseudoLock}
-            title={pseudoLocked ? 'Déverrouiller le pseudo' : 'Verrouiller le pseudo'}
+            title={pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')}
+            aria-label={pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')}
             className={`p-2 rounded-lg border transition ${pseudoLocked ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100' : 'bg-gray-50 border-gray-200 text-gray-400 hover:text-indigo-500 hover:border-indigo-300'}`}
           >
             {pseudoLocked ? <Lock size={16} /> : <Unlock size={16} />}
           </button>
         </div>
         <p className="text-xs text-gray-400 mt-1">
-          {pseudoLocked
-            ? '🔒 Pseudo verrouillé — cliquez sur le cadenas pour modifier.'
-            : 'Affiché sur vos checkpoints et dans les sessions collaboratives.'}
+          {pseudoLocked ? t('home.pseudoLockedHint') : t('home.pseudoUnlockedHint')}
         </p>
       </div>
 
       {/* Create */}
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md mb-6">
-        <h2 className="text-xl font-semibold mb-4">Créer un nouveau puzzle</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('home.createTitle')}</h2>
 
         <input
           type="text"
-          placeholder="Nom du puzzle"
+          placeholder={t('home.puzzleNamePh')}
+          aria-label={t('home.puzzleNamePh')}
           className="w-full p-2 border rounded mb-4"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
 
         {/* Grid calculator */}
-        <div className={`rounded-xl p-4 mb-4 border transition ${gridLocked ? 'bg-gray-50 border-gray-200' : 'bg-indigo-50 border-indigo-100'}`}>
+        <div className={`rounded-xl p-4 mb-4 border transition ${gridLocked ? t('home.gridLockedHint') : t('home.gridUnlockedHint')}`}>
           <div className="flex items-center justify-between mb-3">
             <p className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${gridLocked ? 'text-gray-400' : 'text-indigo-500'}`}>
-              <Grid size={12} /> Grille de pièces
+              <Grid size={12} aria-hidden /> {t('home.gridTitle')}
             </p>
             <button
+              type="button"
               onClick={handleToggleGridLock}
-              title={gridLocked ? 'Déverrouiller la grille' : 'Verrouiller la grille'}
+              title={gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')}
+              aria-label={gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')}
               className={`p-1.5 rounded-lg border transition ${gridLocked ? 'bg-indigo-50 border-indigo-200 text-indigo-600 hover:bg-indigo-100' : 'bg-white border-gray-200 text-gray-400 hover:text-indigo-500 hover:border-indigo-300'}`}
             >
               {gridLocked ? <Lock size={14} /> : <Unlock size={14} />}
@@ -283,7 +291,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
           </div>
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <label className="block text-xs text-gray-500 mb-1">Lignes</label>
+              <label className="block text-xs text-gray-500 mb-1">{t('home.rows')}</label>
               <input
                 type="number"
                 min={1}
@@ -295,7 +303,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
             </div>
             <span className="text-2xl text-indigo-300 font-light mt-4">×</span>
             <div className="flex-1">
-              <label className="block text-xs text-gray-500 mb-1">Colonnes</label>
+              <label className="block text-xs text-gray-500 mb-1">{t('home.cols')}</label>
               <input
                 type="number"
                 min={1}
@@ -307,9 +315,9 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
             </div>
             <span className="text-2xl text-indigo-300 font-light mt-4">=</span>
             <div className="flex-1">
-              <label className="block text-xs text-gray-500 mb-1">Total</label>
+              <label className="block text-xs text-gray-500 mb-1">{t('home.total')}</label>
               <div className={`w-full p-2 rounded-lg text-center text-lg font-bold ${gridLocked ? 'bg-gray-200 text-gray-500' : 'bg-indigo-600 text-white'}`}>
-                {totalPieces.toLocaleString('fr-FR')}
+                {totalPieces.toLocaleString(numberLocale)}
               </div>
             </div>
           </div>
@@ -321,26 +329,26 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         {/* Visibility */}
         <div className="mb-4">
           <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-            Visibilité
+            {t('home.visibility')}
           </label>
           <div className="flex rounded-lg overflow-hidden border border-gray-200">
             <button
+              type="button"
               onClick={() => setIsPublic(true)}
               className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium transition ${isPublic ? 'bg-green-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
             >
-              <Globe size={14} /> Public
+              <Globe size={14} aria-hidden /> {t('common.public')}
             </button>
             <button
+              type="button"
               onClick={() => setIsPublic(false)}
               className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium transition ${!isPublic ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
             >
-              <Lock size={14} /> Privé
+              <Lock size={14} aria-hidden /> {t('common.private')}
             </button>
           </div>
           <p className="text-xs text-gray-400 mt-1">
-            {isPublic
-              ? 'Votre puzzle sera visible dans la liste des puzzles publics.'
-              : 'Votre puzzle ne sera pas visible dans la recherche.'}
+            {isPublic ? t('home.visibilityPublicHint') : t('home.visibilityPrivateHint')}
           </p>
         </div>
 
@@ -348,12 +356,12 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         {!isPublic && (
           <div className="mb-4 space-y-2">
             <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">
-              Mot de passe (optionnel)
+              {t('home.passwordOptional')}
             </label>
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Mot de passe"
+                placeholder={t('home.passwordPh')}
                 className="w-full p-2 pr-10 border rounded"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -369,7 +377,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
             {password && (
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Confirmer le mot de passe"
+                placeholder={t('home.confirmPasswordPh')}
                 className="w-full p-2 border rounded"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -379,23 +387,25 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         )}
 
         <button
+          type="button"
           onClick={handleCreate}
           disabled={loading}
-          className="w-full bg-indigo-600 text-white p-2 rounded font-bold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-indigo-600 text-white p-2 rounded font-bold hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
-          {loading ? 'Création...' : 'Créer'}
+          {loading ? t('home.creating') : t('home.createBtn')}
         </button>
       </div>
 
       {/* Join */}
       <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md mb-6">
-        <h2 className="text-xl font-semibold mb-4">Rejoindre un puzzle</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('home.joinTitle')}</h2>
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Hash size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Hash size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden />
             <input
               type="text"
-              placeholder="Code (ex: AB12CD)"
+              placeholder={t('home.codePh')}
+              aria-label={t('home.codePh')}
               className="w-full pl-8 p-2 border rounded uppercase tracking-widest font-mono"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
@@ -403,11 +413,13 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
             />
           </div>
           <button
+            type="button"
             onClick={() => handleJoin()}
             disabled={loading || !!pendingPuzzle}
-            className="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+            className="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+            aria-label={t('home.joinBtn')}
           >
-            {loading ? '...' : <><span>Rejoindre</span><ArrowRight size={16} /></>}
+            {loading ? '...' : <><span>{t('home.joinBtn')}</span><ArrowRight size={16} aria-hidden /></>}
           </button>
         </div>
 
@@ -415,13 +427,13 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         {pendingPuzzle && (
           <div className="mt-4 p-4 bg-indigo-50 rounded-xl border border-indigo-200">
             <p className="text-sm font-semibold text-indigo-700 mb-3 flex items-center gap-2">
-              <Lock size={14} /> &quot;{pendingPuzzle.name}&quot; est protégé par un mot de passe.
+              <Lock size={14} aria-hidden /> &quot;{pendingPuzzle.name}&quot; {t('home.protectedPw')}
             </p>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <input
                   type={showJoinPassword ? 'text' : 'password'}
-                  placeholder="Mot de passe"
+                  placeholder={t('home.passwordPh')}
                   className="w-full p-2 pr-8 border rounded"
                   value={joinPassword}
                   onChange={(e) => setJoinPassword(e.target.value)}
@@ -437,16 +449,19 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
                 </button>
               </div>
               <button
+                type="button"
                 onClick={handleVerifyPassword}
                 disabled={loading || !joinPassword}
-                className="bg-indigo-600 text-white px-4 py-2 rounded font-bold hover:bg-indigo-700 transition disabled:opacity-50"
+                className="bg-indigo-600 text-white px-4 py-2 rounded font-bold hover:bg-indigo-700 transition disabled:opacity-50 focus:outline-none focus-visible:ring-2"
               >
                 OK
               </button>
               <button
+                type="button"
                 onClick={() => { setPendingPuzzle(null); setJoinPassword(''); }}
-                className="p-2 text-gray-400 hover:text-gray-600"
-                title="Annuler"
+                className="p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus-visible:ring-2 rounded"
+                title={t('common.cancel')}
+                aria-label={t('common.cancel')}
               >
                 <X size={16} />
               </button>
@@ -458,11 +473,13 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
       {/* Public puzzles browser */}
       <div className="w-full max-w-md mb-6">
         <button
+          type="button"
           onClick={handleLoadPublicPuzzles}
-          className="w-full flex items-center justify-between p-4 bg-white rounded-xl shadow-md border border-gray-100 hover:border-green-300 transition text-left"
+          className="w-full flex items-center justify-between p-4 bg-white rounded-xl shadow-md border border-gray-100 hover:border-green-300 transition text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
+          aria-expanded={showPublicPuzzles}
         >
           <span className="font-semibold text-gray-700 flex items-center gap-2">
-            <Globe size={18} className="text-green-600" /> Puzzles publics
+            <Globe size={18} className="text-green-600" aria-hidden /> {t('home.publicPuzzles')}
           </span>
           <ArrowRight
             size={18}
@@ -472,29 +489,31 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
         {showPublicPuzzles && (
           <div className="mt-2 bg-white rounded-xl shadow-md p-4 border border-gray-100">
             <div className="relative mb-3">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden />
               <input
                 type="text"
-                placeholder="Rechercher un puzzle..."
+                placeholder={t('home.searchPh')}
+                aria-label={t('home.searchPh')}
                 className="w-full pl-8 p-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-green-400"
                 value={publicSearch}
                 onChange={(e) => setPublicSearch(e.target.value)}
               />
             </div>
             {loadingPublic ? (
-              <p className="text-center text-gray-400 text-sm py-4 animate-pulse">Chargement...</p>
+              <p className="text-center text-gray-400 text-sm py-4 animate-pulse">{t('common.loading')}</p>
             ) : filteredPublicPuzzles.length === 0 ? (
               <p className="text-center text-gray-400 text-sm py-4">
-                {publicSearch ? 'Aucun résultat.' : 'Aucun puzzle public pour le moment.'}
+                {publicSearch ? t('home.noResults') : t('home.noPublic')}
               </p>
             ) : (
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {filteredPublicPuzzles.map((p) => (
                   <button
+                    type="button"
                     key={p.id}
                     onClick={() => handleJoin(p.id)}
                     disabled={loading}
-                    className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-green-50 border border-transparent hover:border-green-200 transition text-left"
+                    className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-green-50 border border-transparent hover:border-green-200 transition text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
                   >
                     <div>
                       <p className="font-bold text-gray-800 text-sm">{p.name}</p>
@@ -503,7 +522,8 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
                         {p.createdBy && <span className="ml-2 not-font-mono">· {p.createdBy}</span>}
                       </p>
                       <p className="text-xs text-gray-400">
-                        {p.placedPieces.toLocaleString('fr-FR')} / {p.totalPieces.toLocaleString('fr-FR')} pièces
+                        {p.placedPieces.toLocaleString(numberLocale)} / {p.totalPieces.toLocaleString(numberLocale)}{' '}
+                        {t('common.pieces')}
                         {' · '}
                         {Math.round((p.placedPieces / p.totalPieces) * 100)}%
                       </p>
@@ -521,15 +541,16 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
       {history.length > 0 && (
         <div className="w-full max-w-md">
           <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
-            <Clock size={16} className="mr-2" /> Puzzles récents
+            <Clock size={16} className="mr-2" aria-hidden /> {t('home.recentTitle')}
           </h2>
           <div className="space-y-2">
             {history.map((item) => (
               <div key={item.code} className="relative group/row">
                 <button
+                  type="button"
                   onClick={() => handleJoin(item.code)}
                   disabled={loading}
-                  className="w-full flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition group text-left pr-10"
+                  className="w-full flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-indigo-300 hover:shadow-md transition group text-left pr-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
                 >
                   <div>
                     <p className="font-bold text-gray-800 group-hover:text-indigo-600 transition">
@@ -537,7 +558,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
                     </p>
                     <p className="text-xs font-mono text-gray-400">{item.code}</p>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(item.timestamp).toLocaleString('fr-FR', {
+                      {new Date(item.timestamp).toLocaleString(numberLocale, {
                         day: '2-digit', month: '2-digit', year: '2-digit',
                         hour: '2-digit', minute: '2-digit',
                       })}
@@ -546,13 +567,15 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
                   <ArrowRight size={18} className="text-gray-200 group-hover:text-indigo-500 transition" />
                 </button>
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     removeFromHistory(item.code);
                     setHistory(getHistory());
                   }}
-                  className="absolute top-2 right-2 p-1 rounded-full text-gray-200 hover:text-red-400 hover:bg-red-50 transition opacity-0 group-hover/row:opacity-100"
-                  title="Retirer de l'historique"
+                  className="absolute top-2 right-2 p-1 rounded-full text-gray-200 hover:text-red-400 hover:bg-red-50 transition opacity-0 group-hover/row:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2"
+                  title={t('home.removeHistory')}
+                  aria-label={t('home.removeHistory')}
                 >
                   <X size={14} />
                 </button>
@@ -564,6 +587,23 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
 
       {/* Footer */}
       <footer className="mt-12 flex flex-col items-center gap-3 text-gray-400 text-xs">
+        <div className="flex items-center gap-2">
+          <span className="text-gray-500">{t('home.langLabel')}</span>
+          <button
+            type="button"
+            onClick={() => setLocale('fr')}
+            className={`px-2 py-1 rounded text-xs font-semibold border ${locale === 'fr' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white border-gray-200 text-gray-600'}`}
+          >
+            {t('home.langFr')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setLocale('en')}
+            className={`px-2 py-1 rounded text-xs font-semibold border ${locale === 'en' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white border-gray-200 text-gray-600'}`}
+          >
+            {t('home.langEn')}
+          </button>
+        </div>
         <div className="flex items-center gap-4">
           <a
             href="https://github.com/mister-guiiug/mister-puzzle"
@@ -585,7 +625,7 @@ const Home: React.FC<HomeProps> = ({ onJoin }) => {
             ☕ Buy me a coffee
           </a>
         </div>
-        <p>Mister Puzzle © {new Date().getFullYear()}</p>
+        <p>{t('common.appName')} © {new Date().getFullYear()}</p>
       </footer>
     </div>
   );
