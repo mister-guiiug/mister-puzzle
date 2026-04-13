@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Camera, CheckCircle, Clock, Image as ImageIcon, Users } from 'lucide-react';
 import { differenceInMinutes } from 'date-fns';
 import { type PuzzleState, updatePieces, toggleCheckpoint, addPhoto } from '../hooks/useSocket';
+import ErrorModal from './ErrorModal';
 
 interface DashboardProps {
   puzzle: PuzzleState;
@@ -9,6 +10,7 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ puzzle }) => {
   const [newPieces, setNewPieces] = useState(puzzle.placedPieces);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const remainingPieces = puzzle.totalPieces - puzzle.placedPieces;
@@ -46,8 +48,13 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle }) => {
 
   const estimates = calculateEstimates();
 
-  const handlePiecesUpdate = () => {
-    updatePieces(puzzle.id, newPieces);
+  const handlePiecesUpdate = async () => {
+    try {
+      await updatePieces(puzzle.id, newPieces);
+    } catch (err) {
+      setError('Impossible de mettre à jour le nombre de pièces.');
+      console.error(err);
+    }
   };
 
   const resizeImage = (file: File): Promise<string> => {
@@ -74,13 +81,20 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle }) => {
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const compressed = await resizeImage(file);
-      addPhoto(puzzle.id, compressed);
+      try {
+        const compressed = await resizeImage(file);
+        await addPhoto(puzzle.id, compressed);
+      } catch (err) {
+        setError("Impossible d'ajouter la photo. Vérifiez la taille ou votre connexion.");
+        console.error(err);
+      }
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <ErrorModal message={error} onClose={() => setError(null)} />
+
       <div className="max-w-4xl mx-auto">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
