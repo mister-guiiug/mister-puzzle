@@ -63,6 +63,7 @@ import { exportProgressPng } from '../utils/exportProgressCard';
 import { reportError } from '../utils/reportError';
 import { notifySaveSuccess } from '../utils/haptic';
 import { downloadHistoryCsv, downloadHistoryJson } from '../utils/exportHistory';
+import { downloadPseudoStatsCsv } from '../utils/exportPseudoStats';
 import { computePseudoStatsFromHistory } from '../utils/pseudoStats';
 
 const MEMBER_TTL_MS = 5 * 60 * 1000;
@@ -302,11 +303,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const dashKeyRef = useRef({ puzzle, readOnly, newPieces });
   dashKeyRef.current = { puzzle, readOnly, newPieces };
 
-  const pieceSaveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Navigateur : identifiant numérique renvoyé par `setTimeout`. */
+  const pieceSaveDebounceRef = useRef<number | null>(null);
 
   const scheduleDebouncedPieceSave = () => {
     if (readOnly) return;
-    if (pieceSaveDebounceRef.current) clearTimeout(pieceSaveDebounceRef.current);
+    if (pieceSaveDebounceRef.current !== null) window.clearTimeout(pieceSaveDebounceRef.current);
     pieceSaveDebounceRef.current = window.setTimeout(() => {
       pieceSaveDebounceRef.current = null;
       const { readOnly: ro, newPieces: np, puzzle: pz } = dashKeyRef.current;
@@ -317,16 +319,16 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
   useEffect(() => {
     return () => {
-      if (pieceSaveDebounceRef.current) {
-        clearTimeout(pieceSaveDebounceRef.current);
+      if (pieceSaveDebounceRef.current !== null) {
+        window.clearTimeout(pieceSaveDebounceRef.current);
         pieceSaveDebounceRef.current = null;
       }
     };
   }, [puzzle.id]);
 
   useEffect(() => {
-    if (readOnly && pieceSaveDebounceRef.current) {
-      clearTimeout(pieceSaveDebounceRef.current);
+    if (readOnly && pieceSaveDebounceRef.current !== null) {
+      window.clearTimeout(pieceSaveDebounceRef.current);
       pieceSaveDebounceRef.current = null;
     }
   }, [readOnly]);
@@ -1513,6 +1515,31 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         ))}
                       </tbody>
                     </table>
+                  </div>
+                )}
+                {pseudoStatRows.length > 0 && (
+                  <div className="mt-3">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        downloadPseudoStatsCsv(
+                          pseudoStatRows,
+                          historyExportBase,
+                          {
+                            pseudo: t('dashboard.statsColPseudo'),
+                            pieces24h: t('dashboard.statsColPieces24h'),
+                            maxSingle: t('dashboard.statsColMaxSingle'),
+                            maxStreak: t('dashboard.statsColMaxStreak'),
+                            updates: t('dashboard.statsColUpdates'),
+                          },
+                          t('dashboard.statsAnon'),
+                        )
+                      }
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
+                    >
+                      <FileSpreadsheet size={14} aria-hidden />
+                      {t('dashboard.exportPseudoStatsCsv')}
+                    </button>
                   </div>
                 )}
               </details>

@@ -1,6 +1,9 @@
+import { RefreshCw, Sparkles } from 'lucide-react';
 import { useUpdatePrompt } from '../hooks/useUpdatePrompt';
+import { useI18n } from '../i18n/I18nContext';
 
 export function UpdateBanner() {
+  const { t } = useI18n();
   const { needRefresh, update } = useUpdatePrompt();
 
   if (!needRefresh) return null;
@@ -8,17 +11,23 @@ export function UpdateBanner() {
   return (
     <div
       role="status"
-      className="fixed bottom-0 left-0 right-0 z-50 flex flex-wrap items-center justify-center gap-3 px-4 py-3 bg-surface border-t border-border-ui shadow-up"
+      aria-live="polite"
+      className="sticky top-0 z-[60] w-full flex flex-wrap items-center justify-center gap-3 px-4 py-3 sm:py-3.5 border-b border-primary-border bg-gradient-to-r from-primary-soft via-surface to-primary-soft shadow-md backdrop-blur-sm pt-[max(0.75rem,env(safe-area-inset-top,0px))]"
     >
-      <p className="m-0 text-sm text-fg text-center max-w-lg">
-        Une nouvelle version de l'application est disponible.
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-fill px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
+        <Sparkles size={12} className="shrink-0" aria-hidden />
+        {t('nav.updateBannerBadge')}
+      </span>
+      <p className="m-0 text-sm sm:text-base text-fg text-center max-w-xl font-medium">
+        {t('nav.updateBannerTitle')}
       </p>
       <button
         type="button"
         onClick={update}
-        className="shrink-0 px-4 py-2 text-sm font-semibold text-white bg-primary-fill rounded-lg hover:bg-primary-fill-hover transition-colors cursor-pointer"
+        className="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-primary-fill rounded-xl hover:bg-primary-fill-hover active:scale-[0.98] transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring focus-visible:ring-offset-2"
       >
-        Mettre à jour
+        <RefreshCw size={18} className="shrink-0" aria-hidden />
+        {t('nav.updateBannerCta')}
       </button>
     </div>
   );

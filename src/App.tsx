@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
 import { usePuzzle } from './hooks/useSocket';
 import Home from './components/Home';
-import Dashboard from './components/Dashboard';
+
+const Dashboard = lazy(() => import('./components/Dashboard'));
 import { Navbar } from './components/Navbar';
 import { UpdateBanner } from './components/UpdateBanner';
 import { saveToHistory } from './utils/history';
@@ -11,6 +12,7 @@ import { useI18n } from './i18n/I18nContext';
 import { getPseudo, isPseudoLocked } from './utils/pseudo';
 import { useDocumentRoomTitle } from './hooks/useDocumentRoomTitle';
 import { classifyFirebaseError } from './utils/classifyFirebaseError';
+import { prefetchDashboardChunk } from './utils/prefetchDashboard';
 
 const getHashCode = () => {
   const hash = window.location.hash.slice(1).toUpperCase();
@@ -43,6 +45,11 @@ function App() {
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
+
+  /** Précharge le chunk du tableau de bord dès qu’une salle est ciblée (pendant le chargement Firebase). */
+  useEffect(() => {
+    if (roomCode) prefetchDashboardChunk();
+  }, [roomCode]);
 
   useEffect(() => {
     const on = () => setOnline(true);
@@ -85,6 +92,7 @@ function App() {
   return (
     <>
       <PullToRefreshIndicator pullDistance={pullDistance} refreshing={refreshing} threshold={threshold} />
+      <UpdateBanner />
       <Navbar
         pseudo={pseudo}
         onPseudoChange={setPseudo}
@@ -130,12 +138,20 @@ function App() {
               </button>
             </div>
           ) : puzzle ? (
-            <Dashboard
-              puzzle={puzzle}
-              onBack={handleBack}
-              pseudo={pseudo}
-              pseudoRefreshKey={pseudoRefreshKey}
-            />
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center min-h-[50vh]">
+                  <p className="text-fg-faint text-lg animate-pulse">{t('app.loading')}</p>
+                </div>
+              }
+            >
+              <Dashboard
+                puzzle={puzzle}
+                onBack={handleBack}
+                pseudo={pseudo}
+                pseudoRefreshKey={pseudoRefreshKey}
+              />
+            </Suspense>
           ) : (
             <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4 max-w-md mx-auto text-center">
               <p className="text-lg font-semibold text-fg-heading">{t('app.notFound')}</p>
@@ -158,7 +174,6 @@ function App() {
           <Home onJoin={handleJoin} pseudo={pseudo} />
         )}
       </main>
-      <UpdateBanner />
     </>
   );
 }
