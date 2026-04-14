@@ -120,6 +120,8 @@ export const messages: Record<Locale, MsgValue> = {
       piecesRemaining: 'Pièces restantes',
       vsNow: 'par rapport à maintenant',
       save: 'Enregistrer',
+      autoSaveHint:
+        'Les gros ± et les pas rapides (±1, ±10…) enregistrent tout seuls après une courte pause. Le champ numérique utilise encore « Enregistrer ».',
       flagTitle: "Marquer un checkpoint à l'étape actuelle",
       flagAsk: 'Poser un checkpoint ici ?',
       flagDetail: "Un checkpoint sera créé avec l'étape actuelle",
@@ -380,6 +382,8 @@ export const messages: Record<Locale, MsgValue> = {
       piecesRemaining: 'Pieces left',
       vsNow: 'vs. current',
       save: 'Save',
+      autoSaveHint:
+        'Large ± buttons and quick steps (±1, ±10…) auto-save after a short pause. The number field still uses Save.',
       flagTitle: 'Drop a checkpoint at current step',
       flagAsk: 'Create a checkpoint here?',
       flagDetail: 'A checkpoint will be created at the current step',

@@ -68,6 +68,8 @@ const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
 /** Limite d’images par salle (allège la base temps réel). */
 const MAX_ROOM_PHOTOS = 32;
 const MILESTONE_LEVELS = [25, 50, 75, 100] as const;
+/** Délai après le dernier clic sur ± / pas rapides avant envoi Firebase (évite une entrée d’historique par clic). */
+const PIECE_AUTOSAVE_DEBOUNCE_MS = 420;
 
 interface DashboardProps {
   puzzle: PuzzleState;
@@ -226,16 +228,6 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     }
   };
 
-  /** deltaPlaced : +10 = dix pièces placées de plus (en mode « restantes », le compteur affiché diminue). */
-  const bumpPlacedBy = (deltaPlaced: number) => {
-    if (readOnly) return;
-    if (inputMode === 'placed') {
-      handleInputChange(displayedValue + deltaPlaced);
-    } else {
-      handleInputChange(displayedValue - deltaPlaced);
-    }
-  };
-
   const checkpointSuggestions = useMemo(() => {
     const pct = Math.round(progress);
     const pStr = puzzle.placedPieces.toLocaleString(numberLocale);
@@ -296,6 +288,46 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   handlePiecesUpdateRef.current = handlePiecesUpdate;
   const dashKeyRef = useRef({ puzzle, readOnly, newPieces });
   dashKeyRef.current = { puzzle, readOnly, newPieces };
+
+  const pieceSaveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleDebouncedPieceSave = () => {
+    if (readOnly) return;
+    if (pieceSaveDebounceRef.current) clearTimeout(pieceSaveDebounceRef.current);
+    pieceSaveDebounceRef.current = window.setTimeout(() => {
+      pieceSaveDebounceRef.current = null;
+      const { readOnly: ro, newPieces: np, puzzle: pz } = dashKeyRef.current;
+      if (ro || np === pz.placedPieces) return;
+      void handlePiecesUpdateRef.current();
+    }, PIECE_AUTOSAVE_DEBOUNCE_MS);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pieceSaveDebounceRef.current) {
+        clearTimeout(pieceSaveDebounceRef.current);
+        pieceSaveDebounceRef.current = null;
+      }
+    };
+  }, [puzzle.id]);
+
+  useEffect(() => {
+    if (readOnly && pieceSaveDebounceRef.current) {
+      clearTimeout(pieceSaveDebounceRef.current);
+      pieceSaveDebounceRef.current = null;
+    }
+  }, [readOnly]);
+
+  /** deltaPlaced : +10 = dix pièces placées de plus (en mode « restantes », le compteur affiché diminue). */
+  const bumpPlacedBy = (deltaPlaced: number) => {
+    if (readOnly) return;
+    if (inputMode === 'placed') {
+      handleInputChange(displayedValue + deltaPlaced);
+    } else {
+      handleInputChange(displayedValue - deltaPlaced);
+    }
+    scheduleDebouncedPieceSave();
+  };
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -1150,7 +1182,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               <div className={`flex items-center gap-3 p-4 rounded-2xl border-2 ${inputMode === 'placed' ? 'border-primary-border bg-primary-soft' : 'border-warm-border bg-warm-soft'}`}>
                 <button
                   type="button"
-                  onClick={() => handleInputChange(displayedValue - step)}
+                  onClick={() => {
+                    handleInputChange(displayedValue - step);
+                    scheduleDebouncedPieceSave();
+                  }}
                   disabled={readOnly || (inputMode === 'placed' ? newPieces <= 0 : newPieces >= puzzle.totalPieces)}
                   className={`w-14 h-14 rounded-xl text-2xl font-bold transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${inputMode === 'placed' ? 'bg-primary-pill-bg text-primary-pill-text hover:bg-primary-border-strong focus-visible:ring-primary-ring' : 'bg-warm-border text-warm hover:bg-warm-border-strong focus-visible:ring-warm-ring'}`}
                   aria-label={t('dashboard.step')}
@@ -1183,7 +1218,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
                 <button
                   type="button"
-                  onClick={() => handleInputChange(displayedValue + step)}
+                  onClick={() => {
+                    handleInputChange(displayedValue + step);
+                    scheduleDebouncedPieceSave();
+                  }}
                   disabled={readOnly || (inputMode === 'placed' ? newPieces >= puzzle.totalPieces : newPieces <= 0)}
                   className={`w-14 h-14 rounded-xl text-2xl font-bold transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${inputMode === 'placed' ? 'bg-primary-bar text-white hover:bg-primary-fill-hover focus-visible:ring-primary-ring' : 'bg-warm-fill text-white hover:bg-warm-fill-hover focus-visible:ring-warm-ring'}`}
                   aria-label={t('dashboard.step')}
@@ -1193,14 +1231,17 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               </div>
 
               <div className="mt-3 flex gap-2">
-                <button
-                  type="button"
-                  onClick={handlePiecesUpdate}
-                  disabled={readOnly || newPieces === puzzle.placedPieces}
-                  className="flex-1 bg-primary-fill text-white py-3 rounded-xl font-bold hover:bg-primary-fill-hover transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
-                >
-                  {t('dashboard.save')}
-                </button>
+                <div className="flex-1 flex flex-col gap-1">
+                  <button
+                    type="button"
+                    onClick={handlePiecesUpdate}
+                    disabled={readOnly || newPieces === puzzle.placedPieces}
+                    className="w-full bg-primary-fill text-white py-3 rounded-xl font-bold hover:bg-primary-fill-hover transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
+                  >
+                    {t('dashboard.save')}
+                  </button>
+                  <p className="text-[11px] leading-snug text-fg-faint text-center px-1">{t('dashboard.autoSaveHint')}</p>
+                </div>
                 <button
                   type="button"
                   onClick={() => !readOnly && setFlagConfirm(true)}
