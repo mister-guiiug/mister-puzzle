@@ -33,7 +33,7 @@ import { fr, enUS } from 'date-fns/locale';
 import {
   type PuzzleState,
   type Member,
-  updatePieces,
+  updatePiecesResilient,
   toggleCheckpoint,
   addCheckpoint,
   addPhoto,
@@ -65,6 +65,7 @@ import { notifySaveSuccess } from '../utils/haptic';
 import { downloadHistoryCsv, downloadHistoryJson } from '../utils/exportHistory';
 import { downloadPseudoStatsCsv } from '../utils/exportPseudoStats';
 import { computePseudoStatsFromHistory } from '../utils/pseudoStats';
+import { hasPendingForRoom } from '../utils/offlinePieceQueue';
 
 const MEMBER_TTL_MS = 5 * 60 * 1000;
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
@@ -280,6 +281,30 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     [puzzle.history, statsClock],
   );
 
+  const [offlineQueuePending, setOfflineQueuePending] = useState(() => hasPendingForRoom(puzzle.id));
+  useEffect(() => {
+    const sync = () => setOfflineQueuePending(hasPendingForRoom(puzzle.id));
+    sync();
+    window.addEventListener('online', sync);
+    window.addEventListener('mister-puzzle-offline-queue', sync);
+    return () => {
+      window.removeEventListener('online', sync);
+      window.removeEventListener('mister-puzzle-offline-queue', sync);
+    };
+  }, [puzzle.id]);
+
+  const [netOnline, setNetOnline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine);
+  useEffect(() => {
+    const on = () => setNetOnline(true);
+    const off = () => setNetOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
+  }, []);
+
   const handlePiecesUpdate = async () => {
     if (readOnly) return;
     if (newPieces < 0 || newPieces > puzzle.totalPieces) {
@@ -287,9 +312,13 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       return;
     }
     try {
-      await updatePieces(puzzle.id, newPieces, pseudo || undefined);
+      const { queued } = await updatePiecesResilient(puzzle.id, newPieces, pseudo || undefined);
       isDirtyRef.current = false;
       setRemoteConflict(false);
+      if (queued) {
+        setInfoBanner(t('dashboard.offlineQueuedSave'));
+        setOfflineQueuePending(hasPendingForRoom(puzzle.id));
+      }
       notifySaveSuccess();
     } catch (err) {
       setError(t('dashboard.errorUpdatePieces'));
@@ -691,6 +720,15 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             role="status"
           >
             {t('dashboard.readOnlyBanner')}
+          </div>
+        )}
+
+        {offlineQueuePending && !netOnline && (
+          <div
+            className="mb-4 p-3 rounded-xl bg-primary-soft border border-primary-border text-primary-strong text-sm font-medium text-center"
+            role="status"
+          >
+            {t('dashboard.offlinePendingBanner')}
           </div>
         )}
 

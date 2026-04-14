@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { normalizePuzzleFromFirebase } from '../utils/puzzleNormalize';
 import { reportError } from '../utils/reportError';
 import { PUZZLE_SCHEMA_VERSION } from '../constants/schema';
+import { enqueueOfflinePieceUpdate, isLikelyNetworkError } from '../utils/offlinePieceQueue';
 
 export interface Photo {
   id: string;
@@ -220,6 +221,32 @@ export const updatePieces = async (roomCode: string, placedPieces: number, pseud
     },
   });
   trimHistoryIfNeeded(roomCode).catch(() => {});
+};
+
+/**
+ * Envoie le compteur ou le met en file locale si hors ligne / erreur réseau.
+ * Retourne `{ queued: true }` si la valeur sera envoyée plus tard (ne pas traiter comme erreur).
+ */
+export const updatePiecesResilient = async (
+  roomCode: string,
+  placedPieces: number,
+  pseudo?: string,
+): Promise<{ queued: boolean }> => {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    enqueueOfflinePieceUpdate({ roomCode, placedPieces, pseudo });
+    return { queued: true };
+  }
+  try {
+    await updatePieces(roomCode, placedPieces, pseudo);
+    return { queued: false };
+  } catch (err) {
+    if (isLikelyNetworkError(err)) {
+      enqueueOfflinePieceUpdate({ roomCode, placedPieces, pseudo });
+      reportError('updatePiecesResilient_queued', err, { roomCode });
+      return { queued: true };
+    }
+    throw err;
+  }
 };
 
 export const updateHistoryEntry = async (roomCode: string, entryId: string, newPieces: number): Promise<void> => {
