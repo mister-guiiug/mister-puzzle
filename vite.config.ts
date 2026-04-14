@@ -1,10 +1,12 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type PluginOption } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { getPwaIconQuery, seoInjectPlugin } from './vite-plugin-seo';
 
 const pwaIconQs = getPwaIconQuery();
+const analyze = process.env.ANALYZE === '1';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -15,15 +17,26 @@ export default defineConfig({
   base: '/mister-puzzle/',
   build: {
     sourcemap: true,
-    chunkSizeWarningLimit: 720,
+    /** Seuil relevé : le gros du JS est découpé (react, firebase, écran salle en lazy). */
+    chunkSizeWarningLimit: 900,
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
-          if (id.includes('firebase')) return 'firebase';
-          if (id.includes('lucide-react')) return 'lucide';
-          if (id.includes('date-fns')) return 'date-fns';
-          if (id.includes('framer-motion')) return 'motion';
+          const norm = id.replace(/\\/g, '/');
+          // Cache navigateur : React change moins souvent que le code applicatif.
+          if (
+            norm.includes('/react-dom/') ||
+            norm.includes('/node_modules/react/') ||
+            norm.includes('/scheduler/')
+          ) {
+            return 'react-vendor';
+          }
+          if (norm.includes('/@firebase/')) return 'firebase-core';
+          if (norm.includes('/firebase/')) return 'firebase';
+          if (norm.includes('/lucide-react/')) return 'lucide';
+          if (norm.includes('/date-fns/')) return 'date-fns';
+          if (norm.includes('/framer-motion/')) return 'motion';
           return 'vendor';
         },
       },
@@ -78,6 +91,16 @@ export default defineConfig({
           },
         ],
       },
-    })
+    }),
+    ...(analyze
+      ? [
+          visualizer({
+            filename: 'dist/stats.html',
+            gzipSize: true,
+            brotliSize: true,
+            open: !process.env.CI,
+          }) as PluginOption,
+        ]
+      : []),
   ],
 });

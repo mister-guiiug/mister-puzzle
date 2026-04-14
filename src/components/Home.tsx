@@ -5,6 +5,7 @@ import ErrorModal from './ErrorModal';
 import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
 import { isGridLocked, setGridLocked, getSavedGrid, saveGrid } from '../utils/pseudo';
 import { useI18n } from '../i18n/I18nContext';
+import { prefetchDashboardChunk } from '../utils/prefetchDashboard';
 
 interface HomeProps {
   onJoin: (roomCode: string) => void;
@@ -523,6 +524,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       <div
         id="home-join"
         className="bg-surface p-6 rounded-xl shadow-md w-full border border-divide scroll-mt-24"
+        onMouseEnter={prefetchDashboardChunk}
       >
         <h2 className="text-xl font-semibold mb-4 text-fg">{t('home.joinTitle')}</h2>
         <div className="flex gap-2">
@@ -535,12 +537,14 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               className="w-full pl-8 p-2 border border-border-ui rounded uppercase tracking-widest font-mono bg-surface-muted text-fg"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+              onFocus={prefetchDashboardChunk}
               onKeyDown={(e) => e.key === 'Enter' && !pendingPuzzle && handleJoin()}
             />
           </div>
           <button
             type="button"
             onClick={() => handleJoin()}
+            onMouseEnter={prefetchDashboardChunk}
             disabled={loading || !!pendingPuzzle}
             className="bg-success-fill text-white px-4 py-2 rounded font-bold hover:bg-success-hover transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
             aria-label={t('home.joinBtn')}

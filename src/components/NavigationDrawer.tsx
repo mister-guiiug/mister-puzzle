@@ -15,6 +15,7 @@ import { joinPuzzle, getPublicPuzzles, hashPassword, type PuzzleState } from '..
 import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
 import { useI18n } from '../i18n/I18nContext';
 import { reportError } from '../utils/reportError';
+import { prefetchDashboardChunk } from '../utils/prefetchDashboard';
 
 export type NavigationDrawerProps = {
   open: boolean;
@@ -36,6 +37,8 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   const [publicPuzzles, setPublicPuzzles] = useState<PuzzleState[]>([]);
   const [publicSearch, setPublicSearch] = useState('');
   const [publicSort, setPublicSort] = useState<'nameAsc' | 'nameDesc' | 'progressDesc' | 'progressAsc'>('progressDesc');
+  const [publicProgressMin, setPublicProgressMin] = useState('');
+  const [publicProgressMax, setPublicProgressMax] = useState('');
   const [loadingPublic, setLoadingPublic] = useState(false);
   const [publicLoaded, setPublicLoaded] = useState(false);
   const [joining, setJoining] = useState(false);
@@ -192,11 +195,22 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
     }
   };
 
-  const filteredPublic = publicPuzzles.filter(
-    (p) =>
-      p.name.toLowerCase().includes(publicSearch.toLowerCase()) ||
-      p.id.toLowerCase().includes(publicSearch.toLowerCase()),
-  );
+  const filteredPublic = useMemo(() => {
+    const q = publicSearch.toLowerCase().trim();
+    return publicPuzzles.filter((p) => {
+      const nameMatch =
+        p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q);
+      if (!nameMatch) return false;
+      const pct = p.totalPieces > 0 ? (p.placedPieces / p.totalPieces) * 100 : 0;
+      const minRaw = publicProgressMin.trim();
+      const maxRaw = publicProgressMax.trim();
+      const minN = minRaw === '' ? null : Number(minRaw);
+      const maxN = maxRaw === '' ? null : Number(maxRaw);
+      if (minN !== null && !Number.isNaN(minN) && pct < Math.min(100, Math.max(0, minN))) return false;
+      if (maxN !== null && !Number.isNaN(maxN) && pct > Math.min(100, Math.max(0, maxN))) return false;
+      return true;
+    });
+  }, [publicPuzzles, publicSearch, publicProgressMin, publicProgressMax]);
 
   const sortedFilteredPublic = useMemo(() => {
     const arr = [...filteredPublic];
@@ -267,6 +281,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                     <button
                       type="button"
                       disabled={joining}
+                      onMouseEnter={prefetchDashboardChunk}
                       onClick={() => tryJoin(item.code)}
                       className="flex-1 min-h-12 text-left px-3 py-2.5 rounded-xl hover:bg-surface-muted dark:hover:bg-surface-muted border border-transparent hover:border-border-ui dark:hover:border-border-ui active:bg-surface-muted dark:active:bg-surface-muted transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                     >
@@ -338,9 +353,44 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                     <option value="nameDesc">{t('nav.publicSortNameDesc')}</option>
                   </select>
                 </div>
+                <p className="text-[11px] text-fg-faint mb-1.5 leading-snug">{t('nav.publicFilterHint')}</p>
+                <div className="mb-2 flex flex-wrap items-end gap-2">
+                  <div className="min-w-[6.5rem] flex-1">
+                    <label htmlFor="nav-public-pct-min" className="block text-[10px] font-semibold uppercase tracking-wide text-fg-faint mb-0.5">
+                      {t('nav.publicFilterProgressMin')}
+                    </label>
+                    <input
+                      id="nav-public-pct-min"
+                      type="number"
+                      min={0}
+                      max={100}
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={publicProgressMin}
+                      onChange={(e) => setPublicProgressMin(e.target.value.replace(/[^\d]/g, '').slice(0, 3))}
+                      className="w-full min-h-9 rounded-lg border border-border-ui bg-surface px-2 py-1.5 text-xs text-fg-heading dark:border-border-ui dark:bg-surface-muted"
+                    />
+                  </div>
+                  <div className="min-w-[6.5rem] flex-1">
+                    <label htmlFor="nav-public-pct-max" className="block text-[10px] font-semibold uppercase tracking-wide text-fg-faint mb-0.5">
+                      {t('nav.publicFilterProgressMax')}
+                    </label>
+                    <input
+                      id="nav-public-pct-max"
+                      type="number"
+                      min={0}
+                      max={100}
+                      inputMode="numeric"
+                      placeholder="100"
+                      value={publicProgressMax}
+                      onChange={(e) => setPublicProgressMax(e.target.value.replace(/[^\d]/g, '').slice(0, 3))}
+                      className="w-full min-h-9 rounded-lg border border-border-ui bg-surface px-2 py-1.5 text-xs text-fg-heading dark:border-border-ui dark:bg-surface-muted"
+                    />
+                  </div>
+                </div>
                 {filteredPublic.length === 0 ? (
                   <p className="text-sm text-fg-faint py-2">
-                    {publicSearch ? t('home.noResults') : t('home.noPublic')}
+                    {publicPuzzles.length === 0 ? t('home.noPublic') : t('home.noResults')}
                   </p>
                 ) : (
                   <ul className="space-y-1 max-h-[min(40vh,14rem)] sm:max-h-56 overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch]">
@@ -349,6 +399,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                         <button
                           type="button"
                           disabled={joining}
+                          onMouseEnter={prefetchDashboardChunk}
                           onClick={() => tryJoin(p.id)}
                           className="w-full flex items-center justify-between gap-3 min-h-12 px-3 py-2.5 rounded-xl hover:bg-success-row-hover active:bg-success-row-active text-left border border-transparent hover:border-success-row-border transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
                         >
@@ -357,7 +408,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                             <p className="text-xs text-fg-faint">
                               {p.placedPieces.toLocaleString(numberLocale)} /{' '}
                               {p.totalPieces.toLocaleString(numberLocale)} ·{' '}
-                              {Math.round((p.placedPieces / p.totalPieces) * 100)}%
+                              {p.totalPieces > 0 ? Math.round((p.placedPieces / p.totalPieces) * 100) : 0}%
                             </p>
                           </div>
                           <ArrowRight size={18} className="text-fg-faint shrink-0" aria-hidden />
