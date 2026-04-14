@@ -28,8 +28,8 @@ const PullToRefreshIndicator: React.FC<PullToRefreshIndicatorProps> = ({
           refreshing
             ? 'bg-primary-fill text-white'
             : ready
-            ? 'bg-primary-bar text-white'
-            : 'bg-surface text-primary-muted border border-primary-border'
+              ? 'bg-primary-bar text-white'
+              : 'bg-surface text-primary-muted border border-primary-border'
         }`}
       >
         <RefreshCw
@@ -37,7 +37,11 @@ const PullToRefreshIndicator: React.FC<PullToRefreshIndicatorProps> = ({
           style={{ transform: rotation }}
           className={refreshing ? 'animate-spin' : 'transition-transform duration-150'}
         />
-        {refreshing ? 'Actualisation...' : ready ? 'Relâchez pour actualiser' : 'Tirez pour actualiser'}
+        {refreshing
+          ? 'Actualisation...'
+          : ready
+            ? 'Relâchez pour actualiser'
+            : 'Tirez pour actualiser'}
       </div>
     </div>
   );

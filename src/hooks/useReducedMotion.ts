@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 
 /** Suit `prefers-reduced-motion` pour désactiver ou simplifier les animations. */
 export function useReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
   );
 
   useEffect(() => {

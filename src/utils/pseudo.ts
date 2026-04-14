@@ -28,22 +28,19 @@ function parseInputModesByPseudo(): Record<string, 'placed' | 'remaining'> {
   }
 }
 
-export const getPseudo = (): string =>
-  localStorage.getItem(PSEUDO_KEY) ?? '';
+export const getPseudo = (): string => localStorage.getItem(PSEUDO_KEY) ?? '';
 
 export const setPseudo = (pseudo: string): void => {
   localStorage.setItem(PSEUDO_KEY, pseudo.trim());
 };
 
-export const isPseudoLocked = (): boolean =>
-  localStorage.getItem(PSEUDO_LOCKED_KEY) === 'true';
+export const isPseudoLocked = (): boolean => localStorage.getItem(PSEUDO_LOCKED_KEY) === 'true';
 
 export const setPseudoLocked = (locked: boolean): void => {
   localStorage.setItem(PSEUDO_LOCKED_KEY, locked ? 'true' : 'false');
 };
 
-export const isGridLocked = (): boolean =>
-  localStorage.getItem(GRID_LOCKED_KEY) === 'true';
+export const isGridLocked = (): boolean => localStorage.getItem(GRID_LOCKED_KEY) === 'true';
 
 export const setGridLocked = (locked: boolean): void => {
   localStorage.setItem(GRID_LOCKED_KEY, locked ? 'true' : 'false');

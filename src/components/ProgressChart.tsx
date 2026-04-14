@@ -57,9 +57,12 @@ export const ProgressChart: FC<ProgressChartProps> = ({
   const tSpan = Math.max(maxT - minT, 1);
 
   const fmtTime = (ts: number) =>
-    new Intl.DateTimeFormat(chartLocale, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(
-      ts,
-    );
+    new Intl.DateTimeFormat(chartLocale, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(ts);
   const fmtNum = (n: number) => Math.round(n).toLocaleString(chartLocale);
 
   const yTickVals = [0, maxY / 2, maxY].filter((v, i, a) => i === 0 || v !== a[i - 1]);
@@ -77,8 +80,7 @@ export const ProgressChart: FC<ProgressChartProps> = ({
   const areaPoints =
     metric === 'placed' ? `${first.x},${y0 + ph} ${linePoints} ${last.x},${y0 + ph}` : null;
 
-  const strokeClass =
-    metric === 'placed' ? 'text-primary-muted' : 'text-warm-muted';
+  const strokeClass = metric === 'placed' ? 'text-primary-muted' : 'text-warm-muted';
   const gridClass = 'text-divide-strong';
 
   const tableRows = sortedFull.slice(-12).reverse();
@@ -144,7 +146,13 @@ export const ProgressChart: FC<ProgressChartProps> = ({
         <text x={x0} y={h - 4} className="fill-fg-muted text-[9px]" fontSize="9">
           {fmtTime(minT)}
         </text>
-        <text x={x0 + pw} y={h - 4} textAnchor="end" className="fill-fg-muted text-[9px]" fontSize="9">
+        <text
+          x={x0 + pw}
+          y={h - 4}
+          textAnchor="end"
+          className="fill-fg-muted text-[9px]"
+          fontSize="9"
+        >
           {fmtTime(maxT)}
         </text>
 

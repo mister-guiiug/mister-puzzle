@@ -1,5 +1,18 @@
 import { useState, useEffect } from 'react';
-import { ref, set, get, update, push, onValue, off, remove, query, orderByChild, equalTo, onDisconnect } from 'firebase/database';
+import {
+  ref,
+  set,
+  get,
+  update,
+  push,
+  onValue,
+  off,
+  remove,
+  query,
+  orderByChild,
+  equalTo,
+  onDisconnect,
+} from 'firebase/database';
 import { db } from '../firebase';
 import { normalizePuzzleFromFirebase } from '../utils/puzzleNormalize';
 import { reportError } from '../utils/reportError';
@@ -60,7 +73,7 @@ const normalizePuzzle = (data: unknown): PuzzleState => normalizePuzzleFromFireb
 export const hashPassword = async (password: string): Promise<string> => {
   const buffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
   return Array.from(new Uint8Array(buffer))
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 };
 
@@ -174,7 +187,11 @@ export const getPublicPuzzles = async (): Promise<PuzzleState[]> => {
 };
 
 /** Register the current session as an active member. Uses onDisconnect to auto-remove. */
-export const joinMember = async (roomCode: string, sessionId: string, pseudo: string): Promise<void> => {
+export const joinMember = async (
+  roomCode: string,
+  sessionId: string,
+  pseudo: string,
+): Promise<void> => {
   const memberRef = ref(db, `puzzles/${roomCode}/members/${sessionId}`);
   await set(memberRef, { pseudo: pseudo || 'Anonyme', lastSeen: Date.now() });
   await onDisconnect(memberRef).remove();
@@ -184,7 +201,10 @@ export const leaveMember = async (roomCode: string, sessionId: string): Promise<
   await remove(ref(db, `puzzles/${roomCode}/members/${sessionId}`));
 };
 
-export const changePassword = async (roomCode: string, newPasswordHash: string | null): Promise<void> => {
+export const changePassword = async (
+  roomCode: string,
+  newPasswordHash: string | null,
+): Promise<void> => {
   await update(ref(db, `puzzles/${roomCode}`), { passwordHash: newPasswordHash });
 };
 
@@ -210,7 +230,11 @@ const trimHistoryIfNeeded = async (roomCode: string): Promise<void> => {
   await update(ref(db), updates);
 };
 
-export const updatePieces = async (roomCode: string, placedPieces: number, pseudo?: string): Promise<void> => {
+export const updatePieces = async (
+  roomCode: string,
+  placedPieces: number,
+  pseudo?: string,
+): Promise<void> => {
   const newKey = push(ref(db, `puzzles/${roomCode}/history`)).key;
   await update(ref(db), {
     [`puzzles/${roomCode}/placedPieces`]: placedPieces,
@@ -249,7 +273,11 @@ export const updatePiecesResilient = async (
   }
 };
 
-export const updateHistoryEntry = async (roomCode: string, entryId: string, newPieces: number): Promise<void> => {
+export const updateHistoryEntry = async (
+  roomCode: string,
+  entryId: string,
+  newPieces: number,
+): Promise<void> => {
   const historyRef = ref(db, `puzzles/${roomCode}/history`);
   const snap = await get(historyRef);
   if (!snap.exists()) return;
@@ -297,10 +325,17 @@ export const toggleCheckpoint = async (
   checkpointId: string,
   currentCompleted: boolean,
 ): Promise<void> => {
-  await set(ref(db, `puzzles/${roomCode}/checkpoints/${checkpointId}/completed`), !currentCompleted);
+  await set(
+    ref(db, `puzzles/${roomCode}/checkpoints/${checkpointId}/completed`),
+    !currentCompleted,
+  );
 };
 
-export const addCheckpoint = async (roomCode: string, name: string, pseudo?: string): Promise<void> => {
+export const addCheckpoint = async (
+  roomCode: string,
+  name: string,
+  pseudo?: string,
+): Promise<void> => {
   const newKey = push(ref(db, `puzzles/${roomCode}/checkpoints`)).key!;
   await set(ref(db, `puzzles/${roomCode}/checkpoints/${newKey}`), {
     id: newKey,
@@ -310,7 +345,10 @@ export const addCheckpoint = async (roomCode: string, name: string, pseudo?: str
   });
 };
 
-export const uncheckAllCheckpoints = async (roomCode: string, checkpointIds: string[]): Promise<void> => {
+export const uncheckAllCheckpoints = async (
+  roomCode: string,
+  checkpointIds: string[],
+): Promise<void> => {
   const updates: Record<string, boolean> = {};
   for (const id of checkpointIds) {
     updates[`puzzles/${roomCode}/checkpoints/${id}/completed`] = false;
@@ -348,11 +386,19 @@ export const deletePhoto = async (roomCode: string, photoId: string): Promise<vo
   await remove(ref(db, `puzzles/${roomCode}/photos/${photoId}`));
 };
 
-export const rotatePhoto = async (roomCode: string, photoId: string, newRotation: number): Promise<void> => {
+export const rotatePhoto = async (
+  roomCode: string,
+  photoId: string,
+  newRotation: number,
+): Promise<void> => {
   await update(ref(db, `puzzles/${roomCode}/photos/${photoId}`), { rotation: newRotation });
 };
 
-export const updateGridSize = async (roomCode: string, rows: number, cols: number): Promise<void> => {
+export const updateGridSize = async (
+  roomCode: string,
+  rows: number,
+  cols: number,
+): Promise<void> => {
   await update(ref(db, `puzzles/${roomCode}`), {
     rows,
     cols,

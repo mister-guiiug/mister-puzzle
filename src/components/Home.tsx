@@ -1,11 +1,26 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Grid, Hash, ArrowRight, ArrowDown, X, Lock, Unlock, Globe, Eye, EyeOff, Menu, User, LayoutTemplate } from 'lucide-react';
+import {
+  Grid,
+  Hash,
+  ArrowRight,
+  ArrowDown,
+  X,
+  Lock,
+  Unlock,
+  Globe,
+  Eye,
+  EyeOff,
+  Menu,
+  User,
+  LayoutTemplate,
+} from 'lucide-react';
 import { createPuzzle, joinPuzzle, hashPassword, type PuzzleState } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
 import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
 import { isGridLocked, setGridLocked, getSavedGrid, saveGrid } from '../utils/pseudo';
 import { useI18n } from '../i18n/I18nContext';
 import { prefetchDashboardChunk } from '../utils/prefetchDashboard';
+import { reportError } from '../utils/reportError';
 
 interface HomeProps {
   onJoin: (roomCode: string) => void;
@@ -134,13 +149,13 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
     }
     setLoading(true);
     try {
-      const pwHash = (!isPublic && password) ? await hashPassword(password) : null;
+      const pwHash = !isPublic && password ? await hashPassword(password) : null;
       const code = await createPuzzle(name.trim(), rows, cols, isPublic, pwHash, pseudo.trim());
       saveToHistory(code, name.trim());
       onJoin(code);
     } catch (err) {
       setError(t('home.errorCreate'));
-      console.error(err);
+      reportError('home_createPuzzle', err);
     } finally {
       setLoading(false);
     }
@@ -167,7 +182,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       }
     } catch (err) {
       setError(t('home.errorJoin'));
-      console.error(err);
+      reportError('home_joinPuzzle', err, { code: codeToJoin });
     } finally {
       setLoading(false);
     }
@@ -186,7 +201,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       }
     } catch (err) {
       setError(t('home.errorGeneric'));
-      console.error(err);
+      reportError('home_verifyPassword', err, { puzzleId: pendingPuzzle?.id });
     } finally {
       setLoading(false);
       setJoinPassword('');
@@ -198,42 +213,50 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       <ErrorModal message={error} onClose={() => setError(null)} />
 
       {/* Deleted puzzle popup */}
-      {deletedCode && (() => {
-        const inHistory = history.some((h) => h.code === deletedCode);
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <div className="bg-surface rounded-2xl shadow-xl p-6 w-full max-w-sm border border-divide">
-              <h3 className="text-lg font-bold text-fg-heading mb-2">{t('home.deletedTitle')}</h3>
-              <p className="text-sm text-fg-muted mb-4">
-                <span className="font-mono font-bold text-fg">{deletedCode}</span> {t('home.deletedBody')}
-                {inHistory && <><br /><br />{t('home.deletedHistory')}</>}
-              </p>
-              <div className="flex gap-3 justify-end">
-                <button
-                  type="button"
-                  onClick={() => setDeletedCode(null)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold text-fg-muted hover:bg-surface-muted dark:text-fg-muted dark:hover:bg-surface-muted transition"
-                >
-                  {t('home.close')}
-                </button>
-                {inHistory && (
+      {deletedCode &&
+        (() => {
+          const inHistory = history.some((h) => h.code === deletedCode);
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+              <div className="bg-surface rounded-2xl shadow-xl p-6 w-full max-w-sm border border-divide">
+                <h3 className="text-lg font-bold text-fg-heading mb-2">{t('home.deletedTitle')}</h3>
+                <p className="text-sm text-fg-muted mb-4">
+                  <span className="font-mono font-bold text-fg">{deletedCode}</span>{' '}
+                  {t('home.deletedBody')}
+                  {inHistory && (
+                    <>
+                      <br />
+                      <br />
+                      {t('home.deletedHistory')}
+                    </>
+                  )}
+                </p>
+                <div className="flex gap-3 justify-end">
                   <button
                     type="button"
-                    onClick={() => {
-                      removeFromHistory(deletedCode);
-                      setHistory(getHistory());
-                      setDeletedCode(null);
-                    }}
-                    className="px-4 py-2 rounded-xl text-sm font-bold bg-danger-fill text-white hover:bg-danger-fill-hover transition"
+                    onClick={() => setDeletedCode(null)}
+                    className="px-4 py-2 rounded-xl text-sm font-semibold text-fg-muted hover:bg-surface-muted dark:text-fg-muted dark:hover:bg-surface-muted transition"
                   >
-                    {t('home.removeFromHistoryBtn')}
+                    {t('home.close')}
                   </button>
-                )}
+                  {inHistory && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removeFromHistory(deletedCode);
+                        setHistory(getHistory());
+                        setDeletedCode(null);
+                      }}
+                      className="px-4 py-2 rounded-xl text-sm font-bold bg-danger-fill text-white hover:bg-danger-fill-hover transition"
+                    >
+                      {t('home.removeFromHistoryBtn')}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
 
       {/* Marque : icône + titre */}
       <header className="mb-8 flex w-full max-w-lg flex-col items-center sm:items-stretch">
@@ -256,10 +279,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         </div>
       </header>
 
-      <section
-        className="w-full max-w-3xl mb-8"
-        aria-label={t('home.tourTitle')}
-      >
+      <section className="w-full max-w-3xl mb-8" aria-label={t('home.tourTitle')}>
         {!showTour ? (
           <div className="rounded-2xl border border-border-ui-strong bg-surface/80 px-4 py-3 text-center shadow-sm">
             <p className="text-sm text-fg-muted mb-2">{t('home.tourDismissedHint')}</p>
@@ -275,7 +295,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
           <div className="rounded-2xl border border-primary-border-muted bg-gradient-to-b from-surface to-primary-soft/50 dark:from-surface dark:to-primary-soft/35 shadow-md overflow-hidden">
             <div className="px-4 pt-4 pb-2 sm:px-6 sm:pt-5">
               <p className="text-sm text-fg-muted text-center">{t('home.tourIntro')}</p>
-              <h2 className="text-center text-lg font-bold text-fg mt-2 mb-4">{t('home.tourTitle')}</h2>
+              <h2 className="text-center text-lg font-bold text-fg mt-2 mb-4">
+                {t('home.tourTitle')}
+              </h2>
             </div>
             <ol className="grid grid-cols-1 sm:grid-cols-3 gap-0 sm:gap-0 divide-y sm:divide-y-0 sm:divide-x divide-primary-border-muted dark:divide-border-ui-strong list-none m-0 p-0">
               <li className="flex gap-3 p-4 sm:p-5">
@@ -290,7 +312,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                     <Menu size={18} className="text-primary shrink-0" aria-hidden />
                     {t('home.tourStep1Title')}
                   </p>
-                  <p className="text-sm text-fg-muted mt-1 leading-snug">{t('home.tourStep1Body')}</p>
+                  <p className="text-sm text-fg-muted mt-1 leading-snug">
+                    {t('home.tourStep1Body')}
+                  </p>
                 </div>
               </li>
               <li className="flex gap-3 p-4 sm:p-5">
@@ -305,7 +329,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                     <User size={18} className="text-primary shrink-0" aria-hidden />
                     {t('home.tourStep2Title')}
                   </p>
-                  <p className="text-sm text-fg-muted mt-1 leading-snug">{t('home.tourStep2Body')}</p>
+                  <p className="text-sm text-fg-muted mt-1 leading-snug">
+                    {t('home.tourStep2Body')}
+                  </p>
                 </div>
               </li>
               <li className="flex gap-3 p-4 sm:p-5">
@@ -320,7 +346,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                     <LayoutTemplate size={18} className="text-primary shrink-0" aria-hidden />
                     {t('home.tourStep3Title')}
                   </p>
-                  <p className="text-sm text-fg-muted mt-1 leading-snug">{t('home.tourStep3Body')}</p>
+                  <p className="text-sm text-fg-muted mt-1 leading-snug">
+                    {t('home.tourStep3Body')}
+                  </p>
                 </div>
               </li>
             </ol>
@@ -345,260 +373,279 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         )}
       </section>
 
-      <div ref={formsAnchorRef} id="home-forms" className="w-full max-w-md flex flex-col gap-6 mb-6 scroll-mt-24">
-      {/* Create */}
-      <div className="bg-surface p-6 rounded-xl shadow-md w-full border border-divide">
-        <h2 className="text-xl font-semibold mb-4 text-fg">{t('home.createTitle')}</h2>
+      <div
+        ref={formsAnchorRef}
+        id="home-forms"
+        className="w-full max-w-md flex flex-col gap-6 mb-6 scroll-mt-24"
+      >
+        {/* Create */}
+        <div className="bg-surface p-6 rounded-xl shadow-md w-full border border-divide">
+          <h2 className="text-xl font-semibold mb-4 text-fg">{t('home.createTitle')}</h2>
 
-        <input
-          type="text"
-          placeholder={t('home.puzzleNamePh')}
-          aria-label={t('home.puzzleNamePh')}
-          className="w-full p-2 border border-border-ui rounded mb-4 bg-surface-muted text-fg placeholder:text-fg-faint"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+          <input
+            type="text"
+            placeholder={t('home.puzzleNamePh')}
+            aria-label={t('home.puzzleNamePh')}
+            className="w-full p-2 border border-border-ui rounded mb-4 bg-surface-muted text-fg placeholder:text-fg-faint"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-        {/* Grid calculator */}
-        <div
-          className={`rounded-xl p-4 mb-4 border transition ${
-            gridLocked
-              ? 'bg-surface-muted border-border-ui dark:bg-surface-muted/70 dark:border-border-ui'
-              : 'bg-primary-soft border-primary-border-muted dark:bg-primary-soft dark:border-primary-border/50'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <p
-              className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${
-                gridLocked ? 'text-fg-faint' : 'text-primary-hover'
-              }`}
-            >
-              <Grid size={12} aria-hidden /> {t('home.gridTitle')}
-            </p>
-            <button
-              type="button"
-              onClick={handleToggleGridLock}
-              title={gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')}
-              aria-label={gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')}
-              className={`p-1.5 rounded-lg border transition ${
-                gridLocked
-                  ? 'bg-primary-soft border-primary-border text-primary hover:bg-primary-soft-hover dark:bg-primary-soft dark:border-primary-border dark:text-primary-hover dark:hover:bg-primary-soft-hover'
-                  : 'bg-surface border-border-ui text-fg-muted hover:text-primary hover:border-primary-border-strong dark:bg-surface/80 dark:border-border-ui dark:text-fg-muted dark:hover:text-primary-hover dark:hover:border-primary-muted'
-              }`}
-            >
-              {gridLocked ? <Lock size={14} /> : <Unlock size={14} />}
-            </button>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex-1">
-              <label className="mb-1 block text-xs text-fg-muted">{t('home.rows')}</label>
-              <input
-                type="number"
-                min={1}
-                value={rows}
-                readOnly={gridLocked}
-                onChange={(e) => handleRowsChange(Math.max(1, parseInt(e.target.value) || 1))}
-                className={`w-full rounded-lg border p-2 text-center text-lg font-bold outline-none transition [color-scheme:light] dark:[color-scheme:dark] ${
-                  gridLocked
-                    ? 'cursor-not-allowed border-border-ui bg-surface-muted text-fg-muted dark:border-border-ui dark:bg-surface-muted/80 dark:text-fg-faint'
-                    : 'border-primary-border bg-surface text-fg focus:ring-2 focus:ring-primary-ring dark:border-primary-border-strong dark:bg-surface-input dark:text-fg dark:focus:ring-primary-ring'
-                }`}
-              />
-            </div>
-            <span className="mt-4 text-2xl font-light text-primary-muted">×</span>
-            <div className="flex-1">
-              <label className="mb-1 block text-xs text-fg-muted">{t('home.cols')}</label>
-              <input
-                type="number"
-                min={1}
-                value={cols}
-                readOnly={gridLocked}
-                onChange={(e) => handleColsChange(Math.max(1, parseInt(e.target.value) || 1))}
-                className={`w-full rounded-lg border p-2 text-center text-lg font-bold outline-none transition [color-scheme:light] dark:[color-scheme:dark] ${
-                  gridLocked
-                    ? 'cursor-not-allowed border-border-ui bg-surface-muted text-fg-muted dark:border-border-ui dark:bg-surface-muted/80 dark:text-fg-faint'
-                    : 'border-primary-border bg-surface text-fg focus:ring-2 focus:ring-primary-ring dark:border-primary-border-strong dark:bg-surface-input dark:text-fg dark:focus:ring-primary-ring'
-                }`}
-              />
-            </div>
-            <span className="mt-4 text-2xl font-light text-primary-muted">=</span>
-            <div className="flex-1">
-              <label className="mb-1 block text-xs text-fg-muted">{t('home.total')}</label>
-              <div
-                className={`w-full rounded-lg p-2 text-center text-lg font-bold ${
-                  gridLocked
-                    ? 'bg-surface-muted text-fg-muted dark:bg-surface-muted dark:text-fg'
-                    : 'bg-primary-fill text-white'
+          {/* Grid calculator */}
+          <div
+            className={`rounded-xl p-4 mb-4 border transition ${
+              gridLocked
+                ? 'bg-surface-muted border-border-ui dark:bg-surface-muted/70 dark:border-border-ui'
+                : 'bg-primary-soft border-primary-border-muted dark:bg-primary-soft dark:border-primary-border/50'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <p
+                className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1 ${
+                  gridLocked ? 'text-fg-faint' : 'text-primary-hover'
                 }`}
               >
-                {totalPieces.toLocaleString(numberLocale)}
-              </div>
-            </div>
-          </div>
-          <p
-            className={`mt-2 text-center text-xs ${gridLocked ? 'text-fg-faint' : 'text-primary-hover'}`}
-          >
-            {gridLocked ? t('home.gridLockedHint') : t('home.gridUnlockedHint')}
-          </p>
-        </div>
-
-        {/* Visibility */}
-        <div className="mb-4">
-          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-fg-faint">
-            {t('home.visibility')}
-          </label>
-          <div className="flex overflow-hidden rounded-lg border border-border-ui">
-            <button
-              type="button"
-              onClick={() => setIsPublic(true)}
-              className={`flex flex-1 items-center justify-center gap-2 py-2 text-sm font-medium transition ${
-                isPublic
-                  ? 'bg-success-fill text-white'
-                  : 'bg-surface text-fg-muted hover:bg-surface-muted/90 dark:text-fg-muted dark:hover:bg-surface-muted/80'
-              }`}
-            >
-              <Globe size={14} aria-hidden /> {t('common.public')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsPublic(false)}
-              className={`flex flex-1 items-center justify-center gap-2 py-2 text-sm font-medium transition ${
-                !isPublic
-                  ? 'bg-primary-fill text-white'
-                  : 'bg-surface text-fg-muted hover:bg-surface-muted/90 dark:text-fg-muted dark:hover:bg-surface-muted/80'
-              }`}
-            >
-              <Lock size={14} aria-hidden /> {t('common.private')}
-            </button>
-          </div>
-          <p className="mt-1 text-xs text-fg-faint">
-            {isPublic ? t('home.visibilityPublicHint') : t('home.visibilityPrivateHint')}
-          </p>
-        </div>
-
-        {/* Password (if private) */}
-        {!isPublic && (
-          <div className="mb-4 space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-fg-faint">
-              {t('home.passwordOptional')}
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                placeholder={t('home.passwordPh')}
-                className="w-full rounded-lg border border-border-ui bg-surface p-2 pr-10 text-fg placeholder:text-fg-faint dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:placeholder:text-fg-muted"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+                <Grid size={12} aria-hidden /> {t('home.gridTitle')}
+              </p>
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-fg-faint hover:text-fg-muted dark:text-fg-faint dark:hover:text-fg-muted"
+                onClick={handleToggleGridLock}
+                title={gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')}
+                aria-label={gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')}
+                className={`p-1.5 rounded-lg border transition ${
+                  gridLocked
+                    ? 'bg-primary-soft border-primary-border text-primary hover:bg-primary-soft-hover dark:bg-primary-soft dark:border-primary-border dark:text-primary-hover dark:hover:bg-primary-soft-hover'
+                    : 'bg-surface border-border-ui text-fg-muted hover:text-primary hover:border-primary-border-strong dark:bg-surface/80 dark:border-border-ui dark:text-fg-muted dark:hover:text-primary-hover dark:hover:border-primary-muted'
+                }`}
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {gridLocked ? <Lock size={14} /> : <Unlock size={14} />}
               </button>
             </div>
-            {password && (
-              <input
-                type={showPassword ? 'text' : 'password'}
-                placeholder={t('home.confirmPasswordPh')}
-                className="w-full rounded-lg border border-border-ui bg-surface p-2 text-fg placeholder:text-fg-faint dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:placeholder:text-fg-muted"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            )}
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={handleCreate}
-          disabled={loading}
-          className="w-full bg-primary-fill text-white p-2 rounded font-bold hover:bg-primary-fill-hover transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
-        >
-          {loading ? t('home.creating') : t('home.createBtn')}
-        </button>
-      </div>
-
-      {/* Join */}
-      <div
-        id="home-join"
-        className="bg-surface p-6 rounded-xl shadow-md w-full border border-divide scroll-mt-24"
-        onMouseEnter={prefetchDashboardChunk}
-      >
-        <h2 className="text-xl font-semibold mb-4 text-fg">{t('home.joinTitle')}</h2>
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Hash size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-faint" aria-hidden />
-            <input
-              type="text"
-              placeholder={t('home.codePh')}
-              aria-label={t('home.codePh')}
-              className="w-full pl-8 p-2 border border-border-ui rounded uppercase tracking-widest font-mono bg-surface-muted text-fg"
-              value={roomCode}
-              onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-              onFocus={prefetchDashboardChunk}
-              onKeyDown={(e) => e.key === 'Enter' && !pendingPuzzle && handleJoin()}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => handleJoin()}
-            onMouseEnter={prefetchDashboardChunk}
-            disabled={loading || !!pendingPuzzle}
-            className="bg-success-fill text-white px-4 py-2 rounded font-bold hover:bg-success-hover transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
-            aria-label={t('home.joinBtn')}
-          >
-            {loading ? '...' : <><span>{t('home.joinBtn')}</span><ArrowRight size={16} aria-hidden /></>}
-          </button>
-        </div>
-
-        {/* Password prompt for private puzzle */}
-        {pendingPuzzle && (
-          <div className="mt-4 rounded-xl border border-primary-border bg-primary-soft p-4 dark:border-primary-border dark:bg-primary-soft">
-            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary-strong dark:text-primary-hover">
-              <Lock size={14} aria-hidden /> &quot;{pendingPuzzle.name}&quot; {t('home.protectedPw')}
-            </p>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <label className="mb-1 block text-xs text-fg-muted">{t('home.rows')}</label>
                 <input
-                  type={showJoinPassword ? 'text' : 'password'}
+                  type="number"
+                  min={1}
+                  value={rows}
+                  readOnly={gridLocked}
+                  onChange={(e) => handleRowsChange(Math.max(1, parseInt(e.target.value) || 1))}
+                  className={`w-full rounded-lg border p-2 text-center text-lg font-bold outline-none transition [color-scheme:light] dark:[color-scheme:dark] ${
+                    gridLocked
+                      ? 'cursor-not-allowed border-border-ui bg-surface-muted text-fg-muted dark:border-border-ui dark:bg-surface-muted/80 dark:text-fg-faint'
+                      : 'border-primary-border bg-surface text-fg focus:ring-2 focus:ring-primary-ring dark:border-primary-border-strong dark:bg-surface-input dark:text-fg dark:focus:ring-primary-ring'
+                  }`}
+                />
+              </div>
+              <span className="mt-4 text-2xl font-light text-primary-muted">×</span>
+              <div className="flex-1">
+                <label className="mb-1 block text-xs text-fg-muted">{t('home.cols')}</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={cols}
+                  readOnly={gridLocked}
+                  onChange={(e) => handleColsChange(Math.max(1, parseInt(e.target.value) || 1))}
+                  className={`w-full rounded-lg border p-2 text-center text-lg font-bold outline-none transition [color-scheme:light] dark:[color-scheme:dark] ${
+                    gridLocked
+                      ? 'cursor-not-allowed border-border-ui bg-surface-muted text-fg-muted dark:border-border-ui dark:bg-surface-muted/80 dark:text-fg-faint'
+                      : 'border-primary-border bg-surface text-fg focus:ring-2 focus:ring-primary-ring dark:border-primary-border-strong dark:bg-surface-input dark:text-fg dark:focus:ring-primary-ring'
+                  }`}
+                />
+              </div>
+              <span className="mt-4 text-2xl font-light text-primary-muted">=</span>
+              <div className="flex-1">
+                <label className="mb-1 block text-xs text-fg-muted">{t('home.total')}</label>
+                <div
+                  className={`w-full rounded-lg p-2 text-center text-lg font-bold ${
+                    gridLocked
+                      ? 'bg-surface-muted text-fg-muted dark:bg-surface-muted dark:text-fg'
+                      : 'bg-primary-fill text-white'
+                  }`}
+                >
+                  {totalPieces.toLocaleString(numberLocale)}
+                </div>
+              </div>
+            </div>
+            <p
+              className={`mt-2 text-center text-xs ${gridLocked ? 'text-fg-faint' : 'text-primary-hover'}`}
+            >
+              {gridLocked ? t('home.gridLockedHint') : t('home.gridUnlockedHint')}
+            </p>
+          </div>
+
+          {/* Visibility */}
+          <div className="mb-4">
+            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-fg-faint">
+              {t('home.visibility')}
+            </label>
+            <div className="flex overflow-hidden rounded-lg border border-border-ui">
+              <button
+                type="button"
+                onClick={() => setIsPublic(true)}
+                className={`flex flex-1 items-center justify-center gap-2 py-2 text-sm font-medium transition ${
+                  isPublic
+                    ? 'bg-success-fill text-white'
+                    : 'bg-surface text-fg-muted hover:bg-surface-muted/90 dark:text-fg-muted dark:hover:bg-surface-muted/80'
+                }`}
+              >
+                <Globe size={14} aria-hidden /> {t('common.public')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsPublic(false)}
+                className={`flex flex-1 items-center justify-center gap-2 py-2 text-sm font-medium transition ${
+                  !isPublic
+                    ? 'bg-primary-fill text-white'
+                    : 'bg-surface text-fg-muted hover:bg-surface-muted/90 dark:text-fg-muted dark:hover:bg-surface-muted/80'
+                }`}
+              >
+                <Lock size={14} aria-hidden /> {t('common.private')}
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-fg-faint">
+              {isPublic ? t('home.visibilityPublicHint') : t('home.visibilityPrivateHint')}
+            </p>
+          </div>
+
+          {/* Password (if private) */}
+          {!isPublic && (
+            <div className="mb-4 space-y-2">
+              <label className="block text-xs font-bold uppercase tracking-wider text-fg-faint">
+                {t('home.passwordOptional')}
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
                   placeholder={t('home.passwordPh')}
-                  className="w-full rounded-lg border border-primary-border bg-surface p-2 pr-8 text-fg placeholder:text-fg-faint dark:border-primary-border dark:bg-surface dark:text-fg dark:placeholder:text-fg-muted"
-                  value={joinPassword}
-                  onChange={(e) => setJoinPassword(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleVerifyPassword()}
-                  autoFocus
+                  className="w-full rounded-lg border border-border-ui bg-surface p-2 pr-10 text-fg placeholder:text-fg-faint dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:placeholder:text-fg-muted"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowJoinPassword(!showJoinPassword)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-fg-muted hover:text-fg-heading dark:text-fg-muted dark:hover:text-fg"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-fg-faint hover:text-fg-muted dark:text-fg-faint dark:hover:text-fg-muted"
                 >
-                  {showJoinPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              <button
-                type="button"
-                onClick={handleVerifyPassword}
-                disabled={loading || !joinPassword}
-                className="rounded-lg bg-primary-fill px-4 py-2 font-bold text-white transition hover:bg-primary-fill-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring disabled:opacity-50"
-              >
-                OK
-              </button>
-              <button
-                type="button"
-                onClick={() => { setPendingPuzzle(null); setJoinPassword(''); }}
-                className="rounded-lg p-2 text-fg-muted hover:text-fg-heading focus:outline-none focus-visible:ring-2 dark:text-fg-faint dark:hover:text-fg"
-                title={t('common.cancel')}
-                aria-label={t('common.cancel')}
-              >
-                <X size={16} />
-              </button>
+              {password && (
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder={t('home.confirmPasswordPh')}
+                  className="w-full rounded-lg border border-border-ui bg-surface p-2 text-fg placeholder:text-fg-faint dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:placeholder:text-fg-muted"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+              )}
             </div>
+          )}
+
+          <button
+            type="button"
+            onClick={handleCreate}
+            disabled={loading}
+            className="w-full bg-primary-fill text-white p-2 rounded font-bold hover:bg-primary-fill-hover transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
+          >
+            {loading ? t('home.creating') : t('home.createBtn')}
+          </button>
+        </div>
+
+        {/* Join */}
+        <div
+          id="home-join"
+          className="bg-surface p-6 rounded-xl shadow-md w-full border border-divide scroll-mt-24"
+          onMouseEnter={prefetchDashboardChunk}
+        >
+          <h2 className="text-xl font-semibold mb-4 text-fg">{t('home.joinTitle')}</h2>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Hash
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-faint"
+                aria-hidden
+              />
+              <input
+                type="text"
+                placeholder={t('home.codePh')}
+                aria-label={t('home.codePh')}
+                className="w-full pl-8 p-2 border border-border-ui rounded uppercase tracking-widest font-mono bg-surface-muted text-fg"
+                value={roomCode}
+                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                onFocus={prefetchDashboardChunk}
+                onKeyDown={(e) => e.key === 'Enter' && !pendingPuzzle && handleJoin()}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => handleJoin()}
+              onMouseEnter={prefetchDashboardChunk}
+              disabled={loading || !!pendingPuzzle}
+              className="bg-success-fill text-white px-4 py-2 rounded font-bold hover:bg-success-hover transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
+              aria-label={t('home.joinBtn')}
+            >
+              {loading ? (
+                '...'
+              ) : (
+                <>
+                  <span>{t('home.joinBtn')}</span>
+                  <ArrowRight size={16} aria-hidden />
+                </>
+              )}
+            </button>
           </div>
-        )}
-      </div>
+
+          {/* Password prompt for private puzzle */}
+          {pendingPuzzle && (
+            <div className="mt-4 rounded-xl border border-primary-border bg-primary-soft p-4 dark:border-primary-border dark:bg-primary-soft">
+              <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-primary-strong dark:text-primary-hover">
+                <Lock size={14} aria-hidden /> &quot;{pendingPuzzle.name}&quot;{' '}
+                {t('home.protectedPw')}
+              </p>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type={showJoinPassword ? 'text' : 'password'}
+                    placeholder={t('home.passwordPh')}
+                    className="w-full rounded-lg border border-primary-border bg-surface p-2 pr-8 text-fg placeholder:text-fg-faint dark:border-primary-border dark:bg-surface dark:text-fg dark:placeholder:text-fg-muted"
+                    value={joinPassword}
+                    onChange={(e) => setJoinPassword(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleVerifyPassword()}
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowJoinPassword(!showJoinPassword)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-fg-muted hover:text-fg-heading dark:text-fg-muted dark:hover:text-fg"
+                  >
+                    {showJoinPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleVerifyPassword}
+                  disabled={loading || !joinPassword}
+                  className="rounded-lg bg-primary-fill px-4 py-2 font-bold text-white transition hover:bg-primary-fill-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring disabled:opacity-50"
+                >
+                  OK
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPendingPuzzle(null);
+                    setJoinPassword('');
+                  }}
+                  className="rounded-lg p-2 text-fg-muted hover:text-fg-heading focus:outline-none focus-visible:ring-2 dark:text-fg-faint dark:hover:text-fg"
+                  title={t('common.cancel')}
+                  aria-label={t('common.cancel')}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Footer */}
@@ -641,7 +688,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             ☕ Buy me a coffee
           </a>
         </div>
-        <p>{t('common.appName')} © {new Date().getFullYear()}</p>
+        <p>
+          {t('common.appName')} © {new Date().getFullYear()}
+        </p>
       </footer>
     </div>
   );

@@ -62,10 +62,7 @@ describe('computePseudoStatsFromHistory', () => {
   });
 
   it('regroupe les anonymes sous pseudoKey vide', () => {
-    const h: HistoryEntry[] = [
-      entry('1', now - 5000, 0),
-      entry('2', now - 4000, 3),
-    ];
+    const h: HistoryEntry[] = [entry('1', now - 5000, 0), entry('2', now - 4000, 3)];
     const rows = computePseudoStatsFromHistory(h, now);
     expect(rows).toHaveLength(1);
     expect(rows[0]!.pseudoKey).toBe('');

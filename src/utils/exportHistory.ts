@@ -30,11 +30,17 @@ export function downloadHistoryCsv(entries: HistoryEntry[], fileBaseName: string
     ),
   ];
   const csv = `\ufeff${lines.join('\n')}`;
-  triggerDownload(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `${fileBaseName}-history.csv`);
+  triggerDownload(
+    new Blob([csv], { type: 'text/csv;charset=utf-8' }),
+    `${fileBaseName}-history.csv`,
+  );
 }
 
 export function downloadHistoryJson(entries: HistoryEntry[], fileBaseName: string): void {
   const sorted = [...entries].sort((a, b) => b.timestamp - a.timestamp);
   const json = JSON.stringify(sorted, null, 2);
-  triggerDownload(new Blob([json], { type: 'application/json;charset=utf-8' }), `${fileBaseName}-history.json`);
+  triggerDownload(
+    new Blob([json], { type: 'application/json;charset=utf-8' }),
+    `${fileBaseName}-history.json`,
+  );
 }

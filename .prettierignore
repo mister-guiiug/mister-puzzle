@@ -1,0 +1,8 @@
+dist
+node_modules
+src/assets
+package-lock.json
+coverage
+*.min.js
+agent-transcripts
+*.md

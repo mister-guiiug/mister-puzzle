@@ -4,13 +4,17 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import { normRoom, validateCreate } from './validation';
 
 const DB_FILE = path.join(__dirname, 'puzzles.json');
 
 const parseOrigins = (): string[] | null => {
   const raw = process.env.CORS_ORIGINS?.trim();
   if (!raw) return null;
-  const list = raw.split(',').map((s) => s.trim()).filter(Boolean);
+  const list = raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
   return list.length ? list : null;
 };
 
@@ -97,22 +101,6 @@ process.on('SIGTERM', () => {
   flushSave();
   process.exit(0);
 });
-
-const normRoom = (v: unknown): string | null => {
-  if (typeof v !== 'string') return null;
-  const u = v.trim().toUpperCase();
-  return /^[A-Z0-9]{4,12}$/.test(u) ? u : null;
-};
-
-const validateCreate = (data: unknown): { name: string; totalPieces: number } | null => {
-  if (!data || typeof data !== 'object') return null;
-  const o = data as Record<string, unknown>;
-  const name = typeof o.name === 'string' ? o.name.trim() : '';
-  const totalPieces = typeof o.totalPieces === 'number' ? o.totalPieces : NaN;
-  if (name.length < 1 || name.length > 200) return null;
-  if (!Number.isFinite(totalPieces) || totalPieces < 1 || totalPieces > 25_000_000) return null;
-  return { name, totalPieces };
-};
 
 const MAX_PHOTO_PAYLOAD = 2_000_000;
 

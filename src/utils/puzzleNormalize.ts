@@ -26,7 +26,8 @@ function normalizeCheckpoints(raw: unknown): Checkpoint[] {
   const out: Checkpoint[] = [];
   for (const v of Object.values(raw)) {
     if (!isRecord(v)) continue;
-    if (typeof v.id !== 'string' || typeof v.name !== 'string' || typeof v.completed !== 'boolean') continue;
+    if (typeof v.id !== 'string' || typeof v.name !== 'string' || typeof v.completed !== 'boolean')
+      continue;
     const c: Checkpoint = { id: v.id, name: v.name, completed: v.completed };
     if (typeof v.createdBy === 'string') c.createdBy = v.createdBy;
     out.push(c);
@@ -79,7 +80,9 @@ export function normalizePuzzleFromFirebase(data: unknown): PuzzleState {
   }
 
   const schemaVersion =
-    typeof raw.schemaVersion === 'number' && Number.isFinite(raw.schemaVersion) ? raw.schemaVersion : 1;
+    typeof raw.schemaVersion === 'number' && Number.isFinite(raw.schemaVersion)
+      ? raw.schemaVersion
+      : 1;
 
   return {
     ...raw,

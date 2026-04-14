@@ -49,10 +49,7 @@ export function useUpdatePrompt() {
     setEpochMs(Date.now());
   }, []);
 
-  const visible =
-    Boolean(needRefresh) &&
-    !sessionDismissed &&
-    !(readSnoozeUntil() > epochMs);
+  const visible = Boolean(needRefresh) && !sessionDismissed && !(readSnoozeUntil() > epochMs);
 
   return { visible, update, snooze, dismiss };
 }

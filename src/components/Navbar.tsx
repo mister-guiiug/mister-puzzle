@@ -86,7 +86,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       <header className="sticky top-0 z-50 pt-[env(safe-area-inset-top,0px)]">
         <div className="border-b border-border-ui/70 bg-gradient-to-b from-surface/92 via-surface/85 to-surface/75 backdrop-blur-xl backdrop-saturate-150 dark:border-border-strong/80 dark:from-canvas/92 dark:via-canvas/88 dark:to-canvas/78 dark:backdrop-blur-xl">
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand-hairline to-transparent" aria-hidden />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand-hairline to-transparent"
+            aria-hidden
+          />
           <div className="relative mx-auto flex min-h-[3.25rem] max-w-5xl items-center justify-between gap-2 px-3 py-2 sm:min-h-14 sm:px-5 sm:py-2.5">
             <div className="flex min-w-0 items-center gap-0.5 sm:gap-1">
               <button
@@ -112,7 +115,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 title={t('nav.home')}
               >
                 <span className="relative shrink-0">
-                  <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-logo-glow-from to-logo-glow-to blur-md" aria-hidden />
+                  <span
+                    className="absolute inset-0 rounded-xl bg-gradient-to-br from-logo-glow-from to-logo-glow-to blur-md"
+                    aria-hidden
+                  />
                   <img
                     src={logoSrc}
                     alt=""
@@ -162,9 +168,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                         onClick={() => pickTheme(value)}
                         className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-fg-heading transition hover:bg-surface-muted/90 dark:hover:bg-surface-muted/80"
                       >
-                        {value === 'light' && <Sun size={16} className="shrink-0 text-solar" aria-hidden />}
-                        {value === 'dark' && <Moon size={16} className="shrink-0 text-primary-muted" aria-hidden />}
-                        {value === 'system' && <SunMoon size={16} className="shrink-0 text-fg-muted" aria-hidden />}
+                        {value === 'light' && (
+                          <Sun size={16} className="shrink-0 text-solar" aria-hidden />
+                        )}
+                        {value === 'dark' && (
+                          <Moon size={16} className="shrink-0 text-primary-muted" aria-hidden />
+                        )}
+                        {value === 'system' && (
+                          <SunMoon size={16} className="shrink-0 text-fg-muted" aria-hidden />
+                        )}
                         <span className="flex-1 font-medium">
                           {value === 'light' && t('nav.themeLight')}
                           {value === 'dark' && t('nav.themeDark')}
@@ -179,7 +191,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </div>
 
-              <div className="relative h-6 w-px shrink-0 bg-border-ui/90 dark:bg-border-ui/80" aria-hidden />
+              <div
+                className="relative h-6 w-px shrink-0 bg-border-ui/90 dark:bg-border-ui/80"
+                aria-hidden
+              />
 
               <div className="relative shrink-0" ref={profileRef}>
                 <button
@@ -240,11 +255,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <button
                         type="button"
                         onClick={togglePseudoLock}
-                        title={pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')}
-                        aria-label={pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')}
+                        title={
+                          pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')
+                        }
+                        aria-label={
+                          pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')
+                        }
                         className={`inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border transition active:scale-[0.98] ${pseudoLocked ? 'border-primary-border bg-primary-soft text-primary dark:border-primary-border dark:bg-primary-soft dark:text-primary-hover' : 'border-border-ui bg-surface-muted text-fg-muted dark:border-border-ui dark:bg-surface-muted/80'}`}
                       >
-                        {pseudoLocked ? <Lock size={18} aria-hidden /> : <Unlock size={18} aria-hidden />}
+                        {pseudoLocked ? (
+                          <Lock size={18} aria-hidden />
+                        ) : (
+                          <Unlock size={18} aria-hidden />
+                        )}
                       </button>
                     </div>
                     <p className="mt-3 text-xs leading-relaxed text-fg-muted">
