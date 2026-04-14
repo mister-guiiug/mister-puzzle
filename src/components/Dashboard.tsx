@@ -50,6 +50,8 @@ import {
   deleteCheckpoint,
   reorderPhotos,
   updatePhoto,
+  updateHistoryEntry,
+  deleteHistoryEntry,
 } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
 import { getSessionId, getInputMode, setInputModePreference } from '../utils/pseudo';
@@ -119,6 +121,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const [flagConfirm, setFlagConfirm] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(puzzle.name);
+
+  const [editingHistoryId, setEditingHistoryId] = useState<string | null>(null);
+  const [historyInput, setHistoryInput] = useState<number>(0);
+  const [deletingHistoryId, setDeletingHistoryId] = useState<string | null>(null);
 
   const [actionsOpen, setActionsOpen] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
@@ -268,6 +274,28 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     } catch (err) {
       setError(t('dashboard.errorUpdatePieces'));
       reportError('handlePiecesUpdate', err, { puzzleId: puzzle.id });
+      console.error(err);
+    }
+  };
+
+  const handleUpdateHistoryEntry = async (entryId: string, pieces: number) => {
+    if (readOnly) return;
+    try {
+      await updateHistoryEntry(puzzle.id, entryId, pieces);
+      setEditingHistoryId(null);
+    } catch (err) {
+      setError(t('dashboard.errorUpdatePieces'));
+      console.error(err);
+    }
+  };
+
+  const handleDeleteHistoryEntry = async (entryId: string) => {
+    if (readOnly) return;
+    try {
+      await deleteHistoryEntry(puzzle.id, entryId);
+      setDeletingHistoryId(null);
+    } catch (err) {
+      setError(t('dashboard.errorUpdatePieces'));
       console.error(err);
     }
   };
@@ -1129,27 +1157,105 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 {activityLogDescending.length === 0 ? (
                   <p className="mt-2 text-xs text-fg-muted">{t('dashboard.activityLogEmpty')}</p>
                 ) : (
-                  <ul className="mt-2 max-h-52 space-y-1.5 overflow-y-auto overscroll-y-contain text-xs [-webkit-overflow-scrolling:touch]">
-                    {activityLogDescending.map((h, idx) => (
+                  <ul className="mt-2 max-h-80 space-y-1.5 overflow-y-auto overscroll-y-contain text-xs [-webkit-overflow-scrolling:touch]">
+                    {activityLogDescending.map((h) => (
                       <li
-                        key={`${h.timestamp}-${idx}`}
-                        className="flex items-start justify-between gap-2 border-b border-divide pb-1.5 last:border-0"
+                        key={h.id}
+                        className="border-b border-divide pb-1.5 last:border-0"
                       >
-                        <span className="text-fg">
-                          {h.placedPieces.toLocaleString(numberLocale)} {t('common.pieces')}
-                          {h.pseudo ? (
-                            <span className="text-fg-muted">
-                              {' '}
-                              · {h.pseudo}
-                            </span>
-                          ) : null}
-                        </span>
-                        <time
-                          dateTime={new Date(h.timestamp).toISOString()}
-                          className="shrink-0 text-fg-faint"
-                        >
-                          {formatDistanceToNow(new Date(h.timestamp), { addSuffix: true, locale: dateLocale })}
-                        </time>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            {editingHistoryId === h.id ? (
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="number"
+                                  value={historyInput}
+                                  onChange={(e) => setHistoryInput(parseInt(e.target.value, 10) || 0)}
+                                  className="w-20 p-1 text-xs border border-primary-ring rounded bg-surface outline-none focus:ring-1 focus:ring-primary-ring"
+                                  autoFocus
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      handleUpdateHistoryEntry(h.id, historyInput);
+                                    }
+                                    if (e.key === 'Escape') setEditingHistoryId(null);
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateHistoryEntry(h.id, historyInput)}
+                                  className="p-1 text-success hover:bg-success-soft rounded"
+                                >
+                                  <Check size={14} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingHistoryId(null)}
+                                  className="p-1 text-fg-faint hover:bg-surface-muted rounded"
+                                >
+                                  <XIcon size={14} />
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-fg">
+                                <span className="font-medium">{h.placedPieces.toLocaleString(numberLocale)}</span> {t('common.pieces')}
+                                {h.pseudo ? (
+                                  <span className="text-fg-muted">
+                                    {' '}
+                                    · {h.pseudo}
+                                  </span>
+                                ) : null}
+                              </span>
+                            )}
+                          </div>
+                          <time
+                            dateTime={new Date(h.timestamp).toISOString()}
+                            className="shrink-0 text-fg-faint"
+                          >
+                            {formatDistanceToNow(new Date(h.timestamp), { addSuffix: true, locale: dateLocale })}
+                          </time>
+                        </div>
+
+                        {!readOnly && !editingHistoryId && (
+                          <div className="mt-1 flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingHistoryId(h.id);
+                                setHistoryInput(h.placedPieces);
+                              }}
+                              className="text-primary hover:underline"
+                            >
+                              {t('dashboard.editHistory')}
+                            </button>
+                            {deletingHistoryId === h.id ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-danger-text font-bold">{t('dashboard.historyDeleteConfirm')}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteHistoryEntry(h.id)}
+                                  className="text-danger-text underline font-bold"
+                                >
+                                  {t('dashboard.yes')}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setDeletingHistoryId(null)}
+                                  className="text-fg-muted underline"
+                                >
+                                  {t('dashboard.no')}
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => setDeletingHistoryId(h.id)}
+                                className="text-danger-text hover:underline"
+                              >
+                                {t('dashboard.deleteHistory')}
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>

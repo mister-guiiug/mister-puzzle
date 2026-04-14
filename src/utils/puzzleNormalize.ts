@@ -37,10 +37,10 @@ function normalizeCheckpoints(raw: unknown): Checkpoint[] {
 function normalizeHistory(raw: unknown): HistoryEntry[] {
   if (!isRecord(raw)) return [];
   const out: HistoryEntry[] = [];
-  for (const v of Object.values(raw)) {
+  for (const [key, v] of Object.entries(raw)) {
     if (!isRecord(v)) continue;
     if (typeof v.timestamp !== 'number' || typeof v.placedPieces !== 'number') continue;
-    const e: HistoryEntry = { timestamp: v.timestamp, placedPieces: v.placedPieces };
+    const e: HistoryEntry = { id: key, timestamp: v.timestamp, placedPieces: v.placedPieces };
     if (typeof v.pseudo === 'string') e.pseudo = v.pseudo;
     out.push(e);
   }
