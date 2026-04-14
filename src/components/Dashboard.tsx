@@ -65,6 +65,9 @@ import { downloadHistoryCsv, downloadHistoryJson } from '../utils/exportHistory'
 
 const MEMBER_TTL_MS = 5 * 60 * 1000;
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
+/** Limite d’images par salle (allège la base temps réel). */
+const MAX_ROOM_PHOTOS = 32;
+const MILESTONE_LEVELS = [25, 50, 75, 100] as const;
 
 interface DashboardProps {
   puzzle: PuzzleState;
@@ -103,6 +106,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   };
 
   const [error, setError] = useState<string | null>(null);
+  const [infoBanner, setInfoBanner] = useState<string | null>(null);
   const [newCheckpointName, setNewCheckpointName] = useState('');
   const [showGridEditor, setShowGridEditor] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -197,6 +201,16 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     return (Object.values(puzzle.members) as Member[]).filter((m) => now - m.lastSeen < MEMBER_TTL_MS);
   }, [puzzle.members]);
 
+  const isOrganizer = useMemo(
+    () => Boolean(puzzle.createdBy && pseudo.trim() && pseudo.trim() === puzzle.createdBy.trim()),
+    [puzzle.createdBy, pseudo],
+  );
+
+  const maxPlacedEver = useMemo(() => {
+    const fromHist = puzzle.history.reduce((m, h) => Math.max(m, h.placedPieces), 0);
+    return Math.max(fromHist, puzzle.placedPieces);
+  }, [puzzle.history, puzzle.placedPieces]);
+
   const remainingPieces = puzzle.totalPieces - puzzle.placedPieces;
   const progress = Math.min((puzzle.placedPieces / puzzle.totalPieces) * 100, 100);
   const remainingRatioPct = puzzle.totalPieces > 0 ? Math.min((remainingPieces / puzzle.totalPieces) * 100, 100) : 0;
@@ -277,6 +291,45 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       console.error(err);
     }
   };
+
+  const handlePiecesUpdateRef = useRef(handlePiecesUpdate);
+  handlePiecesUpdateRef.current = handlePiecesUpdate;
+  const dashKeyRef = useRef({ puzzle, readOnly, newPieces });
+  dashKeyRef.current = { puzzle, readOnly, newPieces };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+      const el = e.target;
+      if (el instanceof HTMLElement) {
+        const tag = el.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable) return;
+      }
+      const { puzzle: pz, readOnly: ro, newPieces: np } = dashKeyRef.current;
+      if (e.key === 'Escape') {
+        setFlagConfirm(false);
+        setConfirmDelete(false);
+        setHelpOpen(false);
+        setActionsOpen(false);
+        setEditingName(false);
+        setNameInput(pz.name);
+        setEditingHistoryId(null);
+        setDeletingHistoryId(null);
+      }
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        setHelpOpen((o) => !o);
+      }
+      if (e.key === 's' || e.key === 'S') {
+        if (!ro && np !== pz.placedPieces) {
+          e.preventDefault();
+          void handlePiecesUpdateRef.current();
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   const handleUpdateHistoryEntry = async (entryId: string, pieces: number) => {
     if (readOnly) return;
@@ -501,6 +554,19 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     if (file) {
       try {
         const compressed = await resizeImage(file);
+        const toDrop = Math.max(0, puzzle.photos.length - MAX_ROOM_PHOTOS + 1);
+        const idsToRemove = toDrop > 0 ? puzzle.photos.slice(0, toDrop).map((p) => p.id) : [];
+        for (const id of idsToRemove) {
+          await deletePhoto(puzzle.id, id);
+        }
+        if (idsToRemove.length > 0) {
+          setInfoBanner(
+            t('dashboard.photoTrimmedHint')
+              .replace('{n}', String(idsToRemove.length))
+              .replace('{max}', String(MAX_ROOM_PHOTOS)),
+          );
+          window.setTimeout(() => setInfoBanner(null), 6000);
+        }
         await addPhoto(puzzle.id, compressed);
       } catch (err) {
         if ((err as Error).message === 'size') {
@@ -558,6 +624,15 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     <div className="min-h-dvh bg-canvas text-fg p-4 md:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
       <ErrorModal message={error} onClose={() => setError(null)} />
 
+      {infoBanner && (
+        <div
+          className="fixed bottom-4 left-1/2 z-[90] max-w-md -translate-x-1/2 rounded-xl border border-primary-border bg-primary-soft px-4 py-3 text-sm font-medium text-primary-strong shadow-lg"
+          role="status"
+        >
+          {infoBanner}
+        </div>
+      )}
+
       <p className="sr-only" aria-live="polite" aria-atomic="true">
         {liveProgressAnnounce}
       </p>
@@ -569,6 +644,15 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             role="status"
           >
             {t('dashboard.readOnlyBanner')}
+          </div>
+        )}
+
+        {isOrganizer && !readOnly && (
+          <div
+            className="mb-4 p-3 rounded-xl bg-primary-soft border border-primary-border text-primary-strong text-sm text-center leading-relaxed"
+            role="status"
+          >
+            {t('dashboard.organizerBanner')}
           </div>
         )}
 
@@ -891,7 +975,32 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 {t('dashboard.helpToggle')}
               </button>
             </div>
-            <p className="text-xs text-fg-faint mb-4">{t('dashboard.progressViewHint')}</p>
+            <p className="text-xs text-fg-faint mb-2">{t('dashboard.progressViewHint')}</p>
+            <p className="text-xs text-fg-faint mb-4">{t('dashboard.keyboardShortcutsHint')}</p>
+            {puzzle.totalPieces > 0 && (
+              <div className="mb-4 rounded-xl border border-divide bg-surface-muted/50 p-3 dark:bg-surface-muted/30">
+                <p className="text-xs font-semibold uppercase tracking-wide text-fg-muted mb-2">
+                  {t('dashboard.milestonesTitle')}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {MILESTONE_LEVELS.map((lev) => {
+                    const reached = (maxPlacedEver / puzzle.totalPieces) * 100 >= lev - 1e-6;
+                    return (
+                      <span
+                        key={lev}
+                        className={`rounded-full px-2.5 py-1 text-xs font-bold border ${
+                          reached
+                            ? 'border-success-soft-border bg-success-soft text-success-on-soft'
+                            : 'border-border-ui bg-surface text-fg-faint'
+                        }`}
+                      >
+                        {t('dashboard.milestonePct').replace('{pct}', String(lev))}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             {helpOpen && (
               <p className="text-sm text-fg-muted mb-4 p-3 rounded-xl bg-surface-muted/60 border border-divide whitespace-pre-line">
                 {t('dashboard.helpBody')}

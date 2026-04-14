@@ -35,12 +35,25 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'prompt',
+      workbox: {
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts',
+              expiration: { maxEntries: 16, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
+      },
       includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png', 'favicon.svg', 'logo.png', 'logo.svg'],
       manifest: {
-        name: 'Mister Puzzle — progression collaborative',
+        name: 'Mister Puzzle',
         short_name: 'Mister Puzzle',
         description:
-          'Suivi collaboratif de puzzles en temps réel : pièces, historique, photos, checkpoints, export PNG, thème clair/sombre.',
+          'Suivi collaboratif de puzzles en temps réel : pièces, historique, photos, checkpoints',
         start_url: '/mister-puzzle/',
         scope: '/mister-puzzle/',
         theme_color: '#4f46e5',

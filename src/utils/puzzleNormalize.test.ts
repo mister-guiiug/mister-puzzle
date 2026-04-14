@@ -43,4 +43,28 @@ describe('normalizePuzzleFromFirebase', () => {
     expect(p.checkpoints).toHaveLength(1);
     expect(p.checkpoints[0]!.name).toBe('A');
   });
+
+  it('normalise schemaVersion (défaut 1)', () => {
+    const p = normalizePuzzleFromFirebase({
+      id: 'X',
+      name: 'N',
+      totalPieces: 10,
+      placedPieces: 0,
+      checkpoints: {},
+      history: {},
+      photos: {},
+    });
+    expect(p.schemaVersion).toBe(1);
+    const p2 = normalizePuzzleFromFirebase({
+      id: 'Y',
+      schemaVersion: 2,
+      name: 'N2',
+      totalPieces: 1,
+      placedPieces: 0,
+      checkpoints: {},
+      history: {},
+      photos: {},
+    });
+    expect(p2.schemaVersion).toBe(2);
+  });
 });

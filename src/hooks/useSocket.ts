@@ -3,6 +3,7 @@ import { ref, set, get, update, push, onValue, off, remove, query, orderByChild,
 import { db } from '../firebase';
 import { normalizePuzzleFromFirebase } from '../utils/puzzleNormalize';
 import { reportError } from '../utils/reportError';
+import { PUZZLE_SCHEMA_VERSION } from '../constants/schema';
 
 export interface Photo {
   id: string;
@@ -37,6 +38,8 @@ export interface HistoryEntry {
 export interface PuzzleState {
   id: string;
   name: string;
+  /** Présent sur les puzzles créés après introduction du versioning document. */
+  schemaVersion?: number;
   isPublic: boolean;
   passwordHash?: string;
   createdBy?: string;
@@ -123,6 +126,7 @@ export const createPuzzle = async (
   const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
   await set(ref(db, `puzzles/${roomCode}`), {
     id: roomCode,
+    schemaVersion: PUZZLE_SCHEMA_VERSION,
     name,
     isPublic,
     ...(passwordHash ? { passwordHash } : {}),
