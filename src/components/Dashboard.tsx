@@ -742,20 +742,24 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
           {confirmDelete && (
             <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-danger-soft border border-danger-soft-border">
               <span className="text-sm text-danger-text font-medium">{t('dashboard.deleteConfirm')}</span>
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="bg-danger-fill text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-danger-fill-hover transition focus:outline-none focus-visible:ring-2 focus-visible:ring-danger-ring"
-              >
-                {t('dashboard.yes')}
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(false)}
-                className="bg-surface text-fg px-4 py-2 rounded-full text-sm font-bold border border-border-ui-strong hover:bg-surface-muted dark:hover:bg-surface-muted transition focus:outline-none focus-visible:ring-2"
-              >
-                {t('dashboard.no')}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="flex items-center gap-1.5 bg-danger-fill text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-danger-fill-hover transition focus:outline-none focus-visible:ring-2 focus-visible:ring-danger-ring"
+                >
+                  <Check size={16} aria-hidden />
+                  {t('dashboard.yes')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(false)}
+                  className="flex items-center gap-1.5 bg-surface text-fg px-4 py-2 rounded-full text-sm font-bold border border-border-ui-strong hover:bg-surface-muted dark:hover:bg-surface-muted transition focus:outline-none focus-visible:ring-2"
+                >
+                  <XIcon size={16} aria-hidden />
+                  {t('dashboard.no')}
+                </button>
+              </div>
             </div>
           )}
         </header>
@@ -1120,15 +1124,17 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         await addCheckpoint(puzzle.id, name, pseudo || undefined);
                         setFlagConfirm(false);
                       }}
-                      className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 py-2 rounded-lg text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-600"
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 py-2 rounded-lg text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-600"
                     >
+                      <Check size={16} aria-hidden />
                       {t('common.confirm')}
                     </button>
                     <button
                       type="button"
                       onClick={() => setFlagConfirm(false)}
-                      className="px-4 py-2 rounded-lg text-sm font-semibold text-fg-muted hover:bg-surface-muted transition focus:outline-none focus-visible:ring-2"
+                      className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-fg-muted hover:bg-surface-muted transition focus:outline-none focus-visible:ring-2"
                     >
+                      <XIcon size={16} aria-hidden />
                       {t('common.cancel')}
                     </button>
                   </div>
@@ -1183,16 +1189,20 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                                 <button
                                   type="button"
                                   onClick={() => handleUpdateHistoryEntry(h.id, historyInput)}
-                                  className="p-1 text-success hover:bg-success-soft rounded"
+                                  className="p-1 text-success-fill hover:bg-success-soft rounded transition-colors"
+                                  title={t('dashboard.validate')}
+                                  aria-label={t('dashboard.validate')}
                                 >
-                                  <Check size={14} />
+                                  <Check size={14} aria-hidden />
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => setEditingHistoryId(null)}
-                                  className="p-1 text-fg-faint hover:bg-surface-muted rounded"
+                                  className="p-1 text-fg-muted hover:bg-surface-muted rounded transition-colors"
+                                  title={t('common.cancel')}
+                                  aria-label={t('common.cancel')}
                                 >
-                                  <XIcon size={14} />
+                                  <XIcon size={14} aria-hidden />
                                 </button>
                               </div>
                             ) : (
@@ -1216,42 +1226,50 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         </div>
 
                         {!readOnly && !editingHistoryId && (
-                          <div className="mt-1 flex items-center gap-3">
+                          <div className="mt-1 flex items-center gap-2">
                             <button
                               type="button"
                               onClick={() => {
                                 setEditingHistoryId(h.id);
                                 setHistoryInput(h.placedPieces);
                               }}
-                              className="text-primary hover:underline"
+                              className="p-1 text-primary hover:bg-primary-soft rounded transition-colors"
+                              title={t('dashboard.editHistory')}
+                              aria-label={t('dashboard.editHistory')}
                             >
-                              {t('dashboard.editHistory')}
+                              <Pencil size={14} aria-hidden />
                             </button>
                             {deletingHistoryId === h.id ? (
-                              <div className="flex items-center gap-2">
-                                <span className="text-danger-text font-bold">{t('dashboard.historyDeleteConfirm')}</span>
+                              <div className="flex items-center gap-1 bg-danger-soft/30 px-2 py-0.5 rounded-lg border border-danger-soft-border/50">
+                                <span className="text-[10px] uppercase tracking-wider text-danger-text font-bold mr-1">{t('dashboard.historyDeleteConfirm')}</span>
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteHistoryEntry(h.id)}
-                                  className="text-danger-text underline font-bold"
+                                  className="p-1 text-success-fill hover:bg-success-soft rounded transition-colors"
+                                  title={t('dashboard.yes')}
+                                  aria-label={t('dashboard.yes')}
                                 >
-                                  {t('dashboard.yes')}
+                                  <Check size={14} aria-hidden />
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => setDeletingHistoryId(null)}
-                                  className="text-fg-muted underline"
+                                  className="p-1 text-fg-muted hover:bg-surface-muted rounded transition-colors"
+                                  title={t('dashboard.no')}
+                                  aria-label={t('dashboard.no')}
                                 >
-                                  {t('dashboard.no')}
+                                  <XIcon size={14} aria-hidden />
                                 </button>
                               </div>
                             ) : (
                               <button
                                 type="button"
                                 onClick={() => setDeletingHistoryId(h.id)}
-                                className="text-danger-text hover:underline"
+                                className="p-1 text-danger-text hover:bg-danger-soft rounded transition-colors"
+                                title={t('dashboard.deleteHistory')}
+                                aria-label={t('dashboard.deleteHistory')}
                               >
-                                {t('dashboard.deleteHistory')}
+                                <Trash2 size={14} aria-hidden />
                               </button>
                             )}
                           </div>
