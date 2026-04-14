@@ -32,8 +32,8 @@ export default defineConfig({
           ) {
             return 'react-vendor';
           }
-          if (norm.includes('/@firebase/')) return 'firebase-core';
-          if (norm.includes('/firebase/')) return 'firebase';
+          /** Un seul chunk Firebase : le paquet `firebase` ne fait souvent que réexporter `@firebase/*` (~quelques octets) ; les fusionner évite une requête réseau inutile. */
+          if (norm.includes('/@firebase/') || norm.includes('/firebase/')) return 'firebase';
           if (norm.includes('/lucide-react/')) return 'lucide';
           if (norm.includes('/date-fns/')) return 'date-fns';
           if (norm.includes('/framer-motion/')) return 'motion';

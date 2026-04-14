@@ -13,6 +13,8 @@ import { getPseudo, isPseudoLocked } from './utils/pseudo';
 import { useDocumentRoomTitle } from './hooks/useDocumentRoomTitle';
 import { classifyFirebaseError } from './utils/classifyFirebaseError';
 import { prefetchDashboardChunk } from './utils/prefetchDashboard';
+import { flushOfflinePieceQueue } from './utils/offlinePieceQueue';
+import { updatePieces } from './hooks/useSocket';
 
 const getHashCode = () => {
   const hash = window.location.hash.slice(1).toUpperCase();
@@ -52,7 +54,10 @@ function App() {
   }, [roomCode]);
 
   useEffect(() => {
-    const on = () => setOnline(true);
+    const on = () => {
+      setOnline(true);
+      void flushOfflinePieceQueue(updatePieces);
+    };
     const off = () => setOnline(false);
     window.addEventListener('online', on);
     window.addEventListener('offline', off);
@@ -60,6 +65,12 @@ function App() {
       window.removeEventListener('online', on);
       window.removeEventListener('offline', off);
     };
+  }, []);
+
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
+      void flushOfflinePieceQueue(updatePieces);
+    }
   }, []);
 
   const handleJoin = (code: string) => {

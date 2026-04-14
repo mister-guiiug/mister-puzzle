@@ -221,6 +221,10 @@ export const messages: Record<Locale, MsgValue> = {
       statsColUpdates: 'MAJ',
       statsAnon: 'Sans pseudo',
       exportPseudoStatsCsv: 'Exporter les stats (CSV)',
+      offlineQueuedSave:
+        'Hors ligne : votre progression est enregistrée localement et sera envoyée à la reconnexion.',
+      offlinePendingBanner:
+        'Hors ligne : une progression est en attente d’envoi. Elle partira automatiquement quand la connexion reviendra.',
       editHistory: 'Modifier le nombre de pièces',
       deleteHistory: "Supprimer l'entrée",
       historyDeleteConfirm: 'Supprimer cette entrée ?',
@@ -280,6 +284,8 @@ export const messages: Record<Locale, MsgValue> = {
       updateBannerTitle: 'Une nouvelle version de l’application est disponible.',
       updateBannerCta: 'Mettre à jour',
       updateBannerBadge: 'Mise à jour',
+      updateBannerSnooze: 'Plus tard (24 h)',
+      updateBannerDismiss: 'Ignorer',
     },
   },
   en: {
@@ -499,6 +505,10 @@ export const messages: Record<Locale, MsgValue> = {
       statsColUpdates: 'Saves',
       statsAnon: 'No nickname',
       exportPseudoStatsCsv: 'Export stats (CSV)',
+      offlineQueuedSave:
+        'Offline: your progress is saved locally and will sync when you are back online.',
+      offlinePendingBanner:
+        'Offline: a progress update is waiting to be sent. It will go out automatically when you reconnect.',
       editHistory: 'Edit piece count',
       deleteHistory: 'Delete entry',
       historyDeleteConfirm: 'Delete this entry?',
@@ -558,6 +568,8 @@ export const messages: Record<Locale, MsgValue> = {
       updateBannerTitle: 'A new version of the app is available.',
       updateBannerCta: 'Update now',
       updateBannerBadge: 'Update',
+      updateBannerSnooze: 'Remind me in 24 h',
+      updateBannerDismiss: 'Dismiss',
     },
   },
 };
