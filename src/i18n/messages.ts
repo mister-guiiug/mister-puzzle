@@ -12,6 +12,8 @@ export const messages: Record<Locale, MsgValue> = {
       confirm: 'Confirmer',
       loading: 'Chargement...',
       pieces: 'pièces',
+      errorModalTitle: 'Oups ! Une erreur est survenue',
+      errorModalClose: "J'ai compris",
     },
     home: {
       tagline: 'Suivez votre progression en équipe',
@@ -211,6 +213,14 @@ export const messages: Record<Locale, MsgValue> = {
       historyDeleteConfirm: 'Supprimer cette entrée ?',
       liveProgressAnnounced:
         '{placed} pièces placées, {remaining} restantes, {pct} % du puzzle.',
+      keyboardShortcutsHint:
+        'Raccourcis : S enregistrer · ? ouvre l’aide progression · Échap ferme les fenêtres (hors champ de saisie).',
+      milestonesTitle: 'Jalons',
+      milestonePct: '{pct} %',
+      organizerBanner:
+        'Vous avez créé cette salle : proposez le mode « Lecture seule » dans les paramètres pour limiter les changements accidentels.',
+      photoTrimmedHint:
+        '{n} photo(s) la plus ancienne(s) supprimée(s) pour rester sous la limite de {max} images.',
       shareInvite: 'Lien d’invitation (code pré-rempli sur l’accueil)',
       shareDirect: 'Lien direct (ouvre la salle)',
     },
@@ -221,6 +231,9 @@ export const messages: Record<Locale, MsgValue> = {
         'Ce code ne correspond à aucun puzzle actif. Vérifiez le lien ou retournez à l’accueil pour en créer un.',
       backHome: "Retour à l'accueil",
       loadError: 'Impossible de charger le puzzle (réseau ou serveur).',
+      loadErrorPermission:
+        'Accès refusé par la base de données (règles Firebase). Vérifiez le déploiement des règles ou le projet utilisé.',
+      loadErrorNetwork: 'Problème de connexion. Vérifiez le réseau puis réessayez.',
       retryLoad: 'Réessayer',
       offlineTitle: 'Hors ligne',
       offlineDetail: 'Sans connexion, les mises à jour en direct ne sont pas disponibles.',
@@ -259,6 +272,8 @@ export const messages: Record<Locale, MsgValue> = {
       confirm: 'Confirm',
       loading: 'Loading...',
       pieces: 'pieces',
+      errorModalTitle: 'Something went wrong',
+      errorModalClose: 'Got it',
     },
     home: {
       tagline: 'Track progress together',
@@ -457,6 +472,14 @@ export const messages: Record<Locale, MsgValue> = {
       historyDeleteConfirm: 'Delete this entry?',
       liveProgressAnnounced:
         '{placed} pieces placed, {remaining} remaining, {pct}% of the puzzle.',
+      keyboardShortcutsHint:
+        'Shortcuts: S save · ? toggles progress help · Esc closes panels (when not typing in a field).',
+      milestonesTitle: 'Milestones',
+      milestonePct: '{pct}%',
+      organizerBanner:
+        'You created this room: suggest “Read-only” in settings to reduce accidental edits.',
+      photoTrimmedHint:
+        'Removed the oldest {n} photo(s) to stay within the limit of {max} images.',
       shareInvite: 'Invite link (prefills code on home)',
       shareDirect: 'Direct link (opens room)',
     },
@@ -467,6 +490,9 @@ export const messages: Record<Locale, MsgValue> = {
         'This code does not match an active puzzle. Check the link or go home to create one.',
       backHome: 'Back to home',
       loadError: 'Could not load the puzzle (network or server).',
+      loadErrorPermission:
+        'Database access denied (Firebase rules). Check deployed rules or the configured project.',
+      loadErrorNetwork: 'Connection issue. Check your network and try again.',
       retryLoad: 'Retry',
       offlineTitle: 'Offline',
       offlineDetail: 'Without a connection, live updates are not available.',

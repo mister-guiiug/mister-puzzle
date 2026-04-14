@@ -12,4 +12,6 @@ interface ImportMetaEnv {
   readonly VITE_GTM_CONTAINER_ID?: string;
   /** ID de mesure GA4 sans GTM (injecté au build si présent et sans GTM) */
   readonly VITE_GA_MEASUREMENT_ID?: string;
+  /** URL HTTPS (POST JSON) pour recevoir les rapports d’erreur produits par `reportError` */
+  readonly VITE_ERROR_INGEST_URL?: string;
 }

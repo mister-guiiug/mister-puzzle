@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { usePuzzle } from './hooks/useSocket';
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
@@ -10,6 +10,7 @@ import PullToRefreshIndicator from './components/PullToRefreshIndicator';
 import { useI18n } from './i18n/I18nContext';
 import { getPseudo, isPseudoLocked } from './utils/pseudo';
 import { useDocumentRoomTitle } from './hooks/useDocumentRoomTitle';
+import { classifyFirebaseError } from './utils/classifyFirebaseError';
 
 const getHashCode = () => {
   const hash = window.location.hash.slice(1).toUpperCase();
@@ -73,6 +74,14 @@ function App() {
     setPseudoRefreshKey((k) => k + 1);
   }, []);
 
+  const loadErrorMessage = useMemo(() => {
+    if (!loadError) return null;
+    const kind = classifyFirebaseError(loadError);
+    if (kind === 'permission') return t('app.loadErrorPermission');
+    if (kind === 'network') return t('app.loadErrorNetwork');
+    return t('app.loadError');
+  }, [loadError, t]);
+
   return (
     <>
       <PullToRefreshIndicator pullDistance={pullDistance} refreshing={refreshing} threshold={threshold} />
@@ -104,7 +113,7 @@ function App() {
             </div>
           ) : loadError ? (
             <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4 max-w-md mx-auto text-center">
-              <p className="text-fg-muted">{t('app.loadError')}</p>
+              <p className="text-fg-muted">{loadErrorMessage}</p>
               <button
                 type="button"
                 onClick={() => window.location.reload()}

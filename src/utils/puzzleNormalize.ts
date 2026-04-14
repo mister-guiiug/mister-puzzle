@@ -78,10 +78,14 @@ export function normalizePuzzleFromFirebase(data: unknown): PuzzleState {
     if (Object.keys(members).length === 0) members = undefined;
   }
 
+  const schemaVersion =
+    typeof raw.schemaVersion === 'number' && Number.isFinite(raw.schemaVersion) ? raw.schemaVersion : 1;
+
   return {
     ...raw,
     id: typeof raw.id === 'string' ? raw.id : '',
     name: typeof raw.name === 'string' ? raw.name : '',
+    schemaVersion,
     isPublic: typeof raw.isPublic === 'boolean' ? raw.isPublic : true,
     passwordHash: typeof raw.passwordHash === 'string' ? raw.passwordHash : undefined,
     createdBy: typeof raw.createdBy === 'string' ? raw.createdBy : undefined,
