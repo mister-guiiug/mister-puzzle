@@ -26,6 +26,7 @@ import {
   CircleHelp,
   History,
   FileSpreadsheet,
+  BarChart2,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
@@ -62,6 +63,7 @@ import { exportProgressPng } from '../utils/exportProgressCard';
 import { reportError } from '../utils/reportError';
 import { notifySaveSuccess } from '../utils/haptic';
 import { downloadHistoryCsv, downloadHistoryJson } from '../utils/exportHistory';
+import { computePseudoStatsFromHistory } from '../utils/pseudoStats';
 
 const MEMBER_TTL_MS = 5 * 60 * 1000;
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
@@ -264,6 +266,17 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const historyExportBase = useMemo(
     () => puzzle.name.replace(/[^a-zA-ZÀ-ÿ0-9\-_\s]/g, '').trim().slice(0, 48).replace(/\s+/g, '-') || puzzle.id,
     [puzzle.name, puzzle.id],
+  );
+
+  const [statsClock, setStatsClock] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setStatsClock(Date.now()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const pseudoStatRows = useMemo(
+    () => computePseudoStatsFromHistory(puzzle.history, statsClock),
+    [puzzle.history, statsClock],
   );
 
   const handlePiecesUpdate = async () => {
@@ -1446,6 +1459,62 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     {t('dashboard.exportHistoryJson')}
                   </button>
                 </div>
+              </details>
+
+              <details className="mt-4 rounded-xl border border-border-ui bg-surface/60 p-3 dark:border-border-ui-strong dark:bg-surface/50">
+                <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-fg-heading marker:content-none [&::-webkit-details-marker]:hidden">
+                  <BarChart2 size={16} className="shrink-0 text-primary-muted" aria-hidden />
+                  {t('dashboard.statsByPseudoToggle')}
+                </summary>
+                <p className="mt-2 text-xs text-fg-muted leading-relaxed">{t('dashboard.statsByPseudoHint')}</p>
+                {pseudoStatRows.length === 0 ? (
+                  <p className="mt-2 text-xs text-fg-faint">{t('dashboard.statsByPseudoEmpty')}</p>
+                ) : (
+                  <div className="mt-3 overflow-x-auto rounded-lg border border-divide">
+                    <table className="w-full min-w-[280px] text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-divide bg-surface-muted/80 dark:bg-surface-muted/40">
+                          <th scope="col" className="px-3 py-2 font-semibold text-fg-heading">
+                            {t('dashboard.statsColPseudo')}
+                          </th>
+                          <th scope="col" className="px-3 py-2 font-semibold text-fg-heading text-right tabular-nums">
+                            {t('dashboard.statsColPieces24h')}
+                          </th>
+                          <th scope="col" className="px-3 py-2 font-semibold text-fg-heading text-right tabular-nums">
+                            {t('dashboard.statsColMaxSingle')}
+                          </th>
+                          <th scope="col" className="px-3 py-2 font-semibold text-fg-heading text-right tabular-nums">
+                            {t('dashboard.statsColMaxStreak')}
+                          </th>
+                          <th scope="col" className="px-3 py-2 font-semibold text-fg-heading text-right tabular-nums">
+                            {t('dashboard.statsColUpdates')}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pseudoStatRows.map((row) => (
+                          <tr key={row.pseudoKey || '__anon__'} className="border-b border-divide last:border-0">
+                            <td className="px-3 py-2 font-medium text-fg">
+                              {row.pseudoKey ? row.pseudoKey : t('dashboard.statsAnon')}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums text-fg">
+                              {row.piecesInWindow.toLocaleString(numberLocale)}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums text-fg-muted">
+                              {row.maxSingleDelta.toLocaleString(numberLocale)}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums text-fg-muted">
+                              {row.maxConsecutiveDelta.toLocaleString(numberLocale)}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums text-fg-faint">
+                              {row.positiveUpdatesInWindow.toLocaleString(numberLocale)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </details>
             </div>
 
