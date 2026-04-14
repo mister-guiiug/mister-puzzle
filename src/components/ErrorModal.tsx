@@ -28,7 +28,9 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ message, onClose }) => {
               <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-danger-icon-bg rounded-full text-danger-icon-text">
                 <AlertCircle size={24} />
               </div>
-              <h3 className="text-lg font-bold text-center text-fg mb-2">{t('common.errorModalTitle')}</h3>
+              <h3 className="text-lg font-bold text-center text-fg mb-2">
+                {t('common.errorModalTitle')}
+              </h3>
               <p className="text-sm text-center text-fg-muted">{message}</p>
             </div>
             <div className="p-4 bg-surface-muted/90 border-t border-divide">

@@ -44,7 +44,10 @@ export function computePseudoStatsFromHistory(
     { pieces: number; maxSingle: number; maxStreak: number; updates: number }
   >();
 
-  const bump = (key: string, fn: (v: { pieces: number; maxSingle: number; maxStreak: number; updates: number }) => void) => {
+  const bump = (
+    key: string,
+    fn: (v: { pieces: number; maxSingle: number; maxStreak: number; updates: number }) => void,
+  ) => {
     if (!agg.has(key)) {
       agg.set(key, { pieces: 0, maxSingle: 0, maxStreak: 0, updates: 0 });
     }
@@ -113,6 +116,8 @@ export function computePseudoStatsFromHistory(
     positiveUpdatesInWindow: v.updates,
   }));
 
-  rows.sort((a, b) => b.piecesInWindow - a.piecesInWindow || a.pseudoKey.localeCompare(b.pseudoKey));
+  rows.sort(
+    (a, b) => b.piecesInWindow - a.piecesInWindow || a.pseudoKey.localeCompare(b.pseudoKey),
+  );
   return rows;
 }

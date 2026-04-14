@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import type { Locale } from './localeStorage';
 import { getLocalePref, setLocalePref } from './localeStorage';
 import { translate } from './messages';

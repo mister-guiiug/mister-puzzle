@@ -2,16 +2,15 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from 'react';
 import {
   applyThemeClass,
   getThemePreference,
-  resolveTheme,
   setThemePreference,
   type ThemePreference,
 } from './themeStorage';
@@ -25,30 +24,32 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
+function subscribeSystemDark(onStoreChange: () => void): () => void {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  mq.addEventListener('change', onStoreChange);
+  return () => mq.removeEventListener('change', onStoreChange);
+}
+
+function getSystemDarkSnapshot(): boolean {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [preference, setPreferenceState] = useState<ThemePreference>(() => getThemePreference());
-  const [effective, setEffective] = useState<'light' | 'dark'>(() => resolveTheme(getThemePreference()));
+  const systemIsDark = useSyncExternalStore(
+    subscribeSystemDark,
+    getSystemDarkSnapshot,
+    () => false,
+  );
+
+  const effective = useMemo<'light' | 'dark'>(() => {
+    if (preference === 'system') return systemIsDark ? 'dark' : 'light';
+    return preference;
+  }, [preference, systemIsDark]);
 
   useLayoutEffect(() => {
-    /* Aligne l’état React sur le thème appliqué au <html> (anti-flash + hydratation). */
-    /* eslint-disable react-hooks/set-state-in-effect */
-    const eff = resolveTheme(preference);
-    setEffective(eff);
-    applyThemeClass(eff);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [preference]);
-
-  useEffect(() => {
-    if (preference !== 'system') return;
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const onChange = () => {
-      const eff = resolveTheme('system');
-      setEffective(eff);
-      applyThemeClass(eff);
-    };
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, [preference]);
+    applyThemeClass(effective);
+  }, [effective]);
 
   const setPreference = useCallback((value: ThemePreference) => {
     setThemePreference(value);

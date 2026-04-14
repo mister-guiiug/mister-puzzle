@@ -40,7 +40,7 @@ function App() {
       savedRef.current = key;
       saveToHistory(puzzle.id, puzzle.name);
     }
-  }, [puzzle?.id, puzzle?.name]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [puzzle]);
 
   useEffect(() => {
     const handleHashChange = () => setRoomCode(getHashCode());
@@ -102,7 +102,11 @@ function App() {
 
   return (
     <>
-      <PullToRefreshIndicator pullDistance={pullDistance} refreshing={refreshing} threshold={threshold} />
+      <PullToRefreshIndicator
+        pullDistance={pullDistance}
+        refreshing={refreshing}
+        threshold={threshold}
+      />
       <UpdateBanner />
       <Navbar
         pseudo={pseudo}
@@ -113,16 +117,14 @@ function App() {
         onNavigateToPuzzle={handleJoin}
         onPseudoCommit={handlePseudoCommit}
       />
-      <main
-        id="contenu-principal"
-        className="min-h-screen bg-canvas text-fg"
-      >
+      <main id="contenu-principal" className="min-h-screen bg-canvas text-fg">
         {!online && (
           <div
             className="bg-warning-soft border-b border-warning-border text-warning-fg text-sm px-4 py-3 text-center"
             role="alert"
           >
-            <strong className="font-semibold">{t('app.offlineTitle')}</strong> — {t('app.offlineDetail')}
+            <strong className="font-semibold">{t('app.offlineTitle')}</strong> —{' '}
+            {t('app.offlineDetail')}
           </div>
         )}
         {roomCode ? (

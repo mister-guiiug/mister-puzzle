@@ -31,7 +31,13 @@ export function downloadPseudoStatsCsv(
   labels: PseudoStatsCsvLabels,
   anonLabel: string,
 ): void {
-  const header = [labels.pseudo, labels.pieces24h, labels.maxSingle, labels.maxStreak, labels.updates];
+  const header = [
+    labels.pseudo,
+    labels.pieces24h,
+    labels.maxSingle,
+    labels.maxStreak,
+    labels.updates,
+  ];
   const lines = [
     header.map(escapeCsvCell).join(','),
     ...rows.map((row) =>
@@ -47,5 +53,8 @@ export function downloadPseudoStatsCsv(
     ),
   ];
   const csv = `\ufeff${lines.join('\n')}`;
-  triggerDownload(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `${fileBaseName}-stats-pseudo-24h.csv`);
+  triggerDownload(
+    new Blob([csv], { type: 'text/csv;charset=utf-8' }),
+    `${fileBaseName}-stats-pseudo-24h.csv`,
+  );
 }

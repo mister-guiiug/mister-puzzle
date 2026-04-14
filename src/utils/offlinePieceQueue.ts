@@ -60,7 +60,9 @@ export function hasPendingForRoom(roomCode: string): boolean {
 /**
  * Une entrée par salle : la dernière valeur demandée remplace la précédente.
  */
-export function enqueueOfflinePieceUpdate(entry: Omit<OfflinePiecePending, 'createdAt'> & { createdAt?: number }): void {
+export function enqueueOfflinePieceUpdate(
+  entry: Omit<OfflinePiecePending, 'createdAt'> & { createdAt?: number },
+): void {
   const items = loadRaw().filter((x) => x.roomCode !== entry.roomCode);
   items.push({
     roomCode: entry.roomCode,

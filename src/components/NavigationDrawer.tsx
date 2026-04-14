@@ -36,7 +36,9 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   const [history, setHistory] = useState<HistoryPuzzle[]>([]);
   const [publicPuzzles, setPublicPuzzles] = useState<PuzzleState[]>([]);
   const [publicSearch, setPublicSearch] = useState('');
-  const [publicSort, setPublicSort] = useState<'nameAsc' | 'nameDesc' | 'progressDesc' | 'progressAsc'>('progressDesc');
+  const [publicSort, setPublicSort] = useState<
+    'nameAsc' | 'nameDesc' | 'progressDesc' | 'progressAsc'
+  >('progressDesc');
   const [publicProgressMin, setPublicProgressMin] = useState('');
   const [publicProgressMax, setPublicProgressMax] = useState('');
   const [loadingPublic, setLoadingPublic] = useState(false);
@@ -108,9 +110,11 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
     if (!panel) return;
 
     const tabbable = () =>
-      [...panel.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      )].filter((el) => !el.hasAttribute('disabled'));
+      [
+        ...panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ].filter((el) => !el.hasAttribute('disabled'));
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
@@ -198,24 +202,24 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   const filteredPublic = useMemo(() => {
     const q = publicSearch.toLowerCase().trim();
     return publicPuzzles.filter((p) => {
-      const nameMatch =
-        p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q);
+      const nameMatch = p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q);
       if (!nameMatch) return false;
       const pct = p.totalPieces > 0 ? (p.placedPieces / p.totalPieces) * 100 : 0;
       const minRaw = publicProgressMin.trim();
       const maxRaw = publicProgressMax.trim();
       const minN = minRaw === '' ? null : Number(minRaw);
       const maxN = maxRaw === '' ? null : Number(maxRaw);
-      if (minN !== null && !Number.isNaN(minN) && pct < Math.min(100, Math.max(0, minN))) return false;
-      if (maxN !== null && !Number.isNaN(maxN) && pct > Math.min(100, Math.max(0, maxN))) return false;
+      if (minN !== null && !Number.isNaN(minN) && pct < Math.min(100, Math.max(0, minN)))
+        return false;
+      if (maxN !== null && !Number.isNaN(maxN) && pct > Math.min(100, Math.max(0, maxN)))
+        return false;
       return true;
     });
   }, [publicPuzzles, publicSearch, publicProgressMin, publicProgressMax]);
 
   const sortedFilteredPublic = useMemo(() => {
     const arr = [...filteredPublic];
-    const pct = (p: (typeof arr)[0]) =>
-      p.totalPieces > 0 ? p.placedPieces / p.totalPieces : 0;
+    const pct = (p: (typeof arr)[0]) => (p.totalPieces > 0 ? p.placedPieces / p.totalPieces : 0);
     arr.sort((a, b) => {
       switch (publicSort) {
         case 'nameAsc':
@@ -247,7 +251,9 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
         aria-label={t('nav.drawerTitle')}
       >
         <div className="flex items-center justify-between gap-3 px-4 py-3 sm:p-4 border-b border-divide shrink-0 min-h-[3.25rem]">
-          <h2 className="text-lg font-bold text-fg-heading truncate pr-2">{t('nav.drawerTitle')}</h2>
+          <h2 className="text-lg font-bold text-fg-heading truncate pr-2">
+            {t('nav.drawerTitle')}
+          </h2>
           <button
             type="button"
             onClick={onClose}
@@ -324,7 +330,11 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
             ) : (
               <>
                 <div className="relative mb-2">
-                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-faint pointer-events-none" aria-hidden />
+                  <Search
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-fg-faint pointer-events-none"
+                    aria-hidden
+                  />
                   <input
                     type="search"
                     value={publicSearch}
@@ -353,10 +363,15 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                     <option value="nameDesc">{t('nav.publicSortNameDesc')}</option>
                   </select>
                 </div>
-                <p className="text-[11px] text-fg-faint mb-1.5 leading-snug">{t('nav.publicFilterHint')}</p>
+                <p className="text-[11px] text-fg-faint mb-1.5 leading-snug">
+                  {t('nav.publicFilterHint')}
+                </p>
                 <div className="mb-2 flex flex-wrap items-end gap-2">
                   <div className="min-w-[6.5rem] flex-1">
-                    <label htmlFor="nav-public-pct-min" className="block text-[10px] font-semibold uppercase tracking-wide text-fg-faint mb-0.5">
+                    <label
+                      htmlFor="nav-public-pct-min"
+                      className="block text-[10px] font-semibold uppercase tracking-wide text-fg-faint mb-0.5"
+                    >
                       {t('nav.publicFilterProgressMin')}
                     </label>
                     <input
@@ -367,12 +382,17 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                       inputMode="numeric"
                       placeholder="0"
                       value={publicProgressMin}
-                      onChange={(e) => setPublicProgressMin(e.target.value.replace(/[^\d]/g, '').slice(0, 3))}
+                      onChange={(e) =>
+                        setPublicProgressMin(e.target.value.replace(/[^\d]/g, '').slice(0, 3))
+                      }
                       className="w-full min-h-9 rounded-lg border border-border-ui bg-surface px-2 py-1.5 text-xs text-fg-heading dark:border-border-ui dark:bg-surface-muted"
                     />
                   </div>
                   <div className="min-w-[6.5rem] flex-1">
-                    <label htmlFor="nav-public-pct-max" className="block text-[10px] font-semibold uppercase tracking-wide text-fg-faint mb-0.5">
+                    <label
+                      htmlFor="nav-public-pct-max"
+                      className="block text-[10px] font-semibold uppercase tracking-wide text-fg-faint mb-0.5"
+                    >
                       {t('nav.publicFilterProgressMax')}
                     </label>
                     <input
@@ -383,7 +403,9 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                       inputMode="numeric"
                       placeholder="100"
                       value={publicProgressMax}
-                      onChange={(e) => setPublicProgressMax(e.target.value.replace(/[^\d]/g, '').slice(0, 3))}
+                      onChange={(e) =>
+                        setPublicProgressMax(e.target.value.replace(/[^\d]/g, '').slice(0, 3))
+                      }
                       className="w-full min-h-9 rounded-lg border border-border-ui bg-surface px-2 py-1.5 text-xs text-fg-heading dark:border-border-ui dark:bg-surface-muted"
                     />
                   </div>
@@ -404,11 +426,16 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                           className="w-full flex items-center justify-between gap-3 min-h-12 px-3 py-2.5 rounded-xl hover:bg-success-row-hover active:bg-success-row-active text-left border border-transparent hover:border-success-row-border transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
                         >
                           <div className="min-w-0">
-                            <p className="font-semibold text-fg-heading text-sm truncate">{p.name}</p>
+                            <p className="font-semibold text-fg-heading text-sm truncate">
+                              {p.name}
+                            </p>
                             <p className="text-xs text-fg-faint">
                               {p.placedPieces.toLocaleString(numberLocale)} /{' '}
                               {p.totalPieces.toLocaleString(numberLocale)} ·{' '}
-                              {p.totalPieces > 0 ? Math.round((p.placedPieces / p.totalPieces) * 100) : 0}%
+                              {p.totalPieces > 0
+                                ? Math.round((p.placedPieces / p.totalPieces) * 100)
+                                : 0}
+                              %
                             </p>
                           </div>
                           <ArrowRight size={18} className="text-fg-faint shrink-0" aria-hidden />

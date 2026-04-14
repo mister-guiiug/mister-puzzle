@@ -24,7 +24,7 @@ export const saveToHistory = (code: string, name: string) => {
     const history = getHistory();
     const newEntry: HistoryPuzzle = { code: code.toUpperCase(), name, timestamp: Date.now() };
 
-    const filtered = history.filter(p => p.code !== newEntry.code);
+    const filtered = history.filter((p) => p.code !== newEntry.code);
     const updated = [newEntry, ...filtered].slice(0, MAX_HISTORY);
 
     localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
@@ -36,10 +36,9 @@ export const saveToHistory = (code: string, name: string) => {
 export const removeFromHistory = (code: string) => {
   try {
     const history = getHistory();
-    const updated = history.filter(p => p.code !== code.toUpperCase());
+    const updated = history.filter((p) => p.code !== code.toUpperCase());
     localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
   } catch (err) {
     reportError('removeFromHistory', err, {});
   }
 };
-

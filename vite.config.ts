@@ -61,7 +61,14 @@ export default defineConfig({
           },
         ],
       },
-      includeAssets: ['favicon.ico', 'pwa-192x192.png', 'pwa-512x512.png', 'favicon.svg', 'logo.png', 'logo.svg'],
+      includeAssets: [
+        'favicon.ico',
+        'pwa-192x192.png',
+        'pwa-512x512.png',
+        'favicon.svg',
+        'logo.png',
+        'logo.svg',
+      ],
       manifest: {
         name: 'Mister Puzzle',
         short_name: 'Mister Puzzle',

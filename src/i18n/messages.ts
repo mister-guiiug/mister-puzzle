@@ -22,13 +22,16 @@ export const messages: Record<Locale, MsgValue> = {
       tourStep1Title: 'Menu latéral',
       tourStep1Body: 'Icône ☰ en haut à gauche : puzzles récents, liste publique et recherche.',
       tourStep2Title: 'Votre pseudo',
-      tourStep2Body: 'En haut à droite : ouvrez le profil pour saisir ou verrouiller votre nom (sessions collaboratives).',
+      tourStep2Body:
+        'En haut à droite : ouvrez le profil pour saisir ou verrouiller votre nom (sessions collaboratives).',
       tourStep3Title: 'Créer ou rejoindre',
-      tourStep3Body: 'Les formulaires sont sur cette page : nouveau puzzle ou code pour rejoindre une salle.',
+      tourStep3Body:
+        'Les formulaires sont sur cette page : nouveau puzzle ou code pour rejoindre une salle.',
       tourScrollToForms: 'Aller aux formulaires',
       tourDismiss: 'Masquer ce parcours',
       tourShowAgain: 'Réafficher le parcours',
-      tourDismissedHint: 'Rappel : menu ☰ pour l’historique et les publics · profil en haut à droite pour le pseudo.',
+      tourDismissedHint:
+        'Rappel : menu ☰ pour l’historique et les publics · profil en haut à droite pour le pseudo.',
       yourPseudo: 'Votre pseudo',
       pseudoPlaceholder: 'Anonyme',
       pseudoLockedHint: 'Pseudo verrouillé — cliquez sur le cadenas pour modifier.',
@@ -126,8 +129,7 @@ export const messages: Record<Locale, MsgValue> = {
       flagAsk: 'Poser un checkpoint ici ?',
       flagDetail: "Un checkpoint sera créé avec l'étape actuelle",
       flagPieces: 'pièces placées',
-      flagStats:
-        '{placed} placées · {remaining} restantes · {pct}% terminé.',
+      flagStats: '{placed} placées · {remaining} restantes · {pct}% terminé.',
       adjustGrid: 'Ajuster la grille',
       gridCancel: 'Annuler',
       checkpointsTitle: 'Checkpoints',
@@ -213,7 +215,8 @@ export const messages: Record<Locale, MsgValue> = {
       statsByPseudoToggle: 'Stats par pseudo (24 h glissantes)',
       statsByPseudoHint:
         'D’après le journal : le pseudo indique qui a validé l’enregistrement. Comptage des pièces ajoutées (deltas positifs) sur les dernières 24 h. « Série max » = plus grande somme d’ajouts d’affilée par le même pseudo sans qu’un autre intercale (les entrées hors fenêtre cassent la série).',
-      statsByPseudoEmpty: 'Aucun ajout positif enregistré dans cette fenêtre (ou pseudos absents sur les anciennes entrées).',
+      statsByPseudoEmpty:
+        'Aucun ajout positif enregistré dans cette fenêtre (ou pseudos absents sur les anciennes entrées).',
       statsColPseudo: 'Pseudo',
       statsColPieces24h: 'Pièces (24 h)',
       statsColMaxSingle: 'Max 1 fois',
@@ -228,8 +231,7 @@ export const messages: Record<Locale, MsgValue> = {
       editHistory: 'Modifier le nombre de pièces',
       deleteHistory: "Supprimer l'entrée",
       historyDeleteConfirm: 'Supprimer cette entrée ?',
-      liveProgressAnnounced:
-        '{placed} pièces placées, {remaining} restantes, {pct} % du puzzle.',
+      liveProgressAnnounced: '{placed} pièces placées, {remaining} restantes, {pct} % du puzzle.',
       keyboardShortcutsHint:
         'Raccourcis : S enregistrer · ? ouvre l’aide progression · Échap ferme les fenêtres (hors champ de saisie).',
       milestonesTitle: 'Jalons',
@@ -280,7 +282,8 @@ export const messages: Record<Locale, MsgValue> = {
       publicLoadingSkeleton: 'Chargement de la liste…',
       publicFilterProgressMin: 'Avancement min. %',
       publicFilterProgressMax: 'Avancement max. %',
-      publicFilterHint: 'Filtre la liste publique par pourcentage complété (0–100). Laisser vide = pas de filtre.',
+      publicFilterHint:
+        'Filtre la liste publique par pourcentage complété (0–100). Laisser vide = pas de filtre.',
       updateBannerTitle: 'Une nouvelle version de l’application est disponible.',
       updateBannerCta: 'Mettre à jour',
       updateBannerBadge: 'Mise à jour',
@@ -416,8 +419,7 @@ export const messages: Record<Locale, MsgValue> = {
       gridCancel: 'Cancel',
       checkpointsTitle: 'Checkpoints',
       checkpointQuickAdd: 'Add a checkpoint',
-      checkpointQuickAddHint:
-        'Each chip creates a checkpoint immediately. Your list is below.',
+      checkpointQuickAddHint: 'Each chip creates a checkpoint immediately. Your list is below.',
       checkpointFromProgress: 'From the numbers shown above',
       checkpointPresets: 'Typical milestones',
       checkpointCustom: 'Custom label',
@@ -512,16 +514,14 @@ export const messages: Record<Locale, MsgValue> = {
       editHistory: 'Edit piece count',
       deleteHistory: 'Delete entry',
       historyDeleteConfirm: 'Delete this entry?',
-      liveProgressAnnounced:
-        '{placed} pieces placed, {remaining} remaining, {pct}% of the puzzle.',
+      liveProgressAnnounced: '{placed} pieces placed, {remaining} remaining, {pct}% of the puzzle.',
       keyboardShortcutsHint:
         'Shortcuts: S save · ? toggles progress help · Esc closes panels (when not typing in a field).',
       milestonesTitle: 'Milestones',
       milestonePct: '{pct}%',
       organizerBanner:
         'You created this room: suggest “Read-only” in settings to reduce accidental edits.',
-      photoTrimmedHint:
-        'Removed the oldest {n} photo(s) to stay within the limit of {max} images.',
+      photoTrimmedHint: 'Removed the oldest {n} photo(s) to stay within the limit of {max} images.',
       shareInvite: 'Invite link (prefills code on home)',
       shareDirect: 'Direct link (opens room)',
     },
@@ -585,9 +585,5 @@ function deepGet(obj: MsgValue, path: string): string | undefined {
 }
 
 export function translate(locale: Locale, key: string): string {
-  return (
-    deepGet(messages[locale], key) ??
-    deepGet(messages.fr, key) ??
-    key
-  );
+  return deepGet(messages[locale], key) ?? deepGet(messages.fr, key) ?? key;
 }

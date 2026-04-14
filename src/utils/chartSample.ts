@@ -4,7 +4,10 @@ export const MAX_CHART_HISTORY_POINTS = 80;
 /**
  * Sous-échantillonnage uniforme en conservant le premier et le dernier point logique.
  */
-export function sampleHistoryForChart<T extends { timestamp: number }>(sorted: T[], maxPoints: number): T[] {
+export function sampleHistoryForChart<T extends { timestamp: number }>(
+  sorted: T[],
+  maxPoints: number,
+): T[] {
   if (sorted.length <= maxPoints) return sorted;
   const n = maxPoints;
   const result: T[] = [];

@@ -12,7 +12,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: '22'
           cache: npm
 
       - name: Client — install, lint, test, build
@@ -23,9 +23,9 @@ jobs:
           VITE_FIREBASE_DATABASE_URL: https://dummy.firebaseio.com
           VITE_FIREBASE_PROJECT_ID: dummy-ci
           VITE_FIREBASE_STORAGE_BUCKET: dummy.appspot.com
-          VITE_FIREBASE_MESSAGING_SENDER_ID: "000000000000"
+          VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
           VITE_FIREBASE_APP_ID: 1:000000000000:web:0000000000000000000000
-        run: npm ci && npm run lint && npm run test && npm run build
+        run: npm ci && npm run format:check && npm run lint && npm run test && npm run build
 
       - name: Server — TypeScript
         run: cd server && npm ci && npx tsc --noEmit
