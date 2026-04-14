@@ -28,6 +28,7 @@ export interface Checkpoint {
 }
 
 export interface HistoryEntry {
+  id: string;
   timestamp: number;
   placedPieces: number;
   pseudo?: string;
@@ -215,6 +216,49 @@ export const updatePieces = async (roomCode: string, placedPieces: number, pseud
     },
   });
   trimHistoryIfNeeded(roomCode).catch(() => {});
+};
+
+export const updateHistoryEntry = async (roomCode: string, entryId: string, newPieces: number): Promise<void> => {
+  const historyRef = ref(db, `puzzles/${roomCode}/history`);
+  const snap = await get(historyRef);
+  if (!snap.exists()) return;
+  const history = snap.val() as Record<string, HistoryEntry>;
+
+  const updates: Record<string, unknown> = {
+    [`puzzles/${roomCode}/history/${entryId}/placedPieces`]: newPieces,
+  };
+
+  const entries = Object.entries(history)
+    .map(([id, data]) => ({ ...data, id }))
+    .sort((a, b) => b.timestamp - a.timestamp);
+
+  if (entries.length > 0 && entries[0].id === entryId) {
+    updates[`puzzles/${roomCode}/placedPieces`] = newPieces;
+  }
+
+  await update(ref(db), updates);
+};
+
+export const deleteHistoryEntry = async (roomCode: string, entryId: string): Promise<void> => {
+  const historyRef = ref(db, `puzzles/${roomCode}/history`);
+  const snap = await get(historyRef);
+  if (!snap.exists()) return;
+  const history = snap.val() as Record<string, HistoryEntry>;
+
+  const updates: Record<string, unknown> = {
+    [`puzzles/${roomCode}/history/${entryId}`]: null,
+  };
+
+  const entries = Object.entries(history)
+    .map(([id, data]) => ({ ...data, id }))
+    .sort((a, b) => b.timestamp - a.timestamp);
+
+  if (entries.length > 0 && entries[0].id === entryId) {
+    const nextLatest = entries[1];
+    updates[`puzzles/${roomCode}/placedPieces`] = nextLatest ? nextLatest.placedPieces : 0;
+  }
+
+  await update(ref(db), updates);
 };
 
 export const toggleCheckpoint = async (

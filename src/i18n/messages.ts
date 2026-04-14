@@ -206,6 +206,9 @@ export const messages: Record<Locale, MsgValue> = {
       activityLogEmpty: 'Aucune entrée pour le moment.',
       exportHistoryCsv: 'Exporter CSV',
       exportHistoryJson: 'Exporter JSON',
+      editHistory: 'Modifier le nombre de pièces',
+      deleteHistory: "Supprimer l'entrée",
+      historyDeleteConfirm: 'Supprimer cette entrée ?',
       liveProgressAnnounced:
         '{placed} pièces placées, {remaining} restantes, {pct} % du puzzle.',
       shareInvite: 'Lien d’invitation (code pré-rempli sur l’accueil)',
@@ -449,6 +452,9 @@ export const messages: Record<Locale, MsgValue> = {
       activityLogEmpty: 'No entries yet.',
       exportHistoryCsv: 'Export CSV',
       exportHistoryJson: 'Export JSON',
+      editHistory: 'Edit piece count',
+      deleteHistory: 'Delete entry',
+      historyDeleteConfirm: 'Delete this entry?',
       liveProgressAnnounced:
         '{placed} pieces placed, {remaining} remaining, {pct}% of the puzzle.',
       shareInvite: 'Invite link (prefills code on home)',
