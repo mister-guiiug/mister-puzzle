@@ -4,6 +4,7 @@
  */
 
 import * as Sentry from '@sentry/react'
+import type React from 'react'
 import { BrowserTracing } from '@sentry/tracing'
 import { Replay } from '@sentry/replay'
 

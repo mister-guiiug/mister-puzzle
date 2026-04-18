@@ -2,7 +2,7 @@
  * Hooks et utilitaires d'accessibilité pour React
  */
 
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, useState } from 'react'
 
 /**
  * Hook pour gérer les modales avec trap focus
