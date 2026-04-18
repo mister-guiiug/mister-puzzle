@@ -107,11 +107,12 @@ export function useCustomMetric(name: string) {
 
   return () => {
     const duration = performance.now() - start
+    const navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
     const metric: Metric = {
       name,
       value: duration,
       id: `custom-${Date.now()}`,
-      navigationType: (performance.getEntriesByType('navigation')[0] as any)?.type,
+      navigationType: navEntry?.type,
     }
 
     logMetric({ ...metric, rating: getRating(metric) })
@@ -171,7 +172,7 @@ export function measureBundleSize(): void {
  * Hook React pour mesurer les performances d'un effet
  */
 export function useEffectPerformance(effectName: string) {
-  return (effect: () => void | (() => void), deps?: any[]) => {
+  return (effect: () => void | (() => void)) => {
     const start = performance.now()
 
     const cleanup = effect()
