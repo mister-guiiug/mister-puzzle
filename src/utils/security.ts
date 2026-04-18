@@ -105,31 +105,33 @@ export function maskPhone(phone: string): string {
  * Rate limiter simple en mémoire
  */
 export class RateLimiter {
-  private requests: Map<string, number[]> = new Map()
+  readonly #maxRequests: number
+  readonly #windowMs: number
+  #requests: Map<string, number[]> = new Map()
 
-  constructor(
-    private maxRequests: number,
-    private windowMs: number
-  ) {}
+  constructor(maxRequests: number, windowMs: number) {
+    this.#maxRequests = maxRequests
+    this.#windowMs = windowMs
+  }
 
   canMakeRequest(identifier: string): boolean {
     const now = Date.now()
-    const requests = this.requests.get(identifier) || []
+    const requests = this.#requests.get(identifier) || []
 
     // Nettoyer les anciennes requêtes
-    const validRequests = requests.filter(time => now - time < this.windowMs)
+    const validRequests = requests.filter(time => now - time < this.#windowMs)
 
-    if (validRequests.length >= this.maxRequests) {
+    if (validRequests.length >= this.#maxRequests) {
       return false
     }
 
     validRequests.push(now)
-    this.requests.set(identifier, validRequests)
+    this.#requests.set(identifier, validRequests)
     return true
   }
 
   reset(identifier: string): void {
-    this.requests.delete(identifier)
+    this.#requests.delete(identifier)
   }
 }
 

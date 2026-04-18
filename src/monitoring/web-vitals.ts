@@ -3,9 +3,21 @@
  * Installer : npm install web-vitals
  */
 
-import { Metric, onCLS, onFID, onFCP, onLCP, onTTFB } from 'web-vitals'
+import type { Metric } from 'web-vitals'
+import { onCLS, onFID, onFCP, onLCP, onTTFB } from 'web-vitals'
 
-interface MetricWithRating extends Metric {
+// Global declaration for gtag
+declare global {
+  interface Window {
+    gtag?: (command: string, targetId: string, config?: Record<string, unknown>) => void
+  }
+}
+
+interface MetricWithRating {
+  name: 'CLS' | 'FCP' | 'FID' | 'INP' | 'LCP' | 'TTFB'
+  value: number
+  id: string
+  navigationType: 'navigate' | 'reload' | 'back-forward' | 'back-forward-cache' | 'prerender' | 'restore' | undefined
   rating: 'good' | 'needs-improvement' | 'poor'
 }
 
@@ -43,27 +55,27 @@ function getRating(metric: Metric): 'good' | 'needs-improvement' | 'poor' {
  * Logger pour les Web Vitals
  */
 function logMetric(metric: MetricWithRating): void {
-  const metricWithRating = { ...metric, rating: getRating(metric) }
+  const rating = metric.rating ?? getRating(metric as Metric)
 
   // Console logging en développement
   if (import.meta.env.DEV) {
-    console.log('[Web Vitals]', metricWithRating)
+    console.log('[Web Vitals]', { ...metric, rating })
   }
 
   // Envoyer à Google Analytics
-  if (typeof gtag !== 'undefined') {
-    gtag('event', metric.name, {
+  if (typeof window.gtag !== 'undefined') {
+    window.gtag('event', metric.name, {
       event_category: 'Web Vitals',
       event_label: metric.id,
       value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
       non_interaction: true,
-      custom_map: { metric_rating: metricWithRating.rating },
+      custom_map: { metric_rating: rating },
     })
   }
 
   // Envoyer à un endpoint personnalisé
-  if (import.meta.env.PROD && metricWithRating.rating !== 'good') {
-    sendToAnalytics(metricWithRating)
+  if (import.meta.env.PROD && rating !== 'good') {
+    sendToAnalytics({ ...metric, rating })
   }
 }
 
@@ -108,14 +120,27 @@ export function useCustomMetric(name: string) {
   return () => {
     const duration = performance.now() - start
     const navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
-    const metric: Metric = {
-      name,
+
+    // Map from NavigationTimingType to web-vitals NavigationType
+    const navigationTypeMap: Record<string, 'navigate' | 'reload' | 'back-forward' | 'back-forward-cache' | 'prerender' | 'restore'> = {
+      navigate: 'navigate',
+      reload: 'reload',
+      back_forward: 'back-forward',
+      back_forward_cache: 'back-forward-cache',
+      prerender: 'prerender',
+      restore: 'restore',
+    }
+    const navigationType = navEntry ? navigationTypeMap[navEntry.type] ?? 'navigate' : 'navigate'
+
+    const metric: MetricWithRating = {
+      name: name as 'CLS' | 'FCP' | 'FID' | 'INP' | 'LCP' | 'TTFB',
       value: duration,
       id: `custom-${Date.now()}`,
-      navigationType: navEntry?.type,
+      rating: 'poor',
+      navigationType,
     }
 
-    logMetric({ ...metric, rating: getRating(metric) })
+    logMetric(metric)
   }
 }
 
@@ -139,8 +164,8 @@ export function measureComponentRender(
       )
     }
 
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'component_render', {
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'component_render', {
         event_category: 'Performance',
         event_label: componentName,
         value: Math.round(duration),
