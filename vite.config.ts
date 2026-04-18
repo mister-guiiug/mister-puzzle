@@ -37,6 +37,7 @@ export default defineConfig({
           if (norm.includes('/lucide-react/')) return 'lucide';
           if (norm.includes('/date-fns/')) return 'date-fns';
           if (norm.includes('/framer-motion/')) return 'motion';
+          if (norm.includes('/tailwindcss/')) return 'tailwind';
           return 'vendor';
         },
       },
