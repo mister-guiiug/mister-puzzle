@@ -5,8 +5,8 @@
 
 import * as Sentry from '@sentry/react'
 import type React from 'react'
-import { BrowserTracing } from '@sentry/tracing'
-import { Replay } from '@sentry/replay'
+import { browserTracingIntegration } from '@sentry/react'
+import { replayIntegration } from '@sentry/react'
 
 interface SentryConfig {
   dsn: string
@@ -28,10 +28,8 @@ export function initSentry(config: SentryConfig): void {
 
     // Performance Monitoring
     integrations: [
-      new BrowserTracing({
-        tracingOrigins: ['localhost', 'https://yourdomain.com', /^\//],
-      }),
-      new Replay({
+      browserTracingIntegration(),
+      replayIntegration({
         maskAllText: true,
         blockAllMedia: true,
       }),
@@ -101,15 +99,16 @@ export function withSentryErrorBoundary<P extends object>(
   fallback?: React.ComponentType<{ error: Error; reset: () => void }>
 ): React.ComponentType<P> {
   return Sentry.withErrorBoundary(component, {
-    fallback: (error, reset) => {
+    fallback: ({ error, resetError }) => {
+      const errorObj = error instanceof Error ? error : new Error(String(error))
       if (fallback) {
         const FallbackComponent = fallback
-        return <FallbackComponent error={error} reset={reset} />
+        return <FallbackComponent error={errorObj} reset={resetError} />
       }
       return (
         <div>
           <h2>Une erreur est survenue</h2>
-          <button onClick={reset}>Réessayer</button>
+          <button onClick={resetError}>Réessayer</button>
         </div>
       )
     },
