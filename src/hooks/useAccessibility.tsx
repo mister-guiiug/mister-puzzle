@@ -2,7 +2,8 @@
  * Hooks et utilitaires d'accessibilité pour React
  */
 
-import { useEffect, useRef, useCallback, useState } from 'react'
+/* eslint-disable react-refresh/only-export-components */
+import { useEffect, useRef, useState } from 'react'
 
 /**
  * Hook pour gérer les modales avec trap focus
@@ -51,14 +52,15 @@ export function useFocusTrap(isActive: boolean) {
 /**
  * Hook pour gérer le focus quand un élément apparaît
  */
-export function useAutoFocus(dependencies: any[] = []) {
+export function useAutoFocus(dependencies: unknown[] = []) {
   const ref = useRef<HTMLElement>(null)
 
   useEffect(() => {
     if (ref.current) {
       ref.current.focus()
     }
-  }, dependencies)
+    // Dependencies are provided by caller - they should memoize the array
+  }, dependencies) // eslint-disable-line react-hooks/exhaustive-deps
 
   return ref
 }
@@ -120,12 +122,12 @@ export function useA11yAnnouncement(message: string | null) {
  * Hook pour la préférence de mouvement réduit
  */
 export function usePrefersReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setPrefersReducedMotion(mediaQuery.matches)
-
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
     mediaQuery.addEventListener('change', handler)
 
@@ -139,12 +141,12 @@ export function usePrefersReducedMotion(): boolean {
  * Hook pour détecter les high contrast mode
  */
 export function usePrefersHighContrast(): boolean {
-  const [prefersHighContrast, setPrefersHighContrast] = useState(false)
+  const [prefersHighContrast, setPrefersHighContrast] = useState(() =>
+    window.matchMedia('(prefers-contrast: high)').matches
+  )
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-contrast: high)')
-    setPrefersHighContrast(mediaQuery.matches)
-
     const handler = (e: MediaQueryListEvent) => setPrefersHighContrast(e.matches)
     mediaQuery.addEventListener('change', handler)
 
