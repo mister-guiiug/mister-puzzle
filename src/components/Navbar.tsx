@@ -20,6 +20,8 @@ export type NavbarProps = {
   onNavigateToPuzzle: (roomCode: string) => void;
   /** After pseudo is committed (blur), sync dependent UI (e.g. input mode per pseudo). */
   onPseudoCommit?: () => void;
+  /** Progression du puzzle actuel (optionnel). */
+  puzzleProgress?: { placed: number; total: number; name: string } | null;
 };
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -30,6 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onGoHome,
   onNavigateToPuzzle,
   onPseudoCommit,
+  puzzleProgress,
 }) => {
   const { t } = useI18n();
   const { preference, effective, setPreference } = useTheme();
@@ -75,6 +78,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   const displayName = pseudo.trim() || t('home.pseudoPlaceholder');
   const initial = displayName.charAt(0).toUpperCase();
 
+  // Calculer le pourcentage de progression
+  const progressPercent = puzzleProgress
+    ? Math.round((puzzleProgress.placed / puzzleProgress.total) * 100)
+    : null;
+
   return (
     <>
       <NavigationDrawer
@@ -111,7 +119,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 type="button"
                 onClick={onGoHome}
-                className="flex min-h-11 min-w-0 items-center gap-2.5 rounded-2xl py-1 pl-1 pr-2 transition hover:bg-surface-muted/80 active:scale-[0.99] dark:hover:bg-surface/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring/80 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:pr-2.5"
+                className="flex min-h-11 min-w-0 items-center gap-2 rounded-2xl py-1 pl-1 pr-2 transition hover:bg-surface-muted/80 active:scale-[0.99] dark:hover:bg-surface/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring/80 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:pr-2.5"
                 title={t('nav.home')}
               >
                 <span className="relative shrink-0">
@@ -127,9 +135,33 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="relative size-8 shrink-0 rounded-xl shadow-sm ring-1 ring-fg/[0.06] dark:ring-surface/10"
                   />
                 </span>
-                <span className="truncate bg-gradient-to-r from-brand-from via-brand-via to-brand-to bg-clip-text text-base font-semibold tracking-tight text-transparent sm:text-[1.05rem]">
-                  {t('common.appName')}
-                </span>
+                <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
+                  <span className="truncate bg-gradient-to-r from-brand-from via-brand-via to-brand-to bg-clip-text text-base font-semibold tracking-tight text-transparent sm:text-[1.05rem]">
+                    {puzzleProgress?.name ? (
+                      <span className="flex items-center gap-1.5">
+                        <span className="truncate max-w-[120px] sm:max-w-[150px]">{puzzleProgress.name}</span>
+                        <span className="shrink-0 text-xs font-bold text-primary">
+                          {progressPercent}%
+                        </span>
+                      </span>
+                    ) : (
+                      <>{t('common.appName')}</>
+                    )}
+                  </span>
+                  {puzzleProgress && (
+                    <div className="flex w-full min-w-[60px] items-center gap-1.5">
+                      <div className="flex-1 h-1 min-w-[40px] rounded-full bg-primary-track overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-primary-bar transition-all duration-500"
+                          style={{ width: `${progressPercent}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-fg-faint tabular-nums hidden sm:inline-block">
+                        {puzzleProgress.placed.toLocaleString()}/{puzzleProgress.total.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </button>
             </div>
 
