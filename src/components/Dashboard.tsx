@@ -643,12 +643,6 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
   const handleExportPng = () => {
     const url = `${window.location.origin}${window.location.pathname}#${puzzle.id}`;
-    const pct =
-      puzzle.totalPieces > 0 ? Math.round((puzzle.placedPieces / puzzle.totalPieces) * 100) : 0;
-    const summaryLine =
-      inputMode === 'remaining'
-        ? `${puzzle.id} · ${remainingPieces.toLocaleString(numberLocale)} / ${puzzle.totalPieces.toLocaleString(numberLocale)} ${t('dashboard.remaining').toLowerCase()} · ${pct}% ${t('dashboard.donePct')}`
-        : `${puzzle.id} · ${puzzle.placedPieces.toLocaleString(numberLocale)} / ${puzzle.totalPieces.toLocaleString(numberLocale)} · ${pct}% ${t('dashboard.donePct')}`;
     exportProgressPng({
       name: puzzle.name,
       code: puzzle.id,
@@ -656,8 +650,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       total: puzzle.totalPieces,
       url,
       titleLine: t('dashboard.exportHint'),
-      summaryLine,
       barMode: inputMode === 'remaining' ? 'remaining' : 'placed',
+      rows: puzzle.rows,
+      cols: puzzle.cols,
     });
   };
 
