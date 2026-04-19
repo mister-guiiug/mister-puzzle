@@ -227,6 +227,8 @@ export const messages: Record<Locale, MsgValue> = {
       statsPeriodWeek: 'Pièces (7 j)',
       statsPeriodAll: 'Pièces (total)',
       exportPseudoStatsCsv: 'Exporter les stats (CSV)',
+      exportStatsImageTitle: 'Classement des contributeurs',
+      exportStatsImageSubtitle: 'Statistiques sur {period}',
       offlineQueuedSave:
         'Hors ligne : votre progression est enregistrée localement et sera envoyée à la reconnexion.',
       offlinePendingBanner:
@@ -513,6 +515,8 @@ export const messages: Record<Locale, MsgValue> = {
       statsPeriodWeek: 'Pieces (7 d)',
       statsPeriodAll: 'Pieces (total)',
       exportPseudoStatsCsv: 'Export stats (CSV)',
+      exportStatsImageTitle: 'Contributor leaderboard',
+      exportStatsImageSubtitle: 'Stats over {period}',
       offlineQueuedSave:
         'Offline: your progress is saved locally and will sync when you are back online.',
       offlinePendingBanner:
