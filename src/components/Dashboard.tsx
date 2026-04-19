@@ -64,6 +64,7 @@ import { reportError } from '../utils/reportError';
 import { notifySaveSuccess } from '../utils/haptic';
 import { downloadHistoryCsv, downloadHistoryJson } from '../utils/exportHistory';
 import { downloadPseudoStatsCsv } from '../utils/exportPseudoStats';
+import { exportStatsImage } from '../utils/exportPseudoStatsImage';
 import { computePseudoStatsFromHistory } from '../utils/pseudoStats';
 import { hasPendingForRoom } from '../utils/offlinePieceQueue';
 import {
@@ -1710,7 +1711,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   </div>
                 )}
                 {pseudoStatRows.length > 0 && (
-                  <div className="mt-3">
+                  <div className="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() =>
@@ -1731,6 +1732,62 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     >
                       <FileSpreadsheet size={14} aria-hidden />
                       {t('dashboard.exportPseudoStatsCsv')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        exportStatsImage(
+                          pseudoStatRows,
+                          puzzle.name,
+                          statsPeriodLabel,
+                          {
+                            title: t('dashboard.exportStatsImageTitle'),
+                            subtitle: t('dashboard.exportStatsImageSubtitle'),
+                            pseudo: t('dashboard.statsColPseudo'),
+                            pieces: statsPeriodLabel,
+                            maxSingle: t('dashboard.statsColMaxSingle'),
+                            maxStreak: t('dashboard.statsColMaxStreak'),
+                            updates: t('dashboard.statsColUpdates'),
+                            period: statsPeriodLabel,
+                          },
+                          'square',
+                          t('dashboard.statsAnon'),
+                          numberLocale,
+                        )
+                      }
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
+                      title="Instagram (carré)"
+                    >
+                      <Download size={14} aria-hidden />
+                      Instagram
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        exportStatsImage(
+                          pseudoStatRows,
+                          puzzle.name,
+                          statsPeriodLabel,
+                          {
+                            title: t('dashboard.exportStatsImageTitle'),
+                            subtitle: t('dashboard.exportStatsImageSubtitle'),
+                            pseudo: t('dashboard.statsColPseudo'),
+                            pieces: statsPeriodLabel,
+                            maxSingle: t('dashboard.statsColMaxSingle'),
+                            maxStreak: t('dashboard.statsColMaxStreak'),
+                            updates: t('dashboard.statsColUpdates'),
+                            period: statsPeriodLabel,
+                          },
+                          'horizontal',
+                          t('dashboard.statsAnon'),
+                          numberLocale,
+                        )
+                      }
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
+                      title="Twitter (horizontal)"
+                    >
+                      <Download size={14} aria-hidden />
+                      Twitter
                     </button>
                   </div>
                 )}
