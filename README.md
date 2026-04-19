@@ -2,63 +2,137 @@
 
 ![Icône Mister Puzzle](public/logo.svg)
 
-**Mister Puzzle** est une application web progressive (PWA) pour suivre ensemble l’avancement d’un puzzle : pièces placées ou restantes, historique graphique, photos, checkpoints et partage par code.
+**Votre progression de puzzle, ensemble, en temps réel**
 
-## Identité (titre & icône)
+Un site web pour suivre ensemble l'avancement d'un puzzle : pièces placées, historique graphique, photos, checkpoints et partage par code.
 
-- **Nom affiché** : *Mister Puzzle* (barre de navigation, partage, pied de page).
-- **Titre de l’onglet** : *Mister Puzzle — progression collaborative* (`index.html`).
-- **Icône principale** : `public/logo.svg` — marque vectorielle (grille 3×3 sur dégradé indigo / violet), utilisée sur l’accueil, dans la barre du haut et comme favicon. Les balises `<img>` utilisent `import.meta.env.BASE_URL` pour rester correctes avec le `base` Vite (`/mister-puzzle/`).
-- **PWA** : le manifeste référence `logo.svg` ainsi que les PNG `pwa-192x192.png` et `pwa-512x512.png` à la racine de `public/` (install / écran d’accueil). Ajoutez ou régénérez ces PNG si besoin pour un rendu optimal sur toutes les plateformes.
+Disponible sur **PC, tablette et mobile** — pas d'inscription, pas de compte, juste un code à partager.
 
-## SEO et GEO (référencement classique + moteurs génératifs)
+---
 
-- **Balises** (`index.html`, injectées au build) : `canonical`, `hreflang` (fr, en, x-default), Open Graph (`og:*`), Twitter Card, `meta description` / `keywords` / `robots`, `theme-color`.
-- **Données structurées** : JSON-LD [Schema.org](https://schema.org) `WebApplication` + `FAQPage` pour aider Google et les assistants à résumer l’outil fidèlement.
-- **Fichiers générés dans `dist/` au build** : `robots.txt`, `sitemap.xml` (URL d’accueil), `llms.txt` (résumé factuel, limites du produit, lien dépôt — format utile aux crawlers « IA » et outils type Perplexity). Le plugin est `vite-plugin-seo.ts`.
-- **Variable d’environnement** : `VITE_PUBLIC_SITE_ORIGIN` (sans slash final), ex. `https://votre-compte.github.io`. Le workflow GitHub Actions la définit à partir du propriétaire du dépôt. En local, sans variable, une origine par défaut est utilisée (voir `vite-plugin-seo.ts`).
-- **Titre dynamique** : en salle ouverte, le titre du document inclut le nom du puzzle (`useDocumentRoomTitle`). Les cartes Open Graph restent celles de la page d’accueil (pas de SSR par salle) : pour des aperçus sociaux par puzzle, il faudrait un prérendu ou un endpoint dédié.
+## Pourquoi utiliser Mister Puzzle ?
 
-## Fonctionnalités
+Suivre un puzzle à plusieurs, c'est le chaos. Qui a mis quoi ? Où en est-on ? Qui a travaillé dessus hier ?
 
-- **Collaboration en temps réel** : synchronisation via Firebase Realtime Database entre appareils.
-- **Suivi de progression** : pièces placées ou restantes, barre, courbe d’historique avec échantillonnage et export PNG.
-- **Thème** : clair, sombre ou système (menu dans la barre, mémorisé localement).
-- **Préférences par pseudo** : mode du compteur mémorisé localement pour chaque pseudo.
-- **Mode lecture seule** : suivre un puzzle sans modifier les données.
-- **Photos** : galerie avec légende, date d’ajout, réordonnancement (glisser-déposer ou flèches), rotation, limite de taille à l’envoi.
-- **Checkpoints** : ajout rapide (progression, modèles, libellé libre), drapeau sur l’étape courante, tout décocher, suppression individuelle.
-- **Internationalisation** : français et anglais (accueil et tableau de bord).
-- **Présence** : membres « en ligne » avec rafraîchissement et filtre d’activité récente.
-- **Historique** : entrées limitées automatiquement côté base ; export **CSV** / **JSON** et journal des dernières mises à jour dans le tableau de bord.
-- **Raccourcis pièces** : pas rapide ±1 / ±10 (complément des pas 1–100) ; vibration légère sur mobile après enregistrement réussi ; annonce `aria-live` quand le compteur change côté serveur.
-- **Invitation** : paramètre d’URL `?join=CODE` (ou `room` / `code`) pour pré-remplir « Rejoindre » ; partage enrichi depuis le tableau de bord. Menu latéral : tri des puzzles publics (avancement, nom).
-- **Build** : découpage Vite (`firebase`, `lucide`, `date-fns`, `motion`, `vendor`) pour de meilleurs caches navigateur.
-- **PWA** : installable, mises à jour via bannière interne (`prompt`).
+Mister Puzzle résoud ce problème avec une synchronisation **temps réel ou asynchrone** et un historique visuel clair.
 
-### Installer la PWA (téléphone / ordinateur)
+## L'histoire d'origine
 
-1. Déployez ou lancez le site en **HTTPS** (requis pour le service worker).
-2. **Chrome / Edge (desktop)** : icône « Installer l’application » dans la barre d’adresse, ou menu ⋮ → *Installer Mister Puzzle*.
-3. **Android (Chrome)** : menu ⋮ → *Installer l’application* ou *Ajouter à l’écran d’accueil*.
-4. **Safari (iOS)** : bouton Partager → *Sur l’écran d’accueil*.
-5. **Mises à jour** : la bannière interne propose de recharger quand une nouvelle version est disponible.
+**Le problème** : Un puzzle géant pendant les vacances de famille. Tout le monde participe à son rythme :
+- Les lève-tôt posent quelques pièces avant le petit-déjeuner
+- Les nocturnes continuent après le dîner
+- Les enfants entre deux temps calmes
 
-## Technologies
+Mais les membres de la famille qui ne sont PAS là sont frustrés :
+- "Alors, on en est où là ?"
+- "Envoyez-nous une photo du puzzle !"
+- "Vous avez beaucoup avancé cette semaine ?"
+
+**La solution Mister Puzzle** :
+- Chacun met à jour le compteur après sa session
+- **Progression partagée** automatiquement avec toute la famille
+- **Historique visuel** : voir l'évolution sans redemander
+- **Partage externe** : les absents suivent en temps réel comme un spectacle
+
+**Le petit plus fun ? Les stats !** Qui a posé le plus de pièces cette semaine ? Vitesse de progression ? Top contributeurs ? Pour le défi et les conversations de famille.
+
+## Exemples concrets d'utilisation
+
+### Puzzle en médiathèque ou lieu public
+Un puzzle est installé dans une médiathèque. Chaque visiteur peut contribuer à son rythme :
+- Le matin, Madame X pose 50 pièces
+- L'après-midi, un groupe d'ados continue
+- Le soir, le bibliothécaire fait un point
+- **Tout le monde suit la progression** sans jamais se rencontrer !
+
+### Bureau / Coworking
+Un puzzle dans une salle de repos :
+- Matin : l'équipe marketing pose quelques pièces
+- Midi : les développeurs continuent
+- Soir : l'équipe RH termine une zone
+- **Esprit d'équipe** sans contrainte d'horaire
+
+### École / Bibliothèque scolaire
+Un projet pédagogique sur plusieurs semaines :
+- Les élèves de la classe A travaillent le lundi
+- La classe B reprend le mercredi
+- Suivi par l'enseignant entre les sessions
+- **Projet collaboratif inter-classes**
+
+### Événement public (salon, fête)
+Un puzzle géant pendant un événement :
+- Les participants viennent et repartent
+- Chacun contribue ce qu'il veut
+- Le public voit l'avancement en temps réel
+- **Animation collective** sans coordination
+
+### Cas solo mais multi-appareils
+Un seul puzzleur qui utilise plusieurs appareils :
+- Met à jour depuis son téléphone sur le canapé
+- Continue sur son ordinateur
+- Vérifie sur sa tablette
+- **Synchronisation automatique** de tous ses appareils
+
+---
+
+## Fonctionnalités clés
+
+| Fonctionnalité | Bénéfice |
+|----------------|----------|
+| **Collaboration live** | Voyez qui ajoute des pièces en temps réel |
+| **Historique visuel** | Courbe de progression + export PNG pour voir l'évolution |
+| **Galerie photos** | Capturez les étapes, réordonnez, faites pivoter |
+| **Checkpoints** | Marquez les étapes (bordures finies, zones difficiles) |
+| **Partage simplifié** | Un code à communiquer, rien de plus |
+| **Mode hors ligne** | PWA installable, fonctionne sans internet |
+| **Multi-appareils** | Synchronisation automatique entre tous vos appareils |
+| **Thème clair/sombre** | S'adapte à vos préférences |
+| **Internationalisation** | Français et anglais |
+
+---
+
+## Installer la PWA
+
+Installez Mister Puzzle sur votre téléphone ou ordinateur pour un accès rapide :
+
+1. **Chrome / Edge (desktop)** : icône "Installer l'application" dans la barre d'adresse, ou menu ⋮ → *Installer Mister Puzzle*
+2. **Android (Chrome)** : menu ⋮ → *Installer l'application* ou *Ajouter à l'écran d'accueil*
+3. **Safari (iOS)** : bouton Partager → *Sur l'écran d'accueil*
+4. **Mises à jour** : la bannière interne propose de recharger quand une nouvelle version est disponible
+
+---
+
+## Documentation technique
+
+### Identité (titre & icône)
+
+- **Nom affiché** : *Mister Puzzle* (barre de navigation, partage, pied de page)
+- **Titre de l'onglet** : *Mister Puzzle — progression collaborative* (`index.html`)
+- **Icône principale** : `public/logo.svg` — marque vectorielle (grille 3×3 sur dégradé indigo / violet)
+- **PWA** : le manifeste référence `logo.svg` ainsi que les PNG `pwa-192x192.png` et `pwa-512x512.png` à la racine de `public/`
+
+### SEO et GEO (référencement classique + moteurs génératifs)
+
+- **Balises** (`index.html`, injectées au build) : `canonical`, `hreflang` (fr, en, x-default), Open Graph (`og:*`), Twitter Card, `meta description` / `keywords` / `robots`, `theme-color`
+- **Données structurées** : JSON-LD [Schema.org](https://schema.org) `WebApplication` + `FAQPage`
+- **Fichiers générés dans `dist/` au build** : `robots.txt`, `sitemap.xml`, `llms.txt` (format utile aux crawlers " IA ")
+- **Variable d'environnement** : `VITE_PUBLIC_SITE_ORIGIN` (sans slash final), ex. `https://votre-compte.github.io`
+
+### Technologies
 
 - **Frontend** : [React 19](https://react.dev/), [Vite](https://vitejs.dev/)
 - **Style** : [Tailwind CSS v4](https://tailwindcss.com/)
 - **Données** : [Firebase Realtime Database](https://firebase.google.com/docs/database)
 - **Icônes UI** : [Lucide React](https://lucide.dev/)
 
-## Installation
+### Installation pour les développeurs
 
-1. Clonez le dépôt.
+1. Clonez le dépôt
 2. Installez les dépendances :
    ```bash
    npm install
    ```
-3. Configurez les variables d’environnement. Créez un fichier `.env.local` à partir de `.env.example` et renseignez les clés Firebase.
+3. Configurez les variables d'environnement. Créez un fichier `.env.local` à partir de `.env.example` et renseignez les clés Firebase
 4. Lancez le serveur de développement :
    ```bash
    npm run dev
@@ -66,17 +140,17 @@
 
 ### Build local (Windows)
 
-Si `npm run build` échoue avec une erreur du type « Cannot find module @rollup/rollup-win32-x64-msvc », c’est un problème connu des dépendances optionnelles de npm. Essayez une réinstallation propre : supprimez `node_modules` et `package-lock.json`, puis `npm install` à nouveau (ou utilisez une version LTS de Node recommandée par le projet).
+Si `npm run build` échoue avec une erreur du type "Cannot find module @rollup/rollup-win32-x64-msvc", essayez une réinstallation propre : supprimez `node_modules` et `package-lock.json`, puis `npm install` à nouveau.
 
-## Déploiement
+### Déploiement
 
-L’application est prévue pour un déploiement automatique sur **GitHub Pages** via GitHub Actions lors d’un push sur la branche `main`.
+L'application est prévue pour un déploiement automatique sur **GitHub Pages** via GitHub Actions lors d'un push sur la branche `main`.
 
 Le chemin de base est configuré sur `/mister-puzzle/` (voir `vite.config.ts` : `base`, `manifest.start_url` et `manifest.scope`).
 
-## Sécurité (Firebase)
+### Sécurité (Firebase)
 
-Les règles de la base sont dans `database.rules.json` et peuvent être déployées via votre workflow. Le « mot de passe puzzle » est un hash côté client (SHA-256) : protection d’usage courant, pas un équivalent d’authentification serveur forte. Pour des exigences plus élevées, prévoir Firebase Auth et des règles basées sur l’identité.
+Les règles de la base sont dans `database.rules.json`. Le "mot de passe puzzle" est un hash côté client (SHA-256) : protection d'usage courant, pas un équivalent d'authentification serveur forte. Pour des exigences plus élevées, prévoir Firebase Auth et des règles basées sur l'identité.
 
 ---
 
