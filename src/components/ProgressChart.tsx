@@ -40,9 +40,9 @@ export const ProgressChart: FC<ProgressChartProps> = ({
   zoomRange,
   onZoomChange,
 }) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStartX = useRef<number>(0);
-  const dragStartRange = useRef<{ start: number; end: number } | null>(null);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState<number | null>(null);
+  const [selectionEnd, setSelectionEnd] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
   const sortedFull = useMemo(() => {
@@ -55,122 +55,22 @@ export const ProgressChart: FC<ProgressChartProps> = ({
 
   const sorted = sampleHistoryForChart(sortedFull, MAX_CHART_HISTORY_POINTS);
 
-  // Définir fmtTime pour l'utiliser dans les hooks (déplacé avant les useCallback)
-  const fmtTime = useCallback((ts: number) =>
-    new Intl.DateTimeFormat(chartLocale, {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(ts),
-  [chartLocale],
+  // Tous les hooks doivent être appelés avant tout return conditionnel
+  const fmtTime = useCallback(
+    (ts: number) =>
+      new Intl.DateTimeFormat(chartLocale, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(ts),
+    [chartLocale],
   );
 
-  const fmtNum = useCallback((n: number) => Math.round(n).toLocaleString(chartLocale), [chartLocale]);
-
-  // Calculer les bornes temporelles complètes pour le zoom
-  const { fullMinTimestamp, fullMaxTimestamp } = useMemo(() => {
-    const sortedHistory = [...history].sort((a, b) => a.timestamp - b.timestamp);
-    return {
-      fullMinTimestamp: sortedHistory[0]?.timestamp ?? 0,
-      fullMaxTimestamp: sortedHistory[sortedHistory.length - 1]?.timestamp ?? 0,
-    };
-  }, [history]);
-
-  // Gestion du zoom avec la molette
-  const handleWheel = useCallback(
-    (e: React.WheelEvent<SVGSVGElement>) => {
-      if (!e.ctrlKey && !e.metaKey) return;
-      if (!onZoomChange || history.length === 0) return;
-      e.preventDefault();
-
-      const rect = svgRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
-      const mouseX = e.clientX - rect.left;
-      const svgX = (mouseX / rect.width) * 400; // w = 400
-
-      // Calculer le timestamp correspondant à la position de la souris
-      const minT = sortedFull[0]?.timestamp ?? fullMinTimestamp;
-      const maxT = sortedFull[sortedFull.length - 1]?.timestamp ?? fullMaxTimestamp;
-      const tSpan = Math.max(maxT - minT, 1);
-      const mouseTimestamp = minT + ((svgX - plot.x0) / plot.w) * tSpan;
-
-      // Facteur de zoom (1.2x par tick)
-      const zoomFactor = e.deltaY < 0 ? 0.8 : 1.2;
-
-      const currentRange = zoomRange || { start: fullMinTimestamp, end: fullMaxTimestamp };
-      const currentSpan = currentRange.end - currentRange.start;
-      const newSpan = Math.max(currentSpan * zoomFactor, currentSpan * 0.01); // Limiter le zoom max
-
-      // Calculer la nouvelle plage pour que mouseTimestamp reste à la même position
-      const mouseRatio = (mouseTimestamp - currentRange.start) / currentSpan;
-      let newStart = mouseTimestamp - mouseRatio * newSpan;
-      let newEnd = newStart + newSpan;
-
-      // Empêcher de sortir des données complètes
-      if (newStart < fullMinTimestamp) {
-        newStart = fullMinTimestamp;
-        newEnd = Math.min(newStart + newSpan, fullMaxTimestamp);
-      }
-      if (newEnd > fullMaxTimestamp) {
-        newEnd = fullMaxTimestamp;
-        newStart = Math.max(newEnd - newSpan, fullMinTimestamp);
-      }
-
-      onZoomChange({ start: newStart, end: newEnd });
-    },
-    [zoomRange, history, sortedFull, fullMinTimestamp, fullMaxTimestamp, onZoomChange],
+  const fmtNum = useCallback(
+    (n: number) => Math.round(n).toLocaleString(chartLocale),
+    [chartLocale],
   );
-
-  // Gestion du drag pour pan
-  const handlePointerDown = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
-    if (e.button !== 0) return; // Uniquement clic gauche
-    setIsDragging(true);
-    dragStartX.current = e.clientX;
-    dragStartRange.current = zoomRange || null;
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  }, [zoomRange]);
-
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent<SVGSVGElement>) => {
-      if (!isDragging || !onZoomChange || history.length === 0) return;
-
-      const rect = svgRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
-      const dxPx = e.clientX - dragStartX.current;
-
-      const baseRange = dragStartRange.current || {
-        start: fullMinTimestamp,
-        end: fullMaxTimestamp,
-      };
-
-      const currentSpan = baseRange.end - baseRange.start;
-      const dxTime = (dxPx / rect.width) * 400 * (currentSpan / plot.w); // w = 400
-
-      let newStart = baseRange.start - dxTime;
-      let newEnd = baseRange.end - dxTime;
-
-      // Empêcher de sortir des données
-      if (newStart < fullMinTimestamp) {
-        newEnd += fullMinTimestamp - newStart;
-        newStart = fullMinTimestamp;
-      }
-      if (newEnd > fullMaxTimestamp) {
-        newStart -= newEnd - fullMaxTimestamp;
-        newEnd = fullMaxTimestamp;
-      }
-
-      onZoomChange({ start: newStart, end: newEnd });
-    },
-    [isDragging, onZoomChange, fullMinTimestamp, fullMaxTimestamp, history.length],
-  );
-
-  const handlePointerUp = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
-    setIsDragging(false);
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-  }, []);
 
   // Formater la plage de zoom actuelle pour l'affichage
   const zoomRangeText = useMemo(() => {
@@ -187,6 +87,142 @@ export const ProgressChart: FC<ProgressChartProps> = ({
     return `${fmtTime(zoomRange.start)} - ${fmtTime(zoomRange.end)}`;
   }, [zoomRange, chartLocale, fmtTime]);
 
+  // Calculer les bornes temporelles et valeurs pour le graphique
+  const chartData = useMemo(() => {
+    if (sorted.length < 2) return null;
+
+    const w = 400;
+    const h = 128;
+    const { x0, y0, w: pw, h: ph } = plot;
+
+    const values = sorted.map((e) =>
+      metric === 'placed' ? e.placedPieces : Math.max(0, totalPieces - e.placedPieces),
+    );
+    const maxY = Math.max(totalPieces, ...values, 1);
+    const minT = sorted[0]!.timestamp;
+    const maxT = sorted[sorted.length - 1]!.timestamp;
+    const tSpan = Math.max(maxT - minT, 1);
+
+    const yTickVals = [0, maxY / 2, maxY].filter((v, i, a) => i === 0 || v !== a[i - 1]);
+
+    const coords = sorted.map((e, i) => {
+      const v = values[i]!;
+      const x = x0 + ((e.timestamp - minT) / tSpan) * pw;
+      const y = y0 + (1 - v / maxY) * ph;
+      return { x, y, entry: e, value: v };
+    });
+
+    const linePoints = coords.map((c) => `${c.x},${c.y}`).join(' ');
+    const first = coords[0]!;
+    const last = coords[coords.length - 1]!;
+    const areaPoints =
+      metric === 'placed' ? `${first.x},${y0 + ph} ${linePoints} ${last.x},${y0 + ph}` : null;
+
+    return { w, h, x0, y0, pw, ph, maxY, minT, maxT, tSpan, yTickVals, coords, linePoints, first, last, areaPoints };
+  }, [sorted, totalPieces, metric]);
+
+  // Convertir position X en timestamp
+  const xToTimestamp = useCallback(
+    (x: number) => {
+      if (!chartData) return 0;
+      const { x0, pw, minT, tSpan } = chartData;
+      const clampedX = Math.max(x0, Math.min(x0 + pw, x));
+      return minT + ((clampedX - x0) / pw) * tSpan;
+    },
+    [chartData],
+  );
+
+  // Gestion du début de sélection
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
+      if (e.button !== 0) return; // Uniquement clic gauche
+      if (!onZoomChange || history.length === 0 || !chartData) return;
+
+      const rect = svgRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const x = e.clientX - rect.left;
+      const svgX = (x / rect.width) * chartData.w;
+
+      // Vérifier si on clique dans la zone du graphique
+      if (svgX < chartData.x0 || svgX > chartData.x0 + chartData.pw) return;
+
+      setIsSelecting(true);
+      setSelectionStart(svgX);
+      setSelectionEnd(svgX);
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      e.preventDefault();
+    },
+    [onZoomChange, history.length, chartData],
+  );
+
+  // Gestion du déplacement pendant la sélection
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
+      if (!isSelecting || !chartData) return;
+
+      const rect = svgRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const x = e.clientX - rect.left;
+      const svgX = Math.max(chartData.x0, Math.min(chartData.x0 + chartData.pw, (x / rect.width) * chartData.w));
+      setSelectionEnd(svgX);
+    },
+    [isSelecting, chartData],
+  );
+
+  // Gestion de la fin de sélection
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
+      if (!isSelecting || selectionStart === null || selectionEnd === null) {
+        setIsSelecting(false);
+        setSelectionStart(null);
+        setSelectionEnd(null);
+        return;
+      }
+
+      (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+
+      const start = Math.min(selectionStart, selectionEnd);
+      const end = Math.max(selectionStart, selectionEnd);
+
+      // Ignorer si la sélection est trop petite (< 10px)
+      if (end - start < 10) {
+        setIsSelecting(false);
+        setSelectionStart(null);
+        setSelectionEnd(null);
+        return;
+      }
+
+      // Calculer la plage de temps correspondante
+      const startTime = xToTimestamp(start);
+      const endTime = xToTimestamp(end);
+
+      onZoomChange?.({ start: startTime, end: endTime });
+
+      setIsSelecting(false);
+      setSelectionStart(null);
+      setSelectionEnd(null);
+    },
+    [isSelecting, selectionStart, selectionEnd, xToTimestamp, onZoomChange],
+  );
+
+  // Calculer les coordonnées du rectangle de sélection
+  const selectionRect = useMemo(() => {
+    if (!isSelecting || selectionStart === null || selectionEnd === null || !chartData) return null;
+    const start = Math.min(selectionStart, selectionEnd);
+    const end = Math.max(selectionStart, selectionEnd);
+    return {
+      x: start,
+      y: chartData.y0,
+      width: end - start,
+      height: chartData.ph,
+    };
+  }, [isSelecting, selectionStart, selectionEnd, chartData]);
+
+  const tableRows = useMemo(() => sortedFull.slice(-12).reverse(), [sortedFull]);
+
+  // Affichage si pas assez de données
   if (sorted.length < 2) {
     return (
       <div className="mb-4">
@@ -207,37 +243,11 @@ export const ProgressChart: FC<ProgressChartProps> = ({
     );
   }
 
-  const w = 400;
-  const h = 128;
-  const { x0, y0, w: pw, h: ph } = plot;
-
-  const values = sorted.map((e) =>
-    metric === 'placed' ? e.placedPieces : Math.max(0, totalPieces - e.placedPieces),
-  );
-  const maxY = Math.max(totalPieces, ...values, 1);
-  const minT = sorted[0]!.timestamp;
-  const maxT = sorted[sorted.length - 1]!.timestamp;
-  const tSpan = Math.max(maxT - minT, 1);
-
-  const yTickVals = [0, maxY / 2, maxY].filter((v, i, a) => i === 0 || v !== a[i - 1]);
-
-  const coords = sorted.map((e, i) => {
-    const v = values[i]!;
-    const x = x0 + ((e.timestamp - minT) / tSpan) * pw;
-    const y = y0 + (1 - v / maxY) * ph;
-    return { x, y, entry: e, value: v };
-  });
-
-  const linePoints = coords.map((c) => `${c.x},${c.y}`).join(' ');
-  const first = coords[0]!;
-  const last = coords[coords.length - 1]!;
-  const areaPoints =
-    metric === 'placed' ? `${first.x},${y0 + ph} ${linePoints} ${last.x},${y0 + ph}` : null;
+  // chartData est garanti non-null ici
+  const { w, h, x0, y0, pw, ph, maxY, minT, maxT, yTickVals, coords, linePoints, areaPoints } = chartData!;
 
   const strokeClass = metric === 'placed' ? 'text-primary-muted' : 'text-warm-muted';
   const gridClass = 'text-divide-strong';
-
-  const tableRows = sortedFull.slice(-12).reverse();
 
   return (
     <div className="mb-4">
@@ -291,10 +301,9 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       <svg
         ref={svgRef}
         viewBox={`0 0 ${w} ${h}`}
-        className={`w-full max-w-xl h-32 ${strokeClass} ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`w-full max-w-xl h-32 ${strokeClass} ${isSelecting ? 'cursor-crosshair' : 'cursor-col-resize'}`}
         role="img"
         aria-label={label}
-        onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -376,10 +385,25 @@ export const ProgressChart: FC<ProgressChartProps> = ({
             </title>
           </circle>
         ))}
+
+        {/* Rectangle de sélection pendant le drag */}
+        {selectionRect && (
+          <rect
+            x={selectionRect.x}
+            y={selectionRect.y}
+            width={selectionRect.width}
+            height={selectionRect.height}
+            fill="primary"
+            fillOpacity={0.15}
+            stroke="currentColor"
+            strokeWidth={1}
+            className="text-primary"
+          />
+        )}
       </svg>
 
       <p className="text-xs text-fg-faint mt-1">
-        Ctrl + molette pour zoomer • Glisser pour se déplacer
+        Glisser sur le graphique pour sélectionner une plage de temps
       </p>
     </div>
   );
