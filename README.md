@@ -1,6 +1,12 @@
 # Mister Puzzle
 
-![Icône Mister Puzzle](public/logo.svg)
+![Icône Mister Puzzle](public/logo.svg){ width=64 }
+
+## Aperçu de l'application
+
+| Dashboard | Suivi de progression |
+|:---:|:---:|
+| ![Dashboard](src/assets/hero.png) | ![Progression](docs/assets/Designer.png) |
 
 **Votre progression de puzzle, ensemble, en temps réel**
 
