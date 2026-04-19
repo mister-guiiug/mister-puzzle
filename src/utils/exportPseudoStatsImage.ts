@@ -109,7 +109,7 @@ export function exportStatsImage(
   ctx.fillText(labels.subtitle.replace('{period}', periodLabel), width / 2, logoY + logoSize + 80);
 
   // Table section
-  let tableY = headerHeight + 30;
+  const tableY = headerHeight + 30;
   const rowHeight = format === 'square' ? 90 : 55;
   const colPadding = format === 'square' ? 20 : 12;
 
