@@ -1,12 +1,19 @@
 # Mister Puzzle
 
-![Icône Mister Puzzle](public/logo.svg){ width=64 }
+<img src="public/logo.svg" width="64">
 
 ## Aperçu de l'application
 
-| Dashboard | Suivi de progression |
-|:---:|:---:|
-| ![Dashboard](src/assets/hero.png) | ![Progression](docs/assets/Designer.png) |
+<table>
+<tr>
+<td width="50%"><img src="docs/assets/demo-home.png" alt="Accueil"></td>
+<td width="50%"><img src="docs/assets/demo-game.png" alt="Progression"></td>
+</tr>
+<tr>
+<td align="center">Accueil</td>
+<td align="center">Suivi de progression</td>
+</tr>
+</table>
 
 **Votre progression de puzzle, ensemble, en temps réel**
 
@@ -107,6 +114,9 @@ Installez Mister Puzzle sur votre téléphone ou ordinateur pour un accès rapid
 4. **Mises à jour** : la bannière interne propose de recharger quand une nouvelle version est disponible
 
 ---
+
+<details>
+<summary><strong>Documentation technique (développeurs)</strong></summary>
 
 ## Documentation technique
 
