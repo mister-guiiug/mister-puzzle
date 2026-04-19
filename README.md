@@ -2,6 +2,12 @@
 
 <img src="public/logo.svg" width="64">
 
+**Votre progression de puzzle, ensemble, en temps réel**
+
+Un site web pour suivre ensemble l'avancement d'un puzzle : pièces placées, historique graphique, photos, checkpoints et partage par code.
+
+Disponible sur **PC, tablette et mobile** — pas d'inscription, pas de compte, juste un code à partager.
+
 ## Aperçu de l'application
 
 <table>
@@ -14,12 +20,6 @@
 <td align="center">Suivi de progression</td>
 </tr>
 </table>
-
-**Votre progression de puzzle, ensemble, en temps réel**
-
-Un site web pour suivre ensemble l'avancement d'un puzzle : pièces placées, historique graphique, photos, checkpoints et partage par code.
-
-Disponible sur **PC, tablette et mobile** — pas d'inscription, pas de compte, juste un code à partager.
 
 ---
 
