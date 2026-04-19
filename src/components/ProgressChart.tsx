@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import type { HistoryEntry } from '../hooks/useSocket';
 import { MAX_CHART_HISTORY_POINTS, sampleHistoryForChart } from '../utils/chartSample';
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 
 export type ProgressMetric = 'placed' | 'remaining';
 
@@ -25,6 +25,8 @@ type ProgressChartProps = {
 };
 
 const plot = { x0: 36, y0: 10, w: 332, h: 78 };
+const MIN_SELECTION_PX = 20; // Distance minimale pour valider la sélection (augmenté pour mobile)
+const DOUBLE_TAP_MS = 300; // Délai max pour détecter un double-tap
 
 export const ProgressChart: FC<ProgressChartProps> = ({
   history,
@@ -43,7 +45,23 @@ export const ProgressChart: FC<ProgressChartProps> = ({
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectionStart, setSelectionStart] = useState<number | null>(null);
   const [selectionEnd, setSelectionEnd] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+
+  // Pour le double-tap et le pinch-to-zoom
+  const lastTapRef = useRef<number>(0);
+  const initialPinchDistanceRef = useRef<number>(0);
+  const initialZoomRangeRef = useRef<{ start: number; end: number } | null>(null);
+
+  // Détecter si on est sur mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const sortedFull = useMemo(() => {
     const sorted = [...history].sort((a, b) => a.timestamp - b.timestamp);
@@ -86,6 +104,15 @@ export const ProgressChart: FC<ProgressChartProps> = ({
     }
     return `${fmtTime(zoomRange.start)} - ${fmtTime(zoomRange.end)}`;
   }, [zoomRange, chartLocale, fmtTime]);
+
+  // Calculer les bornes temporelles complètes pour le zoom mobile
+  const fullTimeRange = useMemo(() => {
+    const sortedHistory = [...history].sort((a, b) => a.timestamp - b.timestamp);
+    return {
+      start: sortedHistory[0]?.timestamp ?? 0,
+      end: sortedHistory[sortedHistory.length - 1]?.timestamp ?? 0,
+    };
+  }, [history]);
 
   // Calculer les bornes temporelles et valeurs pour le graphique
   const chartData = useMemo(() => {
@@ -132,10 +159,60 @@ export const ProgressChart: FC<ProgressChartProps> = ({
     [chartData],
   );
 
-  // Gestion du début de sélection
+  // Zoom mobile : zoomer autour d'un centre
+  const zoomMobile = useCallback(
+    (factor: number, centerX?: number) => {
+      if (!onZoomChange || history.length === 0) return;
+
+      const currentRange = zoomRange || fullTimeRange;
+      const currentSpan = currentRange.end - currentRange.start;
+      const newSpan = Math.max(currentSpan * factor, currentSpan * 0.05); // Zoom limité à 5% de la plage totale
+
+      let centerTimestamp: number;
+      if (centerX !== undefined && chartData) {
+        // Centrer sur la position donnée
+        centerTimestamp = xToTimestamp(centerX);
+      } else {
+        // Centrer sur le milieu de la plage actuelle
+        centerTimestamp = currentRange.start + currentSpan / 2;
+      }
+
+      const newStart = Math.max(fullTimeRange.start, centerTimestamp - (newSpan / 2));
+      const newEnd = Math.min(fullTimeRange.end, centerTimestamp + (newSpan / 2));
+
+      // Ajuster si on a atteint les limites
+      let finalStart = newStart;
+      let finalEnd = newEnd;
+      if (newEnd - newStart < newSpan) {
+        if (newStart === fullTimeRange.start) {
+          finalEnd = newStart + newSpan;
+        } else if (newEnd === fullTimeRange.end) {
+          finalStart = newEnd - newSpan;
+        }
+      }
+
+      onZoomChange({ start: finalStart, end: finalEnd });
+    },
+    [onZoomChange, zoomRange, fullTimeRange, history.length, chartData, xToTimestamp],
+  );
+
+  // Gestion du début de sélection (pointer down)
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
-      if (e.button !== 0) return; // Uniquement clic gauche
+      if (e.pointerType === 'touch' && e.isPrimary) {
+        // Gestion du double-tap sur mobile
+        const now = Date.now();
+        if (now - lastTapRef.current < DOUBLE_TAP_MS) {
+          // Double-tap détecté : réinitialiser le zoom
+          onZoomChange?.(null);
+          lastTapRef.current = 0;
+          e.preventDefault();
+          return;
+        }
+        lastTapRef.current = now;
+      }
+
+      if (e.button !== 0 && e.pointerType !== 'touch') return; // Clic gauche ou touch
       if (!onZoomChange || history.length === 0 || !chartData) return;
 
       const rect = svgRef.current?.getBoundingClientRect();
@@ -151,7 +228,11 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       setSelectionStart(svgX);
       setSelectionEnd(svgX);
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
-      e.preventDefault();
+
+      // Sur mobile, empêcher le scroll pendant la sélection
+      if (e.pointerType === 'touch') {
+        e.preventDefault();
+      }
     },
     [onZoomChange, history.length, chartData],
   );
@@ -186,8 +267,8 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       const start = Math.min(selectionStart, selectionEnd);
       const end = Math.max(selectionStart, selectionEnd);
 
-      // Ignorer si la sélection est trop petite (< 10px)
-      if (end - start < 10) {
+      // Ignorer si la sélection est trop petite
+      if (end - start < MIN_SELECTION_PX) {
         setIsSelecting(false);
         setSelectionStart(null);
         setSelectionEnd(null);
@@ -206,6 +287,75 @@ export const ProgressChart: FC<ProgressChartProps> = ({
     },
     [isSelecting, selectionStart, selectionEnd, xToTimestamp, onZoomChange],
   );
+
+  // Gestion du touch pour pinch-to-zoom
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent<SVGSVGElement>) => {
+      if (e.touches.length === 2) {
+        // Pinch-to-zoom : deux doigts
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const distance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+
+        initialPinchDistanceRef.current = distance;
+        initialZoomRangeRef.current = zoomRange || null;
+
+        // Empêcher le scroll
+        e.preventDefault();
+      }
+    },
+    [zoomRange],
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent<SVGSVGElement>) => {
+      if (e.touches.length === 2 && initialPinchDistanceRef.current > 0) {
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const distance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+
+        const factor = initialPinchDistanceRef.current / distance;
+        const rect = svgRef.current?.getBoundingClientRect();
+        if (rect && chartData) {
+          const centerX = (touch1.clientX + touch2.clientX) / 2 - rect.left;
+          const svgCenterX = (centerX / rect.width) * chartData.w;
+
+          // Utiliser la plage initiale comme base
+          const baseRange = initialZoomRangeRef.current || fullTimeRange;
+          const baseSpan = baseRange.end - baseRange.start;
+
+          // Calculer la nouvelle plage
+          const newSpan = Math.max(baseSpan * factor, fullTimeRange.end - fullTimeRange.start * 0.05);
+
+          // Trouver le centre en timestamp
+          const centerTimestamp = xToTimestamp(svgCenterX);
+
+          // Calculer les nouvelles bornes
+          let newStart = Math.max(fullTimeRange.start, centerTimestamp - (newSpan / 2));
+          let newEnd = Math.min(fullTimeRange.end, centerTimestamp + (newSpan / 2));
+
+          // Ajuster si nécessaire
+          if (newEnd - newStart < newSpan) {
+            if (newStart === fullTimeRange.start) {
+              newEnd = newStart + newSpan;
+            } else if (newEnd === fullTimeRange.end) {
+              newStart = newEnd - newSpan;
+            }
+          }
+
+          onZoomChange?.({ start: newStart, end: newEnd });
+        }
+
+        e.preventDefault();
+      }
+    },
+    [chartData, fullTimeRange, onZoomChange, xToTimestamp],
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    initialPinchDistanceRef.current = 0;
+    initialZoomRangeRef.current = null;
+  }, []);
 
   // Calculer les coordonnées du rectangle de sélection
   const selectionRect = useMemo(() => {
@@ -251,19 +401,40 @@ export const ProgressChart: FC<ProgressChartProps> = ({
 
   return (
     <div className="mb-4">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-2 gap-2">
         <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">{label}</p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {zoomRangeText && (
-            <span className="text-xs text-fg-faint" aria-live="polite">
+            <span className="text-xs text-fg-faint truncate max-w-[120px] sm:max-w-none" aria-live="polite">
               {zoomRangeText}
             </span>
+          )}
+          {/* Boutons de zoom sur mobile */}
+          {isMobile && onZoomChange && (
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => zoomMobile(1.5)}
+                className="w-7 h-7 flex items-center justify-center rounded-lg bg-surface border border-divide text-fg-muted hover:text-fg hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring text-sm font-bold"
+                aria-label="Zoom arrière"
+              >
+                −
+              </button>
+              <button
+                type="button"
+                onClick={() => zoomMobile(0.7)}
+                className="w-7 h-7 flex items-center justify-center rounded-lg bg-surface border border-divide text-fg-muted hover:text-fg hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring text-sm font-bold"
+                aria-label="Zoom avant"
+              >
+                +
+              </button>
+            </div>
           )}
           {zoomRange && onZoomChange && (
             <button
               type="button"
               onClick={() => onZoomChange(null)}
-              className="text-xs text-primary hover:text-primary-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring rounded px-2 py-1 transition-colors"
+              className="text-xs text-primary hover:text-primary-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring rounded px-2 py-1 transition-colors whitespace-nowrap"
               aria-label="Réinitialiser le zoom"
             >
               Réinitialiser
@@ -301,13 +472,17 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       <svg
         ref={svgRef}
         viewBox={`0 0 ${w} ${h}`}
-        className={`w-full max-w-xl h-32 ${strokeClass} ${isSelecting ? 'cursor-crosshair' : 'cursor-col-resize'}`}
+        className={`w-full max-w-xl h-32 ${strokeClass} ${isSelecting ? 'cursor-crosshair' : 'cursor-col-resize'} touch-none select-none`}
         role="img"
         aria-label={label}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
       >
         <title>{label}</title>
 
@@ -403,7 +578,11 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       </svg>
 
       <p className="text-xs text-fg-faint mt-1">
-        Glisser sur le graphique pour sélectionner une plage de temps
+        {isMobile ? (
+          <>Glisser pour sélectionner • Pinch pour zoomer • Double-tap pour réinitialiser</>
+        ) : (
+          <>Glisser sur le graphique pour sélectionner une plage de temps</>
+        )}
       </p>
     </div>
   );
