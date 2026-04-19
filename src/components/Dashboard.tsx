@@ -303,9 +303,34 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     return () => window.clearInterval(id);
   }, []);
 
+  // Période pour les stats par pseudo : '24h' | 'week' | 'all'
+  const [statsPeriod, setStatsPeriod] = useState<'24h' | 'week' | 'all'>('24h');
+
+  // Label dynamique pour la colonne de pièces selon la période
+  const statsPeriodLabel = useMemo(() => {
+    if (statsPeriod === 'week') return t('dashboard.statsPeriodWeek');
+    if (statsPeriod === 'all') return t('dashboard.statsPeriodAll');
+    return t('dashboard.statsPeriod24h');
+  }, [statsPeriod, t]);
+
+  // Calculer la fenêtre de temps pour les stats
+  const statsWindowMs = useMemo(() => {
+    if (statsPeriod === 'all') {
+      // Utiliser toute l'historique
+      const sortedHistory = [...puzzle.history].sort((a, b) => a.timestamp - b.timestamp);
+      if (sortedHistory.length === 0) return 24 * 60 * 60 * 1000;
+      const firstTimestamp = sortedHistory[0]!.timestamp;
+      return statsClock - firstTimestamp;
+    }
+    if (statsPeriod === 'week') {
+      return 7 * 24 * 60 * 60 * 1000;
+    }
+    return 24 * 60 * 60 * 1000; // 24h par défaut
+  }, [statsPeriod, puzzle.history, statsClock]);
+
   const pseudoStatRows = useMemo(
-    () => computePseudoStatsFromHistory(puzzle.history, statsClock),
-    [puzzle.history, statsClock],
+    () => computePseudoStatsFromHistory(puzzle.history, statsClock, statsWindowMs),
+    [puzzle.history, statsClock, statsWindowMs],
   );
 
   const [offlineQueuePending, setOfflineQueuePending] = useState(() =>
@@ -1593,6 +1618,34 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 <p className="mt-2 text-xs text-fg-muted leading-relaxed">
                   {t('dashboard.statsByPseudoHint')}
                 </p>
+
+                {/* Sélecteur de période pour les stats */}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-fg-muted">Période :</span>
+                  <div className="inline-flex rounded-lg overflow-hidden border border-border-ui">
+                    <button
+                      type="button"
+                      onClick={() => setStatsPeriod('24h')}
+                      className={`px-3 py-1.5 text-xs font-medium transition ${statsPeriod === '24h' ? 'bg-primary-fill text-white' : 'bg-surface text-fg-muted hover:bg-surface-muted dark:bg-surface-muted/50 dark:text-fg-muted dark:hover:bg-surface-muted'}`}
+                    >
+                      24h
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsPeriod('week')}
+                      className={`px-3 py-1.5 text-xs font-medium transition ${statsPeriod === 'week' ? 'bg-primary-fill text-white' : 'bg-surface text-fg-muted hover:bg-surface-muted dark:bg-surface-muted/50 dark:text-fg-muted dark:hover:bg-surface-muted'}`}
+                    >
+                      1 semaine
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStatsPeriod('all')}
+                      className={`px-3 py-1.5 text-xs font-medium transition ${statsPeriod === 'all' ? 'bg-primary-fill text-white' : 'bg-surface text-fg-muted hover:bg-surface-muted dark:bg-surface-muted/50 dark:text-fg-muted dark:hover:bg-surface-muted'}`}
+                    >
+                      Depuis le début
+                    </button>
+                  </div>
+                </div>
                 {pseudoStatRows.length === 0 ? (
                   <p className="mt-2 text-xs text-fg-faint">{t('dashboard.statsByPseudoEmpty')}</p>
                 ) : (
@@ -1607,7 +1660,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                             scope="col"
                             className="px-3 py-2 font-semibold text-fg-heading text-right tabular-nums"
                           >
-                            {t('dashboard.statsColPieces24h')}
+                            {statsPeriodLabel}
                           </th>
                           <th
                             scope="col"
@@ -1666,7 +1719,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                           historyExportBase,
                           {
                             pseudo: t('dashboard.statsColPseudo'),
-                            pieces24h: t('dashboard.statsColPieces24h'),
+                            pieces24h: statsPeriodLabel,
                             maxSingle: t('dashboard.statsColMaxSingle'),
                             maxStreak: t('dashboard.statsColMaxStreak'),
                             updates: t('dashboard.statsColUpdates'),
