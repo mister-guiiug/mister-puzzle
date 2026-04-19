@@ -137,6 +137,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const [historyInput, setHistoryInput] = useState<number>(0);
   const [deletingHistoryId, setDeletingHistoryId] = useState<string | null>(null);
 
+  const [zoomRange, setZoomRange] = useState<{ start: number; end: number } | null>(null);
+
   const [actionsOpen, setActionsOpen] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -277,10 +279,13 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     t('dashboard.preset75'),
   ];
 
-  const activityLogDescending = useMemo(
-    () => [...puzzle.history].sort((a, b) => b.timestamp - a.timestamp).slice(0, 60),
-    [puzzle.history],
-  );
+  const activityLogDescending = useMemo(() => {
+    let filtered = [...puzzle.history];
+    if (zoomRange) {
+      filtered = filtered.filter((h) => h.timestamp >= zoomRange.start && h.timestamp <= zoomRange.end);
+    }
+    return filtered.sort((a, b) => b.timestamp - a.timestamp).slice(0, 60);
+  }, [puzzle.history, zoomRange]);
 
   const historyExportBase = useMemo(
     () =>
@@ -1168,6 +1173,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               tableColTime={t('dashboard.chartColTime')}
               tableColValue={t('dashboard.chartColValue')}
               tableColAuthor={t('dashboard.chartColAuthor')}
+              zoomRange={zoomRange}
+              onZoomChange={setZoomRange}
             />
 
             <div className="flex mb-2 items-center justify-between flex-wrap gap-2">
