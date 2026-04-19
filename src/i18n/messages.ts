@@ -223,6 +223,9 @@ export const messages: Record<Locale, MsgValue> = {
       statsColMaxStreak: 'Série max',
       statsColUpdates: 'MAJ',
       statsAnon: 'Sans pseudo',
+      statsPeriod24h: 'Pièces (24 h)',
+      statsPeriodWeek: 'Pièces (7 j)',
+      statsPeriodAll: 'Pièces (total)',
       exportPseudoStatsCsv: 'Exporter les stats (CSV)',
       offlineQueuedSave:
         'Hors ligne : votre progression est enregistrée localement et sera envoyée à la reconnexion.',
@@ -506,6 +509,9 @@ export const messages: Record<Locale, MsgValue> = {
       statsColMaxStreak: 'Best streak',
       statsColUpdates: 'Saves',
       statsAnon: 'No nickname',
+      statsPeriod24h: 'Pieces (24 h)',
+      statsPeriodWeek: 'Pieces (7 d)',
+      statsPeriodAll: 'Pieces (total)',
       exportPseudoStatsCsv: 'Export stats (CSV)',
       offlineQueuedSave:
         'Offline: your progress is saved locally and will sync when you are back online.',
