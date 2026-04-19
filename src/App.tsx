@@ -116,6 +116,11 @@ function App() {
         onGoHome={handleBack}
         onNavigateToPuzzle={handleJoin}
         onPseudoCommit={handlePseudoCommit}
+        puzzleProgress={
+          puzzle
+            ? { placed: puzzle.placedPieces, total: puzzle.totalPieces, name: puzzle.name }
+            : null
+        }
       />
       <main id="contenu-principal" className="min-h-screen bg-canvas text-fg">
         {!online && (
