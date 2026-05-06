@@ -1,8 +1,20 @@
+# CI custom (client + server check) — utilise la composite action setup-pwa.
 name: CI
 
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: read
 
 jobs:
   verify:
@@ -10,12 +22,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: mister-guiiug/dev-wpa-config/.github/actions/setup-pwa@v1
         with:
-          node-version: '22'
-          cache: npm
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Client — install, lint, test, build
+      - name: Client — format · lint · type · test · build
         env:
           VITE_PUBLIC_SITE_ORIGIN: https://example.github.io
           VITE_FIREBASE_API_KEY: ci-dummy-key
@@ -25,7 +36,7 @@ jobs:
           VITE_FIREBASE_STORAGE_BUCKET: dummy.appspot.com
           VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
           VITE_FIREBASE_APP_ID: 1:000000000000:web:0000000000000000000000
-        run: npm ci && npm run format:check && npm run lint && npm run test && npm run build
+        run: npm run format:check && npm run lint && npm run type-check && npm run test && npm run build
 
       - name: Server — TypeScript
         run: cd server && npm ci && npx tsc --noEmit
