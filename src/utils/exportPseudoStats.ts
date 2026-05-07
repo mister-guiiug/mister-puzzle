@@ -29,7 +29,7 @@ export function downloadPseudoStatsCsv(
   rows: PseudoStatRow[],
   fileBaseName: string,
   labels: PseudoStatsCsvLabels,
-  anonLabel: string,
+  anonLabel: string
 ): void {
   const header = [
     labels.pseudo,
@@ -40,7 +40,7 @@ export function downloadPseudoStatsCsv(
   ];
   const lines = [
     header.map(escapeCsvCell).join(','),
-    ...rows.map((row) =>
+    ...rows.map(row =>
       [
         row.pseudoKey ? row.pseudoKey : anonLabel,
         String(row.piecesInWindow),
@@ -49,12 +49,12 @@ export function downloadPseudoStatsCsv(
         String(row.positiveUpdatesInWindow),
       ]
         .map(escapeCsvCell)
-        .join(','),
+        .join(',')
     ),
   ];
   const csv = `\ufeff${lines.join('\n')}`;
   triggerDownload(
     new Blob([csv], { type: 'text/csv;charset=utf-8' }),
-    `${fileBaseName}-stats-pseudo-24h.csv`,
+    `${fileBaseName}-stats-pseudo-24h.csv`
   );
 }

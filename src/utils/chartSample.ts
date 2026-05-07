@@ -6,7 +6,7 @@ export const MAX_CHART_HISTORY_POINTS = 80;
  */
 export function sampleHistoryForChart<T extends { timestamp: number }>(
   sorted: T[],
-  maxPoints: number,
+  maxPoints: number
 ): T[] {
   if (sorted.length <= maxPoints) return sorted;
   const n = maxPoints;

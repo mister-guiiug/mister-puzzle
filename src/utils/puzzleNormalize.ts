@@ -1,4 +1,10 @@
-import type { Checkpoint, HistoryEntry, Member, Photo, PuzzleState } from '../hooks/useSocket';
+import type {
+  Checkpoint,
+  HistoryEntry,
+  Member,
+  Photo,
+  PuzzleState,
+} from '../hooks/useSocket';
 
 function isRecord(x: unknown): x is Record<string, unknown> {
   return typeof x === 'object' && x !== null && !Array.isArray(x);
@@ -26,7 +32,11 @@ function normalizeCheckpoints(raw: unknown): Checkpoint[] {
   const out: Checkpoint[] = [];
   for (const v of Object.values(raw)) {
     if (!isRecord(v)) continue;
-    if (typeof v.id !== 'string' || typeof v.name !== 'string' || typeof v.completed !== 'boolean')
+    if (
+      typeof v.id !== 'string' ||
+      typeof v.name !== 'string' ||
+      typeof v.completed !== 'boolean'
+    )
       continue;
     const c: Checkpoint = { id: v.id, name: v.name, completed: v.completed };
     if (typeof v.createdBy === 'string') c.createdBy = v.createdBy;
@@ -40,8 +50,13 @@ function normalizeHistory(raw: unknown): HistoryEntry[] {
   const out: HistoryEntry[] = [];
   for (const [key, v] of Object.entries(raw)) {
     if (!isRecord(v)) continue;
-    if (typeof v.timestamp !== 'number' || typeof v.placedPieces !== 'number') continue;
-    const e: HistoryEntry = { id: key, timestamp: v.timestamp, placedPieces: v.placedPieces };
+    if (typeof v.timestamp !== 'number' || typeof v.placedPieces !== 'number')
+      continue;
+    const e: HistoryEntry = {
+      id: key,
+      timestamp: v.timestamp,
+      placedPieces: v.placedPieces,
+    };
     if (typeof v.pseudo === 'string') e.pseudo = v.pseudo;
     out.push(e);
   }
@@ -90,7 +105,8 @@ export function normalizePuzzleFromFirebase(data: unknown): PuzzleState {
     name: typeof raw.name === 'string' ? raw.name : '',
     schemaVersion,
     isPublic: typeof raw.isPublic === 'boolean' ? raw.isPublic : true,
-    passwordHash: typeof raw.passwordHash === 'string' ? raw.passwordHash : undefined,
+    passwordHash:
+      typeof raw.passwordHash === 'string' ? raw.passwordHash : undefined,
     createdBy: typeof raw.createdBy === 'string' ? raw.createdBy : undefined,
     rows: typeof raw.rows === 'number' ? raw.rows : undefined,
     cols: typeof raw.cols === 'number' ? raw.cols : undefined,

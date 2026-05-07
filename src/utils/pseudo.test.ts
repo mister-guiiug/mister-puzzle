@@ -18,7 +18,10 @@ describe('pseudo input mode prefs', () => {
         for (const k of Object.keys(memory)) delete memory[k];
       },
     };
-    Object.defineProperty(globalThis, 'localStorage', { value: ls, configurable: true });
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: ls,
+      configurable: true,
+    });
   });
 
   it('defaults to placed for unknown pseudo', () => {

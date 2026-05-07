@@ -24,7 +24,7 @@ describe('normalizePuzzleFromFirebase', () => {
       photos: {},
     });
     expect(p.history).toHaveLength(2);
-    expect(p.history.find((h) => h.placedPieces === 5)?.pseudo).toBe('Bob');
+    expect(p.history.find(h => h.placedPieces === 5)?.pseudo).toBe('Bob');
   });
 
   it('filters invalid checkpoints', () => {

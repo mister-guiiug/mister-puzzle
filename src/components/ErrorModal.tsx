@@ -18,9 +18,13 @@ const ErrorModal: React.FC<ErrorModalProps> = ({ message, onClose }) => {
       {message && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-overlay-strong backdrop-blur-sm">
           <motion.div
-            initial={reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.9, y: 20 }}
+            initial={
+              reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.9, y: 20 }
+            }
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }}
+            exit={
+              reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }
+            }
             transition={{ duration: reduceMotion ? 0.08 : 0.2 }}
             className="bg-surface rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-divide"
           >

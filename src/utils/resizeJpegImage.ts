@@ -11,7 +11,7 @@ export function resizeImageToJpegDataUrl(file: File): Promise<string> {
       return;
     }
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = e => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
@@ -19,7 +19,9 @@ export function resizeImageToJpegDataUrl(file: File): Promise<string> {
         const scale = MAX_WIDTH / img.width;
         canvas.width = MAX_WIDTH;
         canvas.height = img.height * scale;
-        canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas
+          .getContext('2d')
+          ?.drawImage(img, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL('image/jpeg', 0.7));
       };
       img.onerror = () => reject(new Error('img'));

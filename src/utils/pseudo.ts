@@ -34,13 +34,15 @@ export const setPseudo = (pseudo: string): void => {
   localStorage.setItem(PSEUDO_KEY, pseudo.trim());
 };
 
-export const isPseudoLocked = (): boolean => localStorage.getItem(PSEUDO_LOCKED_KEY) === 'true';
+export const isPseudoLocked = (): boolean =>
+  localStorage.getItem(PSEUDO_LOCKED_KEY) === 'true';
 
 export const setPseudoLocked = (locked: boolean): void => {
   localStorage.setItem(PSEUDO_LOCKED_KEY, locked ? 'true' : 'false');
 };
 
-export const isGridLocked = (): boolean => localStorage.getItem(GRID_LOCKED_KEY) === 'true';
+export const isGridLocked = (): boolean =>
+  localStorage.getItem(GRID_LOCKED_KEY) === 'true';
 
 export const setGridLocked = (locked: boolean): void => {
   localStorage.setItem(GRID_LOCKED_KEY, locked ? 'true' : 'false');
@@ -68,7 +70,10 @@ export const getInputMode = (pseudo: string): 'placed' | 'remaining' => {
   return legacy === 'remaining' ? 'remaining' : 'placed';
 };
 
-export const setInputModePreference = (pseudo: string, mode: 'placed' | 'remaining'): void => {
+export const setInputModePreference = (
+  pseudo: string,
+  mode: 'placed' | 'remaining'
+): void => {
   const key = pseudoStorageKey(pseudo);
   const byPseudo = parseInputModesByPseudo();
   byPseudo[key] = mode;

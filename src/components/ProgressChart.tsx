@@ -1,6 +1,9 @@
 import type { FC } from 'react';
 import type { HistoryEntry } from '../hooks/useSocket';
-import { MAX_CHART_HISTORY_POINTS, sampleHistoryForChart } from '../utils/chartSample';
+import {
+  MAX_CHART_HISTORY_POINTS,
+  sampleHistoryForChart,
+} from '../utils/chartSample';
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 
 export type ProgressMetric = 'placed' | 'remaining';
@@ -51,7 +54,9 @@ export const ProgressChart: FC<ProgressChartProps> = ({
   // Pour le double-tap et le pinch-to-zoom
   const lastTapRef = useRef<number>(0);
   const initialPinchDistanceRef = useRef<number>(0);
-  const initialZoomRangeRef = useRef<{ start: number; end: number } | null>(null);
+  const initialZoomRangeRef = useRef<{ start: number; end: number } | null>(
+    null
+  );
 
   // Détecter si on est sur mobile
   useEffect(() => {
@@ -66,7 +71,9 @@ export const ProgressChart: FC<ProgressChartProps> = ({
   const sortedFull = useMemo(() => {
     const sorted = [...history].sort((a, b) => a.timestamp - b.timestamp);
     if (zoomRange) {
-      return sorted.filter((e) => e.timestamp >= zoomRange.start && e.timestamp <= zoomRange.end);
+      return sorted.filter(
+        e => e.timestamp >= zoomRange.start && e.timestamp <= zoomRange.end
+      );
     }
     return sorted;
   }, [history, zoomRange]);
@@ -82,12 +89,12 @@ export const ProgressChart: FC<ProgressChartProps> = ({
         hour: '2-digit',
         minute: '2-digit',
       }).format(ts),
-    [chartLocale],
+    [chartLocale]
   );
 
   const fmtNum = useCallback(
     (n: number) => Math.round(n).toLocaleString(chartLocale),
-    [chartLocale],
+    [chartLocale]
   );
 
   // Formater la plage de zoom actuelle pour l'affichage
@@ -97,17 +104,22 @@ export const ProgressChart: FC<ProgressChartProps> = ({
     const end = new Date(zoomRange.end);
     const sameDay = start.toDateString() === end.toDateString();
     if (sameDay) {
-      return `${fmtTime(zoomRange.start)} - ${new Intl.DateTimeFormat(chartLocale, {
-        hour: '2-digit',
-        minute: '2-digit',
-      }).format(zoomRange.end)}`;
+      return `${fmtTime(zoomRange.start)} - ${new Intl.DateTimeFormat(
+        chartLocale,
+        {
+          hour: '2-digit',
+          minute: '2-digit',
+        }
+      ).format(zoomRange.end)}`;
     }
     return `${fmtTime(zoomRange.start)} - ${fmtTime(zoomRange.end)}`;
   }, [zoomRange, chartLocale, fmtTime]);
 
   // Calculer les bornes temporelles complètes pour le zoom mobile
   const fullTimeRange = useMemo(() => {
-    const sortedHistory = [...history].sort((a, b) => a.timestamp - b.timestamp);
+    const sortedHistory = [...history].sort(
+      (a, b) => a.timestamp - b.timestamp
+    );
     return {
       start: sortedHistory[0]?.timestamp ?? 0,
       end: sortedHistory[sortedHistory.length - 1]?.timestamp ?? 0,
@@ -122,15 +134,19 @@ export const ProgressChart: FC<ProgressChartProps> = ({
     const h = 128;
     const { x0, y0, w: pw, h: ph } = plot;
 
-    const values = sorted.map((e) =>
-      metric === 'placed' ? e.placedPieces : Math.max(0, totalPieces - e.placedPieces),
+    const values = sorted.map(e =>
+      metric === 'placed'
+        ? e.placedPieces
+        : Math.max(0, totalPieces - e.placedPieces)
     );
     const maxY = Math.max(totalPieces, ...values, 1);
     const minT = sorted[0]!.timestamp;
     const maxT = sorted[sorted.length - 1]!.timestamp;
     const tSpan = Math.max(maxT - minT, 1);
 
-    const yTickVals = [0, maxY / 2, maxY].filter((v, i, a) => i === 0 || v !== a[i - 1]);
+    const yTickVals = [0, maxY / 2, maxY].filter(
+      (v, i, a) => i === 0 || v !== a[i - 1]
+    );
 
     const coords = sorted.map((e, i) => {
       const v = values[i]!;
@@ -139,13 +155,32 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       return { x, y, entry: e, value: v };
     });
 
-    const linePoints = coords.map((c) => `${c.x},${c.y}`).join(' ');
+    const linePoints = coords.map(c => `${c.x},${c.y}`).join(' ');
     const first = coords[0]!;
     const last = coords[coords.length - 1]!;
     const areaPoints =
-      metric === 'placed' ? `${first.x},${y0 + ph} ${linePoints} ${last.x},${y0 + ph}` : null;
+      metric === 'placed'
+        ? `${first.x},${y0 + ph} ${linePoints} ${last.x},${y0 + ph}`
+        : null;
 
-    return { w, h, x0, y0, pw, ph, maxY, minT, maxT, tSpan, yTickVals, coords, linePoints, first, last, areaPoints };
+    return {
+      w,
+      h,
+      x0,
+      y0,
+      pw,
+      ph,
+      maxY,
+      minT,
+      maxT,
+      tSpan,
+      yTickVals,
+      coords,
+      linePoints,
+      first,
+      last,
+      areaPoints,
+    };
   }, [sorted, totalPieces, metric]);
 
   // Convertir position X en timestamp
@@ -156,7 +191,7 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       const clampedX = Math.max(x0, Math.min(x0 + pw, x));
       return minT + ((clampedX - x0) / pw) * tSpan;
     },
-    [chartData],
+    [chartData]
   );
 
   // Zoom mobile : zoomer autour d'un centre
@@ -177,8 +212,11 @@ export const ProgressChart: FC<ProgressChartProps> = ({
         centerTimestamp = currentRange.start + currentSpan / 2;
       }
 
-      const newStart = Math.max(fullTimeRange.start, centerTimestamp - (newSpan / 2));
-      const newEnd = Math.min(fullTimeRange.end, centerTimestamp + (newSpan / 2));
+      const newStart = Math.max(
+        fullTimeRange.start,
+        centerTimestamp - newSpan / 2
+      );
+      const newEnd = Math.min(fullTimeRange.end, centerTimestamp + newSpan / 2);
 
       // Ajuster si on a atteint les limites
       let finalStart = newStart;
@@ -193,7 +231,14 @@ export const ProgressChart: FC<ProgressChartProps> = ({
 
       onZoomChange({ start: finalStart, end: finalEnd });
     },
-    [onZoomChange, zoomRange, fullTimeRange, history.length, chartData, xToTimestamp],
+    [
+      onZoomChange,
+      zoomRange,
+      fullTimeRange,
+      history.length,
+      chartData,
+      xToTimestamp,
+    ]
   );
 
   // Gestion du début de sélection (pointer down)
@@ -234,7 +279,7 @@ export const ProgressChart: FC<ProgressChartProps> = ({
         e.preventDefault();
       }
     },
-    [onZoomChange, history.length, chartData],
+    [onZoomChange, history.length, chartData]
   );
 
   // Gestion du déplacement pendant la sélection
@@ -246,10 +291,13 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       if (!rect) return;
 
       const x = e.clientX - rect.left;
-      const svgX = Math.max(chartData.x0, Math.min(chartData.x0 + chartData.pw, (x / rect.width) * chartData.w));
+      const svgX = Math.max(
+        chartData.x0,
+        Math.min(chartData.x0 + chartData.pw, (x / rect.width) * chartData.w)
+      );
       setSelectionEnd(svgX);
     },
-    [isSelecting, chartData],
+    [isSelecting, chartData]
   );
 
   // Gestion de la fin de sélection
@@ -285,7 +333,7 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       setSelectionStart(null);
       setSelectionEnd(null);
     },
-    [isSelecting, selectionStart, selectionEnd, xToTimestamp, onZoomChange],
+    [isSelecting, selectionStart, selectionEnd, xToTimestamp, onZoomChange]
   );
 
   // Gestion du touch pour pinch-to-zoom
@@ -295,7 +343,10 @@ export const ProgressChart: FC<ProgressChartProps> = ({
         // Pinch-to-zoom : deux doigts
         const touch1 = e.touches[0];
         const touch2 = e.touches[1];
-        const distance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+        const distance = Math.hypot(
+          touch2.clientX - touch1.clientX,
+          touch2.clientY - touch1.clientY
+        );
 
         initialPinchDistanceRef.current = distance;
         initialZoomRangeRef.current = zoomRange || null;
@@ -304,7 +355,7 @@ export const ProgressChart: FC<ProgressChartProps> = ({
         e.preventDefault();
       }
     },
-    [zoomRange],
+    [zoomRange]
   );
 
   const handleTouchMove = useCallback(
@@ -312,7 +363,10 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       if (e.touches.length === 2 && initialPinchDistanceRef.current > 0) {
         const touch1 = e.touches[0];
         const touch2 = e.touches[1];
-        const distance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+        const distance = Math.hypot(
+          touch2.clientX - touch1.clientX,
+          touch2.clientY - touch1.clientY
+        );
 
         const factor = initialPinchDistanceRef.current / distance;
         const rect = svgRef.current?.getBoundingClientRect();
@@ -325,14 +379,23 @@ export const ProgressChart: FC<ProgressChartProps> = ({
           const baseSpan = baseRange.end - baseRange.start;
 
           // Calculer la nouvelle plage
-          const newSpan = Math.max(baseSpan * factor, fullTimeRange.end - fullTimeRange.start * 0.05);
+          const newSpan = Math.max(
+            baseSpan * factor,
+            fullTimeRange.end - fullTimeRange.start * 0.05
+          );
 
           // Trouver le centre en timestamp
           const centerTimestamp = xToTimestamp(svgCenterX);
 
           // Calculer les nouvelles bornes
-          let newStart = Math.max(fullTimeRange.start, centerTimestamp - (newSpan / 2));
-          let newEnd = Math.min(fullTimeRange.end, centerTimestamp + (newSpan / 2));
+          let newStart = Math.max(
+            fullTimeRange.start,
+            centerTimestamp - newSpan / 2
+          );
+          let newEnd = Math.min(
+            fullTimeRange.end,
+            centerTimestamp + newSpan / 2
+          );
 
           // Ajuster si nécessaire
           if (newEnd - newStart < newSpan) {
@@ -349,7 +412,7 @@ export const ProgressChart: FC<ProgressChartProps> = ({
         e.preventDefault();
       }
     },
-    [chartData, fullTimeRange, onZoomChange, xToTimestamp],
+    [chartData, fullTimeRange, onZoomChange, xToTimestamp]
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -359,7 +422,13 @@ export const ProgressChart: FC<ProgressChartProps> = ({
 
   // Calculer les coordonnées du rectangle de sélection
   const selectionRect = useMemo(() => {
-    if (!isSelecting || selectionStart === null || selectionEnd === null || !chartData) return null;
+    if (
+      !isSelecting ||
+      selectionStart === null ||
+      selectionEnd === null ||
+      !chartData
+    )
+      return null;
     const start = Math.min(selectionStart, selectionEnd);
     const end = Math.max(selectionStart, selectionEnd);
     return {
@@ -370,15 +439,22 @@ export const ProgressChart: FC<ProgressChartProps> = ({
     };
   }, [isSelecting, selectionStart, selectionEnd, chartData]);
 
-  const tableRows = useMemo(() => sortedFull.slice(-12).reverse(), [sortedFull]);
+  const tableRows = useMemo(
+    () => sortedFull.slice(-12).reverse(),
+    [sortedFull]
+  );
 
   // Affichage si pas assez de données
   if (sorted.length < 2) {
     return (
       <div className="mb-4">
-        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider mb-2">{label}</p>
+        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider mb-2">
+          {label}
+        </p>
         <p className="text-xs text-fg-faint mb-2" role="status">
-          {sorted.length === 0 ? emptyHint : 'Pas assez de données pour cette plage'}
+          {sorted.length === 0
+            ? emptyHint
+            : 'Pas assez de données pour cette plage'}
         </p>
         {zoomRange && onZoomChange && (
           <button
@@ -394,18 +470,38 @@ export const ProgressChart: FC<ProgressChartProps> = ({
   }
 
   // chartData est garanti non-null ici
-  const { w, h, x0, y0, pw, ph, maxY, minT, maxT, yTickVals, coords, linePoints, areaPoints } = chartData!;
+  const {
+    w,
+    h,
+    x0,
+    y0,
+    pw,
+    ph,
+    maxY,
+    minT,
+    maxT,
+    yTickVals,
+    coords,
+    linePoints,
+    areaPoints,
+  } = chartData!;
 
-  const strokeClass = metric === 'placed' ? 'text-primary-muted' : 'text-warm-muted';
+  const strokeClass =
+    metric === 'placed' ? 'text-primary-muted' : 'text-warm-muted';
   const gridClass = 'text-divide-strong';
 
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-2 gap-2">
-        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">{label}</p>
+        <p className="text-xs font-semibold text-fg-muted uppercase tracking-wider">
+          {label}
+        </p>
         <div className="flex items-center gap-1 sm:gap-2">
           {zoomRangeText && (
-            <span className="text-xs text-fg-faint truncate max-w-[120px] sm:max-w-none" aria-live="polite">
+            <span
+              className="text-xs text-fg-faint truncate max-w-[120px] sm:max-w-none"
+              aria-live="polite"
+            >
               {zoomRangeText}
             </span>
           )}
@@ -460,7 +556,9 @@ export const ProgressChart: FC<ProgressChartProps> = ({
                 <td>
                   {metric === 'placed'
                     ? e.placedPieces.toLocaleString(chartLocale)
-                    : Math.max(0, totalPieces - e.placedPieces).toLocaleString(chartLocale)}
+                    : Math.max(0, totalPieces - e.placedPieces).toLocaleString(
+                        chartLocale
+                      )}
                 </td>
                 <td>{e.pseudo ?? '—'}</td>
               </tr>
@@ -486,7 +584,7 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       >
         <title>{label}</title>
 
-        {yTickVals.map((tv) => {
+        {yTickVals.map(tv => {
           const gy = y0 + (1 - tv / maxY) * ph;
           return (
             <g key={tv}>
@@ -499,14 +597,24 @@ export const ProgressChart: FC<ProgressChartProps> = ({
                 stroke="currentColor"
                 strokeWidth={0.75}
               />
-              <text x={4} y={gy + 3} className="fill-fg-muted text-[9px]" fontSize="9">
+              <text
+                x={4}
+                y={gy + 3}
+                className="fill-fg-muted text-[9px]"
+                fontSize="9"
+              >
                 {fmtNum(tv)}
               </text>
             </g>
           );
         })}
 
-        <text x={x0} y={h - 4} className="fill-fg-muted text-[9px]" fontSize="9">
+        <text
+          x={x0}
+          y={h - 4}
+          className="fill-fg-muted text-[9px]"
+          fontSize="9"
+        >
           {fmtTime(minT)}
         </text>
         <text
@@ -520,7 +628,12 @@ export const ProgressChart: FC<ProgressChartProps> = ({
         </text>
 
         {metric === 'placed' && areaPoints && (
-          <polygon fill="currentColor" fillOpacity={0.14} points={areaPoints} stroke="none" />
+          <polygon
+            fill="currentColor"
+            fillOpacity={0.14}
+            points={areaPoints}
+            stroke="none"
+          />
         )}
         {metric === 'remaining' && (
           <line
@@ -579,7 +692,10 @@ export const ProgressChart: FC<ProgressChartProps> = ({
 
       <p className="text-xs text-fg-faint mt-1">
         {isMobile ? (
-          <>Glisser pour sélectionner • Pinch pour zoomer • Double-tap pour réinitialiser</>
+          <>
+            Glisser pour sélectionner • Pinch pour zoomer • Double-tap pour
+            réinitialiser
+          </>
         ) : (
           <>Glisser sur le graphique pour sélectionner une plage de temps</>
         )}

@@ -14,10 +14,25 @@ import {
   User,
   LayoutTemplate,
 } from 'lucide-react';
-import { createPuzzle, joinPuzzle, hashPassword, type PuzzleState } from '../hooks/useSocket';
+import {
+  createPuzzle,
+  joinPuzzle,
+  hashPassword,
+  type PuzzleState,
+} from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
-import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
-import { isGridLocked, setGridLocked, getSavedGrid, saveGrid } from '../utils/pseudo';
+import {
+  getHistory,
+  saveToHistory,
+  removeFromHistory,
+  type HistoryPuzzle,
+} from '../utils/history';
+import {
+  isGridLocked,
+  setGridLocked,
+  getSavedGrid,
+  saveGrid,
+} from '../utils/pseudo';
 import { useI18n } from '../i18n/I18nContext';
 import { prefetchDashboardChunk } from '../utils/prefetchDashboard';
 import { reportError } from '../utils/reportError';
@@ -89,7 +104,10 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   }, []);
 
   const scrollToForms = useCallback(() => {
-    formsAnchorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    formsAnchorRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
   }, []);
 
   const totalPieces = rows * cols;
@@ -106,13 +124,19 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
     } catch {
       return;
     }
-    const raw = (params.get('join') ?? params.get('room') ?? params.get('code'))?.trim();
+    const raw = (
+      params.get('join') ??
+      params.get('room') ??
+      params.get('code')
+    )?.trim();
     if (!raw) return;
     const code = raw.toUpperCase().replace(/[^A-Z0-9]/g, '');
     if (code.length < 3 || code.length > 20) return;
     setRoomCode(code);
     requestAnimationFrame(() => {
-      document.getElementById('home-join')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document
+        .getElementById('home-join')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
     try {
       const path = window.location.pathname;
@@ -149,8 +173,16 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
     }
     setLoading(true);
     try {
-      const pwHash = !isPublic && password ? await hashPassword(password) : null;
-      const code = await createPuzzle(name.trim(), rows, cols, isPublic, pwHash, pseudo.trim());
+      const pwHash =
+        !isPublic && password ? await hashPassword(password) : null;
+      const code = await createPuzzle(
+        name.trim(),
+        rows,
+        cols,
+        isPublic,
+        pwHash,
+        pseudo.trim()
+      );
       saveToHistory(code, name.trim());
       onJoin(code);
     } catch (err) {
@@ -215,13 +247,17 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       {/* Deleted puzzle popup */}
       {deletedCode &&
         (() => {
-          const inHistory = history.some((h) => h.code === deletedCode);
+          const inHistory = history.some(h => h.code === deletedCode);
           return (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
               <div className="bg-surface rounded-2xl shadow-xl p-6 w-full max-w-sm border border-divide">
-                <h3 className="text-lg font-bold text-fg-heading mb-2">{t('home.deletedTitle')}</h3>
+                <h3 className="text-lg font-bold text-fg-heading mb-2">
+                  {t('home.deletedTitle')}
+                </h3>
                 <p className="text-sm text-fg-muted mb-4">
-                  <span className="font-mono font-bold text-fg">{deletedCode}</span>{' '}
+                  <span className="font-mono font-bold text-fg">
+                    {deletedCode}
+                  </span>{' '}
                   {t('home.deletedBody')}
                   {inHistory && (
                     <>
@@ -279,10 +315,15 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         </div>
       </header>
 
-      <section className="w-full max-w-3xl mb-8" aria-label={t('home.tourTitle')}>
+      <section
+        className="w-full max-w-3xl mb-8"
+        aria-label={t('home.tourTitle')}
+      >
         {!showTour ? (
           <div className="rounded-2xl border border-border-ui-strong bg-surface/80 px-4 py-3 text-center shadow-sm">
-            <p className="text-sm text-fg-muted mb-2">{t('home.tourDismissedHint')}</p>
+            <p className="text-sm text-fg-muted mb-2">
+              {t('home.tourDismissedHint')}
+            </p>
             <button
               type="button"
               onClick={restoreTour}
@@ -294,7 +335,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         ) : (
           <div className="rounded-2xl border border-primary-border-muted bg-gradient-to-b from-surface to-primary-soft/50 dark:from-surface dark:to-primary-soft/35 shadow-md overflow-hidden">
             <div className="px-4 pt-4 pb-2 sm:px-6 sm:pt-5">
-              <p className="text-sm text-fg-muted text-center">{t('home.tourIntro')}</p>
+              <p className="text-sm text-fg-muted text-center">
+                {t('home.tourIntro')}
+              </p>
               <h2 className="text-center text-lg font-bold text-fg mt-2 mb-4">
                 {t('home.tourTitle')}
               </h2>
@@ -309,7 +352,11 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 </span>
                 <div className="min-w-0">
                   <p className="font-semibold text-fg flex items-center gap-2">
-                    <Menu size={18} className="text-primary shrink-0" aria-hidden />
+                    <Menu
+                      size={18}
+                      className="text-primary shrink-0"
+                      aria-hidden
+                    />
                     {t('home.tourStep1Title')}
                   </p>
                   <p className="text-sm text-fg-muted mt-1 leading-snug">
@@ -326,7 +373,11 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 </span>
                 <div className="min-w-0">
                   <p className="font-semibold text-fg flex items-center gap-2">
-                    <User size={18} className="text-primary shrink-0" aria-hidden />
+                    <User
+                      size={18}
+                      className="text-primary shrink-0"
+                      aria-hidden
+                    />
                     {t('home.tourStep2Title')}
                   </p>
                   <p className="text-sm text-fg-muted mt-1 leading-snug">
@@ -343,7 +394,11 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 </span>
                 <div className="min-w-0">
                   <p className="font-semibold text-fg flex items-center gap-2">
-                    <LayoutTemplate size={18} className="text-primary shrink-0" aria-hidden />
+                    <LayoutTemplate
+                      size={18}
+                      className="text-primary shrink-0"
+                      aria-hidden
+                    />
                     {t('home.tourStep3Title')}
                   </p>
                   <p className="text-sm text-fg-muted mt-1 leading-snug">
@@ -380,7 +435,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
       >
         {/* Create */}
         <div className="bg-surface p-6 rounded-xl shadow-md w-full border border-divide">
-          <h2 className="text-xl font-semibold mb-4 text-fg">{t('home.createTitle')}</h2>
+          <h2 className="text-xl font-semibold mb-4 text-fg">
+            {t('home.createTitle')}
+          </h2>
 
           <input
             type="text"
@@ -388,7 +445,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             aria-label={t('home.puzzleNamePh')}
             className="w-full p-2 border border-border-ui rounded mb-4 bg-surface-muted text-fg placeholder:text-fg-faint"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
           />
 
           {/* Grid calculator */}
@@ -410,8 +467,12 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               <button
                 type="button"
                 onClick={handleToggleGridLock}
-                title={gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')}
-                aria-label={gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')}
+                title={
+                  gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')
+                }
+                aria-label={
+                  gridLocked ? t('home.gridUnlockBtn') : t('home.gridLockBtn')
+                }
                 className={`p-1.5 rounded-lg border transition ${
                   gridLocked
                     ? 'bg-primary-soft border-primary-border text-primary hover:bg-primary-soft-hover dark:bg-primary-soft dark:border-primary-border dark:text-primary-hover dark:hover:bg-primary-soft-hover'
@@ -423,13 +484,17 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             </div>
             <div className="flex items-center gap-3">
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-fg-muted">{t('home.rows')}</label>
+                <label className="mb-1 block text-xs text-fg-muted">
+                  {t('home.rows')}
+                </label>
                 <input
                   type="number"
                   min={1}
                   value={rows}
                   readOnly={gridLocked}
-                  onChange={(e) => handleRowsChange(Math.max(1, parseInt(e.target.value) || 1))}
+                  onChange={e =>
+                    handleRowsChange(Math.max(1, parseInt(e.target.value) || 1))
+                  }
                   className={`w-full rounded-lg border p-2 text-center text-lg font-bold outline-none transition [color-scheme:light] dark:[color-scheme:dark] ${
                     gridLocked
                       ? 'cursor-not-allowed border-border-ui bg-surface-muted text-fg-muted dark:border-border-ui dark:bg-surface-muted/80 dark:text-fg-faint'
@@ -437,15 +502,21 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                   }`}
                 />
               </div>
-              <span className="mt-4 text-2xl font-light text-primary-muted">×</span>
+              <span className="mt-4 text-2xl font-light text-primary-muted">
+                ×
+              </span>
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-fg-muted">{t('home.cols')}</label>
+                <label className="mb-1 block text-xs text-fg-muted">
+                  {t('home.cols')}
+                </label>
                 <input
                   type="number"
                   min={1}
                   value={cols}
                   readOnly={gridLocked}
-                  onChange={(e) => handleColsChange(Math.max(1, parseInt(e.target.value) || 1))}
+                  onChange={e =>
+                    handleColsChange(Math.max(1, parseInt(e.target.value) || 1))
+                  }
                   className={`w-full rounded-lg border p-2 text-center text-lg font-bold outline-none transition [color-scheme:light] dark:[color-scheme:dark] ${
                     gridLocked
                       ? 'cursor-not-allowed border-border-ui bg-surface-muted text-fg-muted dark:border-border-ui dark:bg-surface-muted/80 dark:text-fg-faint'
@@ -453,9 +524,13 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                   }`}
                 />
               </div>
-              <span className="mt-4 text-2xl font-light text-primary-muted">=</span>
+              <span className="mt-4 text-2xl font-light text-primary-muted">
+                =
+              </span>
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-fg-muted">{t('home.total')}</label>
+                <label className="mb-1 block text-xs text-fg-muted">
+                  {t('home.total')}
+                </label>
                 <div
                   className={`w-full rounded-lg p-2 text-center text-lg font-bold ${
                     gridLocked
@@ -470,7 +545,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             <p
               className={`mt-2 text-center text-xs ${gridLocked ? 'text-fg-faint' : 'text-primary-hover'}`}
             >
-              {gridLocked ? t('home.gridLockedHint') : t('home.gridUnlockedHint')}
+              {gridLocked
+                ? t('home.gridLockedHint')
+                : t('home.gridUnlockedHint')}
             </p>
           </div>
 
@@ -504,7 +581,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               </button>
             </div>
             <p className="mt-1 text-xs text-fg-faint">
-              {isPublic ? t('home.visibilityPublicHint') : t('home.visibilityPrivateHint')}
+              {isPublic
+                ? t('home.visibilityPublicHint')
+                : t('home.visibilityPrivateHint')}
             </p>
           </div>
 
@@ -520,7 +599,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                   placeholder={t('home.passwordPh')}
                   className="w-full rounded-lg border border-border-ui bg-surface p-2 pr-10 text-fg placeholder:text-fg-faint dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:placeholder:text-fg-muted"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={e => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
@@ -536,7 +615,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                   placeholder={t('home.confirmPasswordPh')}
                   className="w-full rounded-lg border border-border-ui bg-surface p-2 text-fg placeholder:text-fg-faint dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:placeholder:text-fg-muted"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onChange={e => setConfirmPassword(e.target.value)}
                 />
               )}
             </div>
@@ -558,7 +637,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
           className="bg-surface p-6 rounded-xl shadow-md w-full border border-divide scroll-mt-24"
           onMouseEnter={prefetchDashboardChunk}
         >
-          <h2 className="text-xl font-semibold mb-4 text-fg">{t('home.joinTitle')}</h2>
+          <h2 className="text-xl font-semibold mb-4 text-fg">
+            {t('home.joinTitle')}
+          </h2>
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Hash
@@ -572,9 +653,11 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 aria-label={t('home.codePh')}
                 className="w-full pl-8 p-2 border border-border-ui rounded uppercase tracking-widest font-mono bg-surface-muted text-fg"
                 value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                onChange={e => setRoomCode(e.target.value.toUpperCase())}
                 onFocus={prefetchDashboardChunk}
-                onKeyDown={(e) => e.key === 'Enter' && !pendingPuzzle && handleJoin()}
+                onKeyDown={e =>
+                  e.key === 'Enter' && !pendingPuzzle && handleJoin()
+                }
               />
             </div>
             <button
@@ -610,8 +693,8 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                     placeholder={t('home.passwordPh')}
                     className="w-full rounded-lg border border-primary-border bg-surface p-2 pr-8 text-fg placeholder:text-fg-faint dark:border-primary-border dark:bg-surface dark:text-fg dark:placeholder:text-fg-muted"
                     value={joinPassword}
-                    onChange={(e) => setJoinPassword(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleVerifyPassword()}
+                    onChange={e => setJoinPassword(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleVerifyPassword()}
                     autoFocus
                   />
                   <button
@@ -619,7 +702,11 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                     onClick={() => setShowJoinPassword(!showJoinPassword)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-fg-muted hover:text-fg-heading dark:text-fg-muted dark:hover:text-fg"
                   >
-                    {showJoinPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                    {showJoinPassword ? (
+                      <EyeOff size={14} />
+                    ) : (
+                      <Eye size={14} />
+                    )}
                   </button>
                 </div>
                 <button

@@ -15,7 +15,9 @@ export function useUpdatePrompt() {
   const [needRefresh, setNeedRefresh] = useState(false);
   const [sessionDismissed, setSessionDismissed] = useState(false);
   const [epochMs, setEpochMs] = useState(() => Date.now());
-  const updateSWRef = useRef<((reload?: boolean) => Promise<void>) | undefined>(undefined);
+  const updateSWRef = useRef<((reload?: boolean) => Promise<void>) | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     updateSWRef.current = registerSW({
@@ -42,14 +44,18 @@ export function useUpdatePrompt() {
 
   const snooze = useCallback(() => {
     try {
-      localStorage.setItem(SNOOZE_KEY, String(Date.now() + 24 * 60 * 60 * 1000));
+      localStorage.setItem(
+        SNOOZE_KEY,
+        String(Date.now() + 24 * 60 * 60 * 1000)
+      );
     } catch {
       /* ignore */
     }
     setEpochMs(Date.now());
   }, []);
 
-  const visible = Boolean(needRefresh) && !sessionDismissed && !(readSnoozeUntil() > epochMs);
+  const visible =
+    Boolean(needRefresh) && !sessionDismissed && !(readSnoozeUntil() > epochMs);
 
   return { visible, update, snooze, dismiss };
 }

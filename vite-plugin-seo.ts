@@ -16,7 +16,9 @@ export function getPwaIconQuery(): string {
 }
 
 export function resolveSeoPublicUrls() {
-  const origin = (process.env.VITE_PUBLIC_SITE_ORIGIN || DEFAULT_ORIGIN).replace(/\/$/, '');
+  const origin = (
+    process.env.VITE_PUBLIC_SITE_ORIGIN || DEFAULT_ORIGIN
+  ).replace(/\/$/, '');
   const homeUrl = `${origin}${BASE_PATH}/`;
   const qs = getPwaIconQuery();
   const logoUrl = `${origin}${BASE_PATH}/logo.svg${qs}`;
@@ -95,7 +97,8 @@ export function seoInjectPlugin(): Plugin {
     transformIndexHtml(html) {
       const { homeUrl, logoUrl } = resolveSeoPublicUrls();
       const iconQs = getPwaIconQuery();
-      const { head: analyticsHead, body: analyticsBody } = buildAnalyticsHtmlFragments();
+      const { head: analyticsHead, body: analyticsBody } =
+        buildAnalyticsHtmlFragments();
       return html
         .replaceAll('__SEO_HOME_URL__', homeUrl)
         .replaceAll('__SEO_LOGO_URL__', logoUrl)

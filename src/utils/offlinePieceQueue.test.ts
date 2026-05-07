@@ -11,7 +11,8 @@ const KEY = 'mister_puzzle_offline_piece_queue';
 function createMemoryStorage(): Storage {
   const store: Record<string, string> = {};
   return {
-    getItem: (k: string) => (Object.prototype.hasOwnProperty.call(store, k) ? store[k]! : null),
+    getItem: (k: string) =>
+      Object.prototype.hasOwnProperty.call(store, k) ? store[k]! : null,
     setItem: (k: string, v: string) => {
       store[k] = v;
     },
@@ -46,7 +47,9 @@ describe('offlinePieceQueue', () => {
     enqueueOfflinePieceUpdate({ roomCode: 'ABC', placedPieces: 5 });
     enqueueOfflinePieceUpdate({ roomCode: 'ABC', placedPieces: 10 });
     expect(hasPendingForRoom('ABC')).toBe(true);
-    const pending = JSON.parse(localStorage.getItem(KEY) || '[]') as { placedPieces: number }[];
+    const pending = JSON.parse(localStorage.getItem(KEY) || '[]') as {
+      placedPieces: number;
+    }[];
     expect(pending).toHaveLength(1);
     expect(pending[0]?.placedPieces).toBe(10);
   });

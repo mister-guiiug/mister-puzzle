@@ -136,10 +136,22 @@ Installez Mister Puzzle sur votre téléphone ou ordinateur pour un accès rapid
 
 ### Technologies
 
-- **Frontend** : [React 19](https://react.dev/), [Vite](https://vitejs.dev/)
-- **Style** : [Tailwind CSS v4](https://tailwindcss.com/)
-- **Données** : [Firebase Realtime Database](https://firebase.google.com/docs/database)
-- **Icônes UI** : [Lucide React](https://lucide.dev/)
+| Couche | Technologie |
+|---|---|
+| Framework | [React 19](https://react.dev/) |
+| Build | [Vite 7](https://vitejs.dev/) (cible ES2025, TypeScript strict avec `verbatimModuleSyntax` + `erasableSyntaxOnly`) |
+| Style | [Tailwind CSS 4](https://tailwindcss.com/) |
+| State | [Zustand 5](https://zustand-demo.pmnd.rs/) |
+| Validation | [Zod 3](https://zod.dev/) |
+| Données | [Firebase Realtime Database](https://firebase.google.com/docs/database) (`firebase ^11`) |
+| Animations | [Framer Motion](https://www.framer.com/motion/) |
+| Icônes UI | [Lucide React](https://lucide.dev/) |
+| Dates | [date-fns](https://date-fns.org/) |
+| Tests | [Vitest 3](https://vitest.dev/) (jsdom) + [Testing Library](https://testing-library.com/) + [Playwright](https://playwright.dev/) + [@axe-core/playwright](https://github.com/dequelabs/axe-core-npm) |
+| Monitoring | [@sentry/react](https://docs.sentry.io/platforms/javascript/guides/react/) + [web-vitals 4](https://web.dev/vitals/) |
+| Bundle analyzer | [`rollup-plugin-visualizer`](https://github.com/btd/rollup-plugin-visualizer) (`npm run build:analyze`) |
+| Configs partagées | [`@mister-guiiug/dev-wpa-config`](../dev-wpa-config/README.md) (ESLint, Prettier, TS, Vitest) |
+| PWA | [`vite-plugin-pwa 1.2`](https://vite-pwa-org.netlify.app/) |
 
 ### Installation pour les développeurs
 

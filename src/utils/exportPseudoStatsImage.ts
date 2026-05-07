@@ -31,7 +31,6 @@ const COLORS = {
   rowBg: ['#ffffff', '#f8fafc'],
 };
 
-
 function getRankColor(rank: number): string {
   if (rank === 1) return COLORS.gold;
   if (rank === 2) return COLORS.silver;
@@ -53,7 +52,7 @@ export function exportStatsImage(
   labels: StatsImageLabels,
   format: StatsImageFormat = 'square',
   anonLabel: string = 'Anonyme',
-  locale: string = 'fr-FR',
+  locale: string = 'fr-FR'
 ): void {
   const { width, height } = DIMENSIONS[format];
   const canvas = document.createElement('canvas');
@@ -98,15 +97,20 @@ export function exportStatsImage(
   // Title
   ctx.textAlign = 'center';
   ctx.font = `bold ${format === 'square' ? 28 : 20}px system-ui, -apple-system, sans-serif`;
-  const truncatedName = puzzleName.length > (format === 'square' ? 35 : 50)
-    ? puzzleName.slice(0, format === 'square' ? 32 : 47) + '…'
-    : puzzleName;
+  const truncatedName =
+    puzzleName.length > (format === 'square' ? 35 : 50)
+      ? puzzleName.slice(0, format === 'square' ? 32 : 47) + '…'
+      : puzzleName;
   ctx.fillText(truncatedName, width / 2, logoY + logoSize + 50);
 
   // Subtitle
   ctx.font = `${format === 'square' ? 18 : 14}px system-ui, -apple-system, sans-serif`;
   ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.fillText(labels.subtitle.replace('{period}', periodLabel), width / 2, logoY + logoSize + 80);
+  ctx.fillText(
+    labels.subtitle.replace('{period}', periodLabel),
+    width / 2,
+    logoY + logoSize + 80
+  );
 
   // Table section
   const tableY = headerHeight + 30;
@@ -139,7 +143,12 @@ export function exportStatsImage(
 
     // Row background
     ctx.fillStyle = COLORS.rowBg[idx % 2];
-    ctx.fillRect(padding - 10, rowY - 10, width - padding * 2 + 20, rowHeight - 15);
+    ctx.fillRect(
+      padding - 10,
+      rowY - 10,
+      width - padding * 2 + 20,
+      rowHeight - 15
+    );
 
     // Rank
     ctx.textAlign = 'center';
@@ -157,7 +166,8 @@ export function exportStatsImage(
     ctx.font = `${format === 'square' ? 18 : 14}px system-ui, -apple-system, sans-serif`;
     ctx.fillStyle = COLORS.text;
     const displayName = row.pseudoKey ? row.pseudoKey : anonLabel;
-    const truncatedPseudo = displayName.length > 15 ? displayName.slice(0, 12) + '…' : displayName;
+    const truncatedPseudo =
+      displayName.length > 15 ? displayName.slice(0, 12) + '…' : displayName;
     ctx.fillText(truncatedPseudo, colX.pseudo, rowY + 25);
 
     // Pieces (main stat)
@@ -172,7 +182,7 @@ export function exportStatsImage(
       ctx.fillText(
         `Max: ${formatter.format(row.maxSingleDelta)} · Streak: ${formatter.format(row.maxConsecutiveDelta)}`,
         colX.pseudo,
-        rowY + 80,
+        rowY + 80
       );
     } else {
       ctx.font = '10px system-ui, -apple-system, sans-serif';
@@ -180,7 +190,7 @@ export function exportStatsImage(
       ctx.fillText(
         `↑${formatter.format(row.maxSingleDelta)}  🔥${formatter.format(row.maxConsecutiveDelta)}`,
         colX.pseudo,
-        rowY + 45,
+        rowY + 45
       );
     }
   });
@@ -193,10 +203,14 @@ export function exportStatsImage(
   ctx.textAlign = 'center';
   ctx.font = `${format === 'square' ? 14 : 11}px system-ui, -apple-system, sans-serif`;
   ctx.fillStyle = COLORS.textMuted;
-  ctx.fillText('Mister Puzzle — misterpuzzle.app', width / 2, footerY + (format === 'square' ? 30 : 22));
+  ctx.fillText(
+    'Mister Puzzle — misterpuzzle.app',
+    width / 2,
+    footerY + (format === 'square' ? 30 : 22)
+  );
 
   // Download
-  canvas.toBlob((blob) => {
+  canvas.toBlob(blob => {
     if (!blob) return;
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

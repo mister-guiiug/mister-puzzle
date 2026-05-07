@@ -35,11 +35,13 @@ function getSystemDarkSnapshot(): boolean {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [preference, setPreferenceState] = useState<ThemePreference>(() => getThemePreference());
+  const [preference, setPreferenceState] = useState<ThemePreference>(() =>
+    getThemePreference()
+  );
   const systemIsDark = useSyncExternalStore(
     subscribeSystemDark,
     getSystemDarkSnapshot,
-    () => false,
+    () => false
   );
 
   const effective = useMemo<'light' | 'dark'>(() => {
@@ -58,10 +60,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({ preference, effective, setPreference }),
-    [preference, effective, setPreference],
+    [preference, effective, setPreference]
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 }
 
 /** Préférence clair / sombre / système (à utiliser sous ThemeProvider). */

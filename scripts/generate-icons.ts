@@ -14,24 +14,36 @@ const svgBuffer = readFileSync(join(publicDir, 'logo.svg'));
 async function generateIcons() {
   // PWA icons
   await sharp(svgBuffer)
-    .resize(192, 192, { fit: 'cover', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(192, 192, {
+      fit: 'cover',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .png()
     .toFile(join(publicDir, 'pwa-192x192.png'));
 
   await sharp(svgBuffer)
-    .resize(512, 512, { fit: 'cover', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(512, 512, {
+      fit: 'cover',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .png()
     .toFile(join(publicDir, 'pwa-512x512.png'));
 
   // Logo for Open Graph
   await sharp(svgBuffer)
-    .resize(1200, 630, { fit: 'cover', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(1200, 630, {
+      fit: 'cover',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .png()
     .toFile(join(publicDir, 'logo.png'));
 
   // Favicon ICO (use PNG as base, 32x32)
   const favicon32 = await sharp(svgBuffer)
-    .resize(32, 32, { fit: 'cover', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(32, 32, {
+      fit: 'cover',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .png()
     .toBuffer();
 
@@ -39,17 +51,26 @@ async function generateIcons() {
 
   // Also copy to dist
   const distPwa192 = await sharp(svgBuffer)
-    .resize(192, 192, { fit: 'cover', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(192, 192, {
+      fit: 'cover',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .png()
     .toBuffer();
 
   const distPwa512 = await sharp(svgBuffer)
-    .resize(512, 512, { fit: 'cover', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(512, 512, {
+      fit: 'cover',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .png()
     .toBuffer();
 
   const distFavicon = await sharp(svgBuffer)
-    .resize(32, 32, { fit: 'cover', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .resize(32, 32, {
+      fit: 'cover',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .png()
     .toBuffer();
 

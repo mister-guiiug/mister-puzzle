@@ -3,23 +3,23 @@
  * Installer : npm install @sentry/react
  */
 
-import * as Sentry from '@sentry/react'
-import type React from 'react'
-import { browserTracingIntegration } from '@sentry/react'
-import { replayIntegration } from '@sentry/react'
+import * as Sentry from '@sentry/react';
+import type React from 'react';
+import { browserTracingIntegration } from '@sentry/react';
+import { replayIntegration } from '@sentry/react';
 
 interface SentryConfig {
-  dsn: string
-  environment: 'development' | 'staging' | 'production'
-  tracesSampleRate: number
-  replaysSessionSampleRate: number
-  replaysOnErrorSampleRate: number
+  dsn: string;
+  environment: 'development' | 'staging' | 'production';
+  tracesSampleRate: number;
+  replaysSessionSampleRate: number;
+  replaysOnErrorSampleRate: number;
 }
 
 export function initSentry(config: SentryConfig): void {
   if (!config.dsn) {
-    console.warn('Sentry DSN not provided - skipping initialization')
-    return
+    console.warn('Sentry DSN not provided - skipping initialization');
+    return;
   }
 
   Sentry.init({
@@ -48,17 +48,17 @@ export function initSentry(config: SentryConfig): void {
     beforeSend(event) {
       // Don't send events in development
       if (config.environment === 'development') {
-        console.warn('Sentry event:', event)
-        return null
+        console.warn('Sentry event:', event);
+        return null;
       }
 
       // Remove sensitive data
       if (event.request) {
-        delete event.request.cookies
-        delete event.request.headers
+        delete event.request.cookies;
+        delete event.request.headers;
       }
 
-      return event
+      return event;
     },
 
     // Custom context
@@ -67,28 +67,34 @@ export function initSentry(config: SentryConfig): void {
         project: import.meta.env.PROJECT_NAME || 'unknown',
       },
     },
-  })
+  });
 }
 
 /**
  * Envoyer une erreur manuellement à Sentry
  */
-export function captureException(error: Error, context?: Record<string, unknown>): void {
-  Sentry.withScope((scope) => {
+export function captureException(
+  error: Error,
+  context?: Record<string, unknown>
+): void {
+  Sentry.withScope(scope => {
     if (context) {
       Object.entries(context).forEach(([key, value]) => {
-        scope.setExtra(key, value)
-      })
+        scope.setExtra(key, value);
+      });
     }
-    Sentry.captureException(error)
-  })
+    Sentry.captureException(error);
+  });
 }
 
 /**
  * Envoyer un message à Sentry
  */
-export function captureMessage(message: string, level: Sentry.SeverityLevel = 'info'): void {
-  Sentry.captureMessage(message, level)
+export function captureMessage(
+  message: string,
+  level: Sentry.SeverityLevel = 'info'
+): void {
+  Sentry.captureMessage(message, level);
 }
 
 /**
@@ -100,19 +106,20 @@ export function withSentryErrorBoundary<P extends object>(
 ): React.ComponentType<P> {
   return Sentry.withErrorBoundary(component, {
     fallback: ({ error, resetError }) => {
-      const errorObj = error instanceof Error ? error : new Error(String(error))
+      const errorObj =
+        error instanceof Error ? error : new Error(String(error));
       if (fallback) {
-        const FallbackComponent = fallback
-        return <FallbackComponent error={errorObj} reset={resetError} />
+        const FallbackComponent = fallback;
+        return <FallbackComponent error={errorObj} reset={resetError} />;
       }
       return (
         <div>
           <h2>Une erreur est survenue</h2>
           <button onClick={resetError}>Réessayer</button>
         </div>
-      )
+      );
     },
-  })
+  });
 }
 
 /**
@@ -123,13 +130,13 @@ export function useSentry() {
     captureException,
     captureMessage,
     setUser: (user: { id: string; email?: string; username?: string }) => {
-      Sentry.setUser(user)
+      Sentry.setUser(user);
     },
     setTag: (key: string, value: string) => {
-      Sentry.setTag(key, value)
+      Sentry.setTag(key, value);
     },
     addBreadcrumb: (breadcrumb: Sentry.Breadcrumb) => {
-      Sentry.addBreadcrumb(breadcrumb)
+      Sentry.addBreadcrumb(breadcrumb);
     },
-  }
+  };
 }

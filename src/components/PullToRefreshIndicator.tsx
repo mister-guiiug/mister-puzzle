@@ -16,7 +16,9 @@ const PullToRefreshIndicator: React.FC<PullToRefreshIndicatorProps> = ({
   if (!visible) return null;
 
   const ready = pullDistance >= threshold;
-  const rotation = refreshing ? undefined : `rotate(${(pullDistance / threshold) * 180}deg)`;
+  const rotation = refreshing
+    ? undefined
+    : `rotate(${(pullDistance / threshold) * 180}deg)`;
 
   return (
     <div
@@ -35,7 +37,9 @@ const PullToRefreshIndicator: React.FC<PullToRefreshIndicatorProps> = ({
         <RefreshCw
           size={16}
           style={{ transform: rotation }}
-          className={refreshing ? 'animate-spin' : 'transition-transform duration-150'}
+          className={
+            refreshing ? 'animate-spin' : 'transition-transform duration-150'
+          }
         />
         {refreshing
           ? 'Actualisation...'

@@ -55,14 +55,21 @@ import {
   deleteHistoryEntry,
 } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
-import { getSessionId, getInputMode, setInputModePreference } from '../utils/pseudo';
+import {
+  getSessionId,
+  getInputMode,
+  setInputModePreference,
+} from '../utils/pseudo';
 import { getReadOnlyMode, setReadOnlyMode } from '../utils/prefs';
 import { useI18n } from '../i18n/I18nContext';
 import { ProgressChart } from './ProgressChart';
 import { exportProgressPng } from '../utils/exportProgressCard';
 import { reportError } from '../utils/reportError';
 import { notifySaveSuccess } from '../utils/haptic';
-import { downloadHistoryCsv, downloadHistoryJson } from '../utils/exportHistory';
+import {
+  downloadHistoryCsv,
+  downloadHistoryJson,
+} from '../utils/exportHistory';
 import { downloadPseudoStatsCsv } from '../utils/exportPseudoStats';
 import { exportStatsImage } from '../utils/exportPseudoStatsImage';
 import { computePseudoStatsFromHistory } from '../utils/pseudoStats';
@@ -82,12 +89,19 @@ interface DashboardProps {
   pseudoRefreshKey: number;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRefreshKey }) => {
+const Dashboard: React.FC<DashboardProps> = ({
+  puzzle,
+  onBack,
+  pseudo,
+  pseudoRefreshKey,
+}) => {
   const { t, numberLocale, locale, setLocale } = useI18n();
   const dateLocale = locale === 'en' ? enUS : fr;
 
   const [newPieces, setNewPieces] = useState(puzzle.placedPieces);
-  const [inputMode, setInputMode] = useState<'placed' | 'remaining'>(() => getInputMode(pseudo));
+  const [inputMode, setInputMode] = useState<'placed' | 'remaining'>(() =>
+    getInputMode(pseudo)
+  );
   const isDirtyRef = useRef(false);
   const lastServerPlacedRef = useRef(puzzle.placedPieces);
   const [remoteConflict, setRemoteConflict] = useState(false);
@@ -125,9 +139,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const [currentPwd, setCurrentPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
   const [showNewPwd, setShowNewPwd] = useState(false);
-  const [pwMessage, setPwMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(
-    null,
-  );
+  const [pwMessage, setPwMessage] = useState<{
+    type: 'error' | 'success';
+    text: string;
+  } | null>(null);
 
   const [step, setStep] = useState(1);
   const [flagConfirm, setFlagConfirm] = useState(false);
@@ -136,9 +151,14 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
   const [editingHistoryId, setEditingHistoryId] = useState<string | null>(null);
   const [historyInput, setHistoryInput] = useState<number>(0);
-  const [deletingHistoryId, setDeletingHistoryId] = useState<string | null>(null);
+  const [deletingHistoryId, setDeletingHistoryId] = useState<string | null>(
+    null
+  );
 
-  const [zoomRange, setZoomRange] = useState<{ start: number; end: number } | null>(null);
+  const [zoomRange, setZoomRange] = useState<{
+    start: number;
+    end: number;
+  } | null>(null);
 
   const [actionsOpen, setActionsOpen] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
@@ -157,12 +177,14 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     lastAnnouncedPlacedRef.current = puzzle.placedPieces;
     const rem = puzzle.totalPieces - puzzle.placedPieces;
     const pct =
-      puzzle.totalPieces > 0 ? Math.round((puzzle.placedPieces / puzzle.totalPieces) * 100) : 0;
+      puzzle.totalPieces > 0
+        ? Math.round((puzzle.placedPieces / puzzle.totalPieces) * 100)
+        : 0;
     setLiveProgressAnnounce(
       t('dashboard.liveProgressAnnounced')
         .replace('{placed}', puzzle.placedPieces.toLocaleString(numberLocale))
         .replace('{remaining}', rem.toLocaleString(numberLocale))
-        .replace('{pct}', String(pct)),
+        .replace('{pct}', String(pct))
     );
     const tid = window.setTimeout(() => setLiveProgressAnnounce(''), 1600);
     return () => window.clearTimeout(tid);
@@ -176,7 +198,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   useEffect(() => {
     if (!actionsOpen) return;
     const close = (e: PointerEvent) => {
-      if (!actionsRef.current?.contains(e.target as Node)) setActionsOpen(false);
+      if (!actionsRef.current?.contains(e.target as Node))
+        setActionsOpen(false);
     };
     document.addEventListener('pointerdown', close);
     return () => document.removeEventListener('pointerdown', close);
@@ -184,16 +207,16 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
   useEffect(() => {
     const sessionId = getSessionId();
-    joinMember(puzzle.id, sessionId, pseudo || 'Anonyme').catch((err) =>
-      reportError('dashboard_joinMember', err, { puzzleId: puzzle.id }),
+    joinMember(puzzle.id, sessionId, pseudo || 'Anonyme').catch(err =>
+      reportError('dashboard_joinMember', err, { puzzleId: puzzle.id })
     );
     const beat = window.setInterval(() => {
       joinMember(puzzle.id, sessionId, pseudo || 'Anonyme').catch(() => {});
     }, 40000);
     return () => {
       window.clearInterval(beat);
-      leaveMember(puzzle.id, sessionId).catch((err) =>
-        reportError('dashboard_leaveMember', err, { puzzleId: puzzle.id }),
+      leaveMember(puzzle.id, sessionId).catch(err =>
+        reportError('dashboard_leaveMember', err, { puzzleId: puzzle.id })
       );
     };
   }, [puzzle.id, pseudo]);
@@ -214,33 +237,49 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     if (!puzzle.members) return [];
     const now = Date.now();
     return (Object.values(puzzle.members) as Member[]).filter(
-      (m) => now - m.lastSeen < MEMBER_TTL_MS,
+      m => now - m.lastSeen < MEMBER_TTL_MS
     );
   }, [puzzle.members]);
 
   const isOrganizer = useMemo(
-    () => Boolean(puzzle.createdBy && pseudo.trim() && pseudo.trim() === puzzle.createdBy.trim()),
-    [puzzle.createdBy, pseudo],
+    () =>
+      Boolean(
+        puzzle.createdBy &&
+        pseudo.trim() &&
+        pseudo.trim() === puzzle.createdBy.trim()
+      ),
+    [puzzle.createdBy, pseudo]
   );
 
   const maxPlacedEver = useMemo(() => {
-    const fromHist = puzzle.history.reduce((m, h) => Math.max(m, h.placedPieces), 0);
+    const fromHist = puzzle.history.reduce(
+      (m, h) => Math.max(m, h.placedPieces),
+      0
+    );
     return Math.max(fromHist, puzzle.placedPieces);
   }, [puzzle.history, puzzle.placedPieces]);
 
   const remainingPieces = puzzle.totalPieces - puzzle.placedPieces;
-  const progress = Math.min((puzzle.placedPieces / puzzle.totalPieces) * 100, 100);
+  const progress = Math.min(
+    (puzzle.placedPieces / puzzle.totalPieces) * 100,
+    100
+  );
   const remainingRatioPct =
-    puzzle.totalPieces > 0 ? Math.min((remainingPieces / puzzle.totalPieces) * 100, 100) : 0;
+    puzzle.totalPieces > 0
+      ? Math.min((remainingPieces / puzzle.totalPieces) * 100, 100)
+      : 0;
 
-  const displayedValue = inputMode === 'placed' ? newPieces : puzzle.totalPieces - newPieces;
+  const displayedValue =
+    inputMode === 'placed' ? newPieces : puzzle.totalPieces - newPieces;
   const handleInputChange = (raw: number) => {
     if (readOnly) return;
     isDirtyRef.current = true;
     if (inputMode === 'placed') {
       setNewPieces(Math.max(0, Math.min(puzzle.totalPieces, raw)));
     } else {
-      setNewPieces(Math.max(0, Math.min(puzzle.totalPieces, puzzle.totalPieces - raw)));
+      setNewPieces(
+        Math.max(0, Math.min(puzzle.totalPieces, puzzle.totalPieces - raw))
+      );
     }
   };
 
@@ -283,7 +322,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const activityLogDescending = useMemo(() => {
     let filtered = [...puzzle.history];
     if (zoomRange) {
-      filtered = filtered.filter((h) => h.timestamp >= zoomRange.start && h.timestamp <= zoomRange.end);
+      filtered = filtered.filter(
+        h => h.timestamp >= zoomRange.start && h.timestamp <= zoomRange.end
+      );
     }
     return filtered.sort((a, b) => b.timestamp - a.timestamp).slice(0, 60);
   }, [puzzle.history, zoomRange]);
@@ -295,7 +336,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
         .trim()
         .slice(0, 48)
         .replace(/\s+/g, '-') || puzzle.id,
-    [puzzle.name, puzzle.id],
+    [puzzle.name, puzzle.id]
   );
 
   const [statsClock, setStatsClock] = useState(() => Date.now());
@@ -318,7 +359,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const statsWindowMs = useMemo(() => {
     if (statsPeriod === 'all') {
       // Utiliser toute l'historique
-      const sortedHistory = [...puzzle.history].sort((a, b) => a.timestamp - b.timestamp);
+      const sortedHistory = [...puzzle.history].sort(
+        (a, b) => a.timestamp - b.timestamp
+      );
       if (sortedHistory.length === 0) return 24 * 60 * 60 * 1000;
       const firstTimestamp = sortedHistory[0]!.timestamp;
       return statsClock - firstTimestamp;
@@ -330,12 +373,13 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   }, [statsPeriod, puzzle.history, statsClock]);
 
   const pseudoStatRows = useMemo(
-    () => computePseudoStatsFromHistory(puzzle.history, statsClock, statsWindowMs),
-    [puzzle.history, statsClock, statsWindowMs],
+    () =>
+      computePseudoStatsFromHistory(puzzle.history, statsClock, statsWindowMs),
+    [puzzle.history, statsClock, statsWindowMs]
   );
 
   const [offlineQueuePending, setOfflineQueuePending] = useState(() =>
-    hasPendingForRoom(puzzle.id),
+    hasPendingForRoom(puzzle.id)
   );
   useEffect(() => {
     const sync = () => setOfflineQueuePending(hasPendingForRoom(puzzle.id));
@@ -349,7 +393,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   }, [puzzle.id]);
 
   const [netOnline, setNetOnline] = useState(
-    () => typeof navigator !== 'undefined' && navigator.onLine,
+    () => typeof navigator !== 'undefined' && navigator.onLine
   );
   useEffect(() => {
     const on = () => setNetOnline(true);
@@ -366,12 +410,16 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     if (readOnly) return;
     if (newPieces < 0 || newPieces > puzzle.totalPieces) {
       setError(
-        `${t('dashboard.errorPiecesRange')} 0 ${t('dashboard.onTotal')} ${puzzle.totalPieces}.`,
+        `${t('dashboard.errorPiecesRange')} 0 ${t('dashboard.onTotal')} ${puzzle.totalPieces}.`
       );
       return;
     }
     try {
-      const { queued } = await updatePiecesResilient(puzzle.id, newPieces, pseudo || undefined);
+      const { queued } = await updatePiecesResilient(
+        puzzle.id,
+        newPieces,
+        pseudo || undefined
+      );
       isDirtyRef.current = false;
       setRemoteConflict(false);
       if (queued) {
@@ -395,7 +443,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
   const scheduleDebouncedPieceSave = () => {
     if (readOnly) return;
-    if (pieceSaveDebounceRef.current !== null) window.clearTimeout(pieceSaveDebounceRef.current);
+    if (pieceSaveDebounceRef.current !== null)
+      window.clearTimeout(pieceSaveDebounceRef.current);
     pieceSaveDebounceRef.current = window.setTimeout(() => {
       pieceSaveDebounceRef.current = null;
       const { readOnly: ro, newPieces: np, puzzle: pz } = dashKeyRef.current;
@@ -437,7 +486,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       const el = e.target;
       if (el instanceof HTMLElement) {
         const tag = el.tagName;
-        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable)
+        if (
+          tag === 'INPUT' ||
+          tag === 'TEXTAREA' ||
+          tag === 'SELECT' ||
+          el.isContentEditable
+        )
           return;
       }
       const { puzzle: pz, readOnly: ro, newPieces: np } = dashKeyRef.current;
@@ -453,7 +507,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       }
       if (e.key === '?' || (e.shiftKey && e.key === '/')) {
         e.preventDefault();
-        setHelpOpen((o) => !o);
+        setHelpOpen(o => !o);
       }
       if (e.key === 's' || e.key === 'S') {
         if (!ro && np !== pz.placedPieces) {
@@ -473,7 +527,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       setEditingHistoryId(null);
     } catch (err) {
       setError(t('dashboard.errorUpdatePieces'));
-      reportError('handleUpdateHistoryEntry', err, { puzzleId: puzzle.id, entryId });
+      reportError('handleUpdateHistoryEntry', err, {
+        puzzleId: puzzle.id,
+        entryId,
+      });
     }
   };
 
@@ -484,7 +541,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       setDeletingHistoryId(null);
     } catch (err) {
       setError(t('dashboard.errorUpdatePieces'));
-      reportError('handleDeleteHistoryEntry', err, { puzzleId: puzzle.id, entryId });
+      reportError('handleDeleteHistoryEntry', err, {
+        puzzleId: puzzle.id,
+        entryId,
+      });
     }
   };
 
@@ -497,7 +557,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
   const handleAddCheckpoint = async () => {
     if (readOnly || !newCheckpointName.trim()) return;
     try {
-      await addCheckpoint(puzzle.id, newCheckpointName.trim(), pseudo || undefined);
+      await addCheckpoint(
+        puzzle.id,
+        newCheckpointName.trim(),
+        pseudo || undefined
+      );
       setNewCheckpointName('');
     } catch (err) {
       setError(t('dashboard.errorCheckpoint'));
@@ -520,7 +584,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     try {
       await uncheckAllCheckpoints(
         puzzle.id,
-        puzzle.checkpoints.map((c) => c.id),
+        puzzle.checkpoints.map(c => c.id)
       );
     } catch (err) {
       setError(t('dashboard.errorCheckpoint'));
@@ -534,7 +598,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       await deleteCheckpoint(puzzle.id, checkpointId);
     } catch (err) {
       setError(t('dashboard.errorCheckpointDelete'));
-      reportError('handleDeleteCheckpoint', err, { puzzleId: puzzle.id, checkpointId });
+      reportError('handleDeleteCheckpoint', err, {
+        puzzleId: puzzle.id,
+        checkpointId,
+      });
     }
   };
 
@@ -574,7 +641,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       await updateVisibility(puzzle.id, newIsPublic);
     } catch (err) {
       setError(t('dashboard.errorVisibility'));
-      reportError('handleUpdateVisibility', err, { puzzleId: puzzle.id, newIsPublic });
+      reportError('handleUpdateVisibility', err, {
+        puzzleId: puzzle.id,
+        newIsPublic,
+      });
     }
   };
 
@@ -630,7 +700,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     const text = `${t('dashboard.shareText')} "${puzzle.name}" ${t('dashboard.shareOn')} ${puzzle.id}\n${t('dashboard.shareInvite')}: ${inviteUrl}\n${t('dashboard.shareDirect')}: ${hashUrl}`;
     if (navigator.share) {
       try {
-        await navigator.share({ title: t('common.appName'), text, url: inviteUrl });
+        await navigator.share({
+          title: t('common.appName'),
+          text,
+          url: inviteUrl,
+        });
       } catch {
         // user cancelled
       }
@@ -663,7 +737,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       try {
         const compressed = await resizeImageToJpegDataUrl(file);
         const toDrop = Math.max(0, puzzle.photos.length - MAX_ROOM_PHOTOS + 1);
-        const idsToRemove = toDrop > 0 ? puzzle.photos.slice(0, toDrop).map((p) => p.id) : [];
+        const idsToRemove =
+          toDrop > 0 ? puzzle.photos.slice(0, toDrop).map(p => p.id) : [];
         for (const id of idsToRemove) {
           await deletePhoto(puzzle.id, id);
         }
@@ -671,7 +746,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
           setInfoBanner(
             t('dashboard.photoTrimmedHint')
               .replace('{n}', String(idsToRemove.length))
-              .replace('{max}', String(MAX_ROOM_PHOTOS)),
+              .replace('{max}', String(MAX_ROOM_PHOTOS))
           );
           window.setTimeout(() => setInfoBanner(null), 6000);
         }
@@ -693,7 +768,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
       setDragPhotoId(null);
       return;
     }
-    const ids = puzzle.photos.map((p) => p.id);
+    const ids = puzzle.photos.map(p => p.id);
     const from = ids.indexOf(dragPhotoId);
     const to = ids.indexOf(targetId);
     if (from < 0 || to < 0) return;
@@ -711,7 +786,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
   const movePhoto = async (photoId: string, delta: number) => {
     if (readOnly) return;
-    const ids = puzzle.photos.map((p) => p.id);
+    const ids = puzzle.photos.map(p => p.id);
     const i = ids.indexOf(photoId);
     const j = i + delta;
     if (i < 0 || j < 0 || j >= ids.length) return;
@@ -726,7 +801,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
     }
   };
 
-  const lastHistory = puzzle.history.length > 0 ? puzzle.history[puzzle.history.length - 1] : null;
+  const lastHistory =
+    puzzle.history.length > 0
+      ? puzzle.history[puzzle.history.length - 1]
+      : null;
 
   return (
     <div className="min-h-dvh bg-canvas text-fg p-4 md:p-8 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
@@ -781,8 +859,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   <input
                     type="text"
                     value={nameInput}
-                    onChange={(e) => !readOnly && setNameInput(e.target.value)}
-                    onKeyDown={(e) => {
+                    onChange={e => !readOnly && setNameInput(e.target.value)}
+                    onKeyDown={e => {
                       if (e.key === 'Enter') handleRename();
                       if (e.key === 'Escape') {
                         setEditingName(false);
@@ -819,7 +897,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 </div>
               ) : (
                 <div className="flex items-center gap-2 group/name">
-                  <h1 className="text-3xl font-bold text-fg-heading">{puzzle.name}</h1>
+                  <h1 className="text-3xl font-bold text-fg-heading">
+                    {puzzle.name}
+                  </h1>
                   <button
                     type="button"
                     onClick={() => !readOnly && setEditingName(true)}
@@ -851,7 +931,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             <div className="flex items-center gap-2 flex-wrap lg:justify-end shrink-0 w-full lg:w-auto">
               {activeMembers.length > 0 ? (
                 <div className="flex items-center gap-1 bg-surface px-3 py-2 min-h-11 rounded-full shadow-sm border border-divide">
-                  {activeMembers.slice(0, 5).map((member) => (
+                  {activeMembers.slice(0, 5).map(member => (
                     <div
                       key={`${member.pseudo}-${member.lastSeen}`}
                       title={member.pseudo}
@@ -861,14 +941,20 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     </div>
                   ))}
                   {activeMembers.length > 5 && (
-                    <span className="text-xs text-fg-faint ml-1">+{activeMembers.length - 5}</span>
+                    <span className="text-xs text-fg-faint ml-1">
+                      +{activeMembers.length - 5}
+                    </span>
                   )}
-                  <span className="text-xs text-fg-muted ml-1">{t('dashboard.online')}</span>
+                  <span className="text-xs text-fg-muted ml-1">
+                    {t('dashboard.online')}
+                  </span>
                 </div>
               ) : (
                 <div className="flex items-center space-x-2 text-fg-muted bg-surface px-4 py-2 min-h-11 rounded-full shadow-sm border border-divide">
                   <Users size={20} aria-hidden />
-                  <span className="text-sm font-medium">{t('dashboard.collaborative')}</span>
+                  <span className="text-sm font-medium">
+                    {t('dashboard.collaborative')}
+                  </span>
                 </div>
               )}
               <button
@@ -893,7 +979,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               <div className="relative" ref={actionsRef}>
                 <button
                   type="button"
-                  onClick={() => setActionsOpen((o) => !o)}
+                  onClick={() => setActionsOpen(o => !o)}
                   className={`inline-flex items-center justify-center min-h-11 min-w-11 rounded-full shadow-sm border transition active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring ${actionsOpen ? 'bg-primary-fill text-white border-primary-fill' : 'bg-surface text-fg-muted border-border-ui hover:bg-surface-muted active:bg-surface-muted dark:bg-surface dark:text-fg-faint dark:border-border-ui-strong dark:hover:bg-surface-muted dark:active:bg-surface-muted'}`}
                   aria-expanded={actionsOpen}
                   aria-haspopup="true"
@@ -911,12 +997,16 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       type="button"
                       role="menuitem"
                       onClick={() => {
-                        setShowSettings((s) => !s);
+                        setShowSettings(s => !s);
                         setActionsOpen(false);
                       }}
                       className="w-full flex items-center gap-3 min-h-12 px-4 py-3 text-base sm:text-sm text-fg-heading hover:bg-surface-muted active:bg-surface-muted dark:hover:bg-surface-muted dark:active:bg-surface-muted text-left"
                     >
-                      <Settings size={18} aria-hidden className="text-fg-muted shrink-0" />
+                      <Settings
+                        size={18}
+                        aria-hidden
+                        className="text-fg-muted shrink-0"
+                      />
                       {t('nav.puzzleSettings')}
                     </button>
                     <button
@@ -1000,14 +1090,16 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   <input
                     type="checkbox"
                     checked={readOnly}
-                    onChange={(e) => handleSetReadOnly(e.target.checked)}
+                    onChange={e => handleSetReadOnly(e.target.checked)}
                     className="rounded border-border-ui-strong text-primary focus:ring-primary-ring w-4 h-4"
                   />
                   <span className="text-sm font-medium text-fg-heading">
                     {t('dashboard.readOnlyToggle')}
                   </span>
                 </label>
-                <p className="text-xs text-fg-faint mt-1 ml-7">{t('dashboard.readOnlyHint')}</p>
+                <p className="text-xs text-fg-faint mt-1 ml-7">
+                  {t('dashboard.readOnlyHint')}
+                </p>
               </div>
 
               <div>
@@ -1050,7 +1142,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       placeholder={t('dashboard.currentPwPh')}
                       className="w-full p-2 border border-border-ui rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-ring"
                       value={currentPwd}
-                      onChange={(e) => setCurrentPwd(e.target.value)}
+                      onChange={e => setCurrentPwd(e.target.value)}
                       disabled={readOnly}
                     />
                   )}
@@ -1058,11 +1150,13 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     <input
                       type={showNewPwd ? 'text' : 'password'}
                       placeholder={
-                        puzzle.passwordHash ? t('dashboard.newPwPh') : t('dashboard.setPwPh')
+                        puzzle.passwordHash
+                          ? t('dashboard.newPwPh')
+                          : t('dashboard.setPwPh')
                       }
                       className="w-full p-2 pr-8 border border-border-ui rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-ring"
                       value={newPwd}
-                      onChange={(e) => setNewPwd(e.target.value)}
+                      onChange={e => setNewPwd(e.target.value)}
                       disabled={readOnly}
                     />
                     <button
@@ -1083,7 +1177,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     disabled={readOnly}
                     className="bg-primary-fill text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-primary-fill-hover transition disabled:opacity-40"
                   >
-                    {puzzle.passwordHash ? t('dashboard.changePw') : t('dashboard.setPw')}
+                    {puzzle.passwordHash
+                      ? t('dashboard.changePw')
+                      : t('dashboard.setPw')}
                   </button>
                   {pwMessage && (
                     <p
@@ -1101,10 +1197,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
         <div className="grid grid-cols-1 gap-6 mb-8">
           <div className="bg-surface p-6 rounded-2xl shadow-sm border border-divide">
             <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
-              <h2 className="text-xl font-semibold">{t('dashboard.progressTitle')}</h2>
+              <h2 className="text-xl font-semibold">
+                {t('dashboard.progressTitle')}
+              </h2>
               <button
                 type="button"
-                onClick={() => setHelpOpen((o) => !o)}
+                onClick={() => setHelpOpen(o => !o)}
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-strong px-2 py-1.5 rounded-lg border border-primary-border-muted hover:bg-primary-soft-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                 aria-expanded={helpOpen}
               >
@@ -1112,16 +1210,21 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 {t('dashboard.helpToggle')}
               </button>
             </div>
-            <p className="text-xs text-fg-faint mb-2">{t('dashboard.progressViewHint')}</p>
-            <p className="text-xs text-fg-faint mb-4">{t('dashboard.keyboardShortcutsHint')}</p>
+            <p className="text-xs text-fg-faint mb-2">
+              {t('dashboard.progressViewHint')}
+            </p>
+            <p className="text-xs text-fg-faint mb-4">
+              {t('dashboard.keyboardShortcutsHint')}
+            </p>
             {puzzle.totalPieces > 0 && (
               <div className="mb-4 rounded-xl border border-divide bg-surface-muted/50 p-3 dark:bg-surface-muted/30">
                 <p className="text-xs font-semibold uppercase tracking-wide text-fg-muted mb-2">
                   {t('dashboard.milestonesTitle')}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {MILESTONE_LEVELS.map((lev) => {
-                    const reached = (maxPlacedEver / puzzle.totalPieces) * 100 >= lev - 1e-6;
+                  {MILESTONE_LEVELS.map(lev => {
+                    const reached =
+                      (maxPlacedEver / puzzle.totalPieces) * 100 >= lev - 1e-6;
                     return (
                       <span
                         key={lev}
@@ -1131,7 +1234,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                             : 'border-border-ui bg-surface text-fg-faint'
                         }`}
                       >
-                        {t('dashboard.milestonePct').replace('{pct}', String(lev))}
+                        {t('dashboard.milestonePct').replace(
+                          '{pct}',
+                          String(lev)
+                        )}
                       </span>
                     );
                   })}
@@ -1159,7 +1265,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   {puzzle.placedPieces.toLocaleString(numberLocale)}
                 </p>
                 <p className="text-xs text-fg-faint mt-1">
-                  {t('dashboard.onTotal')} {puzzle.totalPieces.toLocaleString(numberLocale)}
+                  {t('dashboard.onTotal')}{' '}
+                  {puzzle.totalPieces.toLocaleString(numberLocale)}
                 </p>
               </button>
               <button
@@ -1175,7 +1282,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 <p className="text-3xl font-bold text-warm">
                   {remainingPieces.toLocaleString(numberLocale)}
                 </p>
-                <p className="text-xs text-fg-faint mt-1">{t('dashboard.toPlace')}</p>
+                <p className="text-xs text-fg-faint mt-1">
+                  {t('dashboard.toPlace')}
+                </p>
               </button>
             </div>
 
@@ -1201,7 +1310,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             <div className="flex mb-2 items-center justify-between flex-wrap gap-2">
               <span
                 className={`text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full ${
-                  inputMode === 'placed' ? 'text-primary bg-primary-soft' : 'text-warm bg-warm-soft'
+                  inputMode === 'placed'
+                    ? 'text-primary bg-primary-soft'
+                    : 'text-warm bg-warm-soft'
                 }`}
               >
                 {Math.round(progress)}% {t('dashboard.donePct')}
@@ -1224,7 +1335,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
             <div
               className={`overflow-hidden h-4 mb-2 flex rounded ${inputMode === 'placed' ? 'bg-primary-track' : 'bg-warm-track'}`}
               role="progressbar"
-              aria-valuenow={inputMode === 'placed' ? puzzle.placedPieces : remainingPieces}
+              aria-valuenow={
+                inputMode === 'placed' ? puzzle.placedPieces : remainingPieces
+              }
               aria-valuemin={0}
               aria-valuemax={puzzle.totalPieces}
               aria-valuetext={
@@ -1271,7 +1384,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 <span className="text-xs text-fg-faint font-semibold uppercase tracking-wider">
                   {t('dashboard.step')}
                 </span>
-                {[1, 5, 10, 25, 50, 100].map((s) => (
+                {[1, 5, 10, 25, 50, 100].map(s => (
                   <button
                     key={s}
                     type="button"
@@ -1286,8 +1399,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               </div>
 
               <div className="mb-3 flex flex-wrap items-center gap-2">
-                <span className="text-xs text-fg-muted">{t('dashboard.quickBump')}</span>
-                {([-10, -1, 1, 10] as const).map((d) => (
+                <span className="text-xs text-fg-muted">
+                  {t('dashboard.quickBump')}
+                </span>
+                {([-10, -1, 1, 10] as const).map(d => (
                   <button
                     key={d}
                     type="button"
@@ -1315,7 +1430,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   }}
                   disabled={
                     readOnly ||
-                    (inputMode === 'placed' ? newPieces <= 0 : newPieces >= puzzle.totalPieces)
+                    (inputMode === 'placed'
+                      ? newPieces <= 0
+                      : newPieces >= puzzle.totalPieces)
                   }
                   className={`w-14 h-14 rounded-xl text-2xl font-bold transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${inputMode === 'placed' ? 'bg-primary-pill-bg text-primary-pill-text hover:bg-primary-border-strong focus-visible:ring-primary-ring' : 'bg-warm-border text-warm hover:bg-warm-border-strong focus-visible:ring-warm-ring'}`}
                   aria-label={t('dashboard.step')}
@@ -1334,7 +1451,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     min={0}
                     max={puzzle.totalPieces}
                     value={displayedValue}
-                    onChange={(e) => handleInputChange(parseInt(e.target.value, 10) || 0)}
+                    onChange={e =>
+                      handleInputChange(parseInt(e.target.value, 10) || 0)
+                    }
                     disabled={readOnly}
                     className={`w-full text-center text-4xl font-black bg-transparent border-b-2 outline-none pb-1 transition disabled:opacity-50 focus-visible:ring-2 rounded ${inputMode === 'placed' ? 'text-primary-strong border-primary-border-strong focus:border-primary-fill focus-visible:ring-primary-ring' : 'text-warm border-warm-border-strong focus:border-warm-fill focus-visible:ring-warm-ring'}`}
                     aria-label={
@@ -1344,17 +1463,23 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     }
                   />
                   {displayedValue !==
-                    (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces) && (
+                    (inputMode === 'placed'
+                      ? puzzle.placedPieces
+                      : remainingPieces) && (
                     <p
                       className={`text-xs mt-1 font-semibold ${inputMode === 'placed' ? 'text-primary' : 'text-warm-strong'}`}
                     >
                       {displayedValue >
-                      (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces)
+                      (inputMode === 'placed'
+                        ? puzzle.placedPieces
+                        : remainingPieces)
                         ? '\u25B2'
                         : '\u25BC'}{' '}
                       {Math.abs(
                         displayedValue -
-                          (inputMode === 'placed' ? puzzle.placedPieces : remainingPieces),
+                          (inputMode === 'placed'
+                            ? puzzle.placedPieces
+                            : remainingPieces)
                       ).toLocaleString(numberLocale)}{' '}
                       {t('dashboard.vsNow')}
                     </p>
@@ -1369,7 +1494,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   }}
                   disabled={
                     readOnly ||
-                    (inputMode === 'placed' ? newPieces >= puzzle.totalPieces : newPieces <= 0)
+                    (inputMode === 'placed'
+                      ? newPieces >= puzzle.totalPieces
+                      : newPieces <= 0)
                   }
                   className={`w-14 h-14 rounded-xl text-2xl font-bold transition active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 ${inputMode === 'placed' ? 'bg-primary-bar text-white hover:bg-primary-fill-hover focus-visible:ring-primary-ring' : 'bg-warm-fill text-white hover:bg-warm-fill-hover focus-visible:ring-warm-ring'}`}
                   aria-label={t('dashboard.step')}
@@ -1412,8 +1539,14 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   <p className="text-xs text-yellow-800 mb-3">
                     {t('dashboard.flagDetail')}{' '}
                     {t('dashboard.flagStats')
-                      .replace('{placed}', puzzle.placedPieces.toLocaleString(numberLocale))
-                      .replace('{remaining}', remainingPieces.toLocaleString(numberLocale))
+                      .replace(
+                        '{placed}',
+                        puzzle.placedPieces.toLocaleString(numberLocale)
+                      )
+                      .replace(
+                        '{remaining}',
+                        remainingPieces.toLocaleString(numberLocale)
+                      )
                       .replace('{pct}', String(Math.round(progress)))}
                   </p>
                   <div className="flex gap-2">
@@ -1421,7 +1554,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       type="button"
                       onClick={async () => {
                         const name = `\u{1F6A9} ${Math.round(progress)}% — ${puzzle.placedPieces.toLocaleString(numberLocale)}`;
-                        await addCheckpoint(puzzle.id, name, pseudo || undefined);
+                        await addCheckpoint(
+                          puzzle.id,
+                          name,
+                          pseudo || undefined
+                        );
                         setFlagConfirm(false);
                       }}
                       className="flex-1 flex items-center justify-center gap-1.5 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 py-2 rounded-lg text-sm font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-600"
@@ -1448,7 +1585,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     <>
                       {' '}
                       ({t('dashboard.by')}{' '}
-                      <span className="font-medium text-primary">{lastHistory.pseudo}</span>)
+                      <span className="font-medium text-primary">
+                        {lastHistory.pseudo}
+                      </span>
+                      )
                     </>
                   )}
                   :{' '}
@@ -1461,15 +1601,24 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
               <details className="mt-4 rounded-xl border border-border-ui bg-surface/60 p-3 dark:border-border-ui-strong dark:bg-surface/50">
                 <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-fg-heading marker:content-none [&::-webkit-details-marker]:hidden">
-                  <History size={16} className="shrink-0 text-primary-muted" aria-hidden />
+                  <History
+                    size={16}
+                    className="shrink-0 text-primary-muted"
+                    aria-hidden
+                  />
                   {t('dashboard.activityLogToggle')}
                 </summary>
                 {activityLogDescending.length === 0 ? (
-                  <p className="mt-2 text-xs text-fg-muted">{t('dashboard.activityLogEmpty')}</p>
+                  <p className="mt-2 text-xs text-fg-muted">
+                    {t('dashboard.activityLogEmpty')}
+                  </p>
                 ) : (
                   <ul className="mt-2 max-h-80 space-y-1.5 overflow-y-auto overscroll-y-contain text-xs [-webkit-overflow-scrolling:touch]">
-                    {activityLogDescending.map((h) => (
-                      <li key={h.id} className="border-b border-divide pb-1.5 last:border-0">
+                    {activityLogDescending.map(h => (
+                      <li
+                        key={h.id}
+                        className="border-b border-divide pb-1.5 last:border-0"
+                      >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             {editingHistoryId === h.id ? (
@@ -1477,21 +1626,29 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                                 <input
                                   type="number"
                                   value={historyInput}
-                                  onChange={(e) =>
-                                    setHistoryInput(parseInt(e.target.value, 10) || 0)
+                                  onChange={e =>
+                                    setHistoryInput(
+                                      parseInt(e.target.value, 10) || 0
+                                    )
                                   }
                                   className="w-20 p-1 text-xs border border-primary-ring rounded bg-surface outline-none focus:ring-1 focus:ring-primary-ring"
                                   autoFocus
-                                  onKeyDown={(e) => {
+                                  onKeyDown={e => {
                                     if (e.key === 'Enter') {
-                                      handleUpdateHistoryEntry(h.id, historyInput);
+                                      handleUpdateHistoryEntry(
+                                        h.id,
+                                        historyInput
+                                      );
                                     }
-                                    if (e.key === 'Escape') setEditingHistoryId(null);
+                                    if (e.key === 'Escape')
+                                      setEditingHistoryId(null);
                                   }}
                                 />
                                 <button
                                   type="button"
-                                  onClick={() => handleUpdateHistoryEntry(h.id, historyInput)}
+                                  onClick={() =>
+                                    handleUpdateHistoryEntry(h.id, historyInput)
+                                  }
                                   className="p-1 text-success-fill hover:bg-success-soft rounded transition-colors"
                                   title={t('dashboard.validate')}
                                   aria-label={t('dashboard.validate')}
@@ -1515,7 +1672,10 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                                 </span>{' '}
                                 {t('common.pieces')}
                                 {h.pseudo ? (
-                                  <span className="text-fg-muted"> · {h.pseudo}</span>
+                                  <span className="text-fg-muted">
+                                    {' '}
+                                    · {h.pseudo}
+                                  </span>
                                 ) : null}
                               </span>
                             )}
@@ -1589,7 +1749,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={() => downloadHistoryCsv(puzzle.history, historyExportBase)}
+                    onClick={() =>
+                      downloadHistoryCsv(puzzle.history, historyExportBase)
+                    }
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                   >
                     <FileSpreadsheet size={14} aria-hidden />
@@ -1597,7 +1759,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   </button>
                   <button
                     type="button"
-                    onClick={() => downloadHistoryJson(puzzle.history, historyExportBase)}
+                    onClick={() =>
+                      downloadHistoryJson(puzzle.history, historyExportBase)
+                    }
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                   >
                     <Download size={14} aria-hidden />
@@ -1608,7 +1772,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
               <details className="mt-4 rounded-xl border border-border-ui bg-surface/60 p-3 dark:border-border-ui-strong dark:bg-surface/50">
                 <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-fg-heading marker:content-none [&::-webkit-details-marker]:hidden">
-                  <BarChart2 size={16} className="shrink-0 text-primary-muted" aria-hidden />
+                  <BarChart2
+                    size={16}
+                    className="shrink-0 text-primary-muted"
+                    aria-hidden
+                  />
                   {t('dashboard.statsByPseudoToggle')}
                 </summary>
                 <p className="mt-2 text-xs text-fg-muted leading-relaxed">
@@ -1643,13 +1811,18 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   </div>
                 </div>
                 {pseudoStatRows.length === 0 ? (
-                  <p className="mt-2 text-xs text-fg-faint">{t('dashboard.statsByPseudoEmpty')}</p>
+                  <p className="mt-2 text-xs text-fg-faint">
+                    {t('dashboard.statsByPseudoEmpty')}
+                  </p>
                 ) : (
                   <div className="mt-3 overflow-x-auto rounded-lg border border-divide">
                     <table className="w-full min-w-[280px] text-left text-xs">
                       <thead>
                         <tr className="border-b border-divide bg-surface-muted/80 dark:bg-surface-muted/40">
-                          <th scope="col" className="px-3 py-2 font-semibold text-fg-heading">
+                          <th
+                            scope="col"
+                            className="px-3 py-2 font-semibold text-fg-heading"
+                          >
                             {t('dashboard.statsColPseudo')}
                           </th>
                           <th
@@ -1679,13 +1852,15 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         </tr>
                       </thead>
                       <tbody>
-                        {pseudoStatRows.map((row) => (
+                        {pseudoStatRows.map(row => (
                           <tr
                             key={row.pseudoKey || '__anon__'}
                             className="border-b border-divide last:border-0"
                           >
                             <td className="px-3 py-2 font-medium text-fg">
-                              {row.pseudoKey ? row.pseudoKey : t('dashboard.statsAnon')}
+                              {row.pseudoKey
+                                ? row.pseudoKey
+                                : t('dashboard.statsAnon')}
                             </td>
                             <td className="px-3 py-2 text-right tabular-nums text-fg">
                               {row.piecesInWindow.toLocaleString(numberLocale)}
@@ -1694,10 +1869,14 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                               {row.maxSingleDelta.toLocaleString(numberLocale)}
                             </td>
                             <td className="px-3 py-2 text-right tabular-nums text-fg-muted">
-                              {row.maxConsecutiveDelta.toLocaleString(numberLocale)}
+                              {row.maxConsecutiveDelta.toLocaleString(
+                                numberLocale
+                              )}
                             </td>
                             <td className="px-3 py-2 text-right tabular-nums text-fg-faint">
-                              {row.positiveUpdatesInWindow.toLocaleString(numberLocale)}
+                              {row.positiveUpdatesInWindow.toLocaleString(
+                                numberLocale
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -1720,7 +1899,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                             maxStreak: t('dashboard.statsColMaxStreak'),
                             updates: t('dashboard.statsColUpdates'),
                           },
-                          t('dashboard.statsAnon'),
+                          t('dashboard.statsAnon')
                         )
                       }
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
@@ -1747,7 +1926,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                           },
                           'square',
                           t('dashboard.statsAnon'),
-                          numberLocale,
+                          numberLocale
                         )
                       }
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
@@ -1775,7 +1954,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                           },
                           'horizontal',
                           t('dashboard.statsAnon'),
-                          numberLocale,
+                          numberLocale
                         )
                       }
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
@@ -1801,28 +1980,42 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 className="flex items-center gap-1 text-xs text-fg-faint hover:text-primary-muted transition disabled:opacity-40 focus:outline-none focus-visible:ring-2 rounded"
               >
                 <Grid size={12} aria-hidden />
-                {showGridEditor ? t('dashboard.gridCancel') : t('dashboard.adjustGrid')}
+                {showGridEditor
+                  ? t('dashboard.gridCancel')
+                  : t('dashboard.adjustGrid')}
               </button>
               {showGridEditor && (
                 <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-border-ui bg-surface-muted p-3 dark:border-border-ui dark:bg-surface-muted/60">
                   <div className="min-w-[100px] flex-1">
-                    <label className="mb-1 block text-xs text-fg-muted">{t('home.rows')}</label>
+                    <label className="mb-1 block text-xs text-fg-muted">
+                      {t('home.rows')}
+                    </label>
                     <input
                       type="number"
                       min={1}
                       value={gridRows}
-                      onChange={(e) => setGridRows(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                      onChange={e =>
+                        setGridRows(
+                          Math.max(1, parseInt(e.target.value, 10) || 1)
+                        )
+                      }
                       className="w-full rounded-lg border border-border-ui bg-surface p-2 text-center text-sm font-bold text-fg outline-none focus:ring-2 focus:ring-primary-ring dark:border-border-ui dark:bg-surface-input dark:text-fg dark:focus:ring-primary-ring [color-scheme:light] dark:[color-scheme:dark]"
                     />
                   </div>
                   <span className="mt-4 text-xl text-fg-faint">×</span>
                   <div className="min-w-[100px] flex-1">
-                    <label className="mb-1 block text-xs text-fg-muted">{t('home.cols')}</label>
+                    <label className="mb-1 block text-xs text-fg-muted">
+                      {t('home.cols')}
+                    </label>
                     <input
                       type="number"
                       min={1}
                       value={gridCols}
-                      onChange={(e) => setGridCols(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                      onChange={e =>
+                        setGridCols(
+                          Math.max(1, parseInt(e.target.value, 10) || 1)
+                        )
+                      }
                       className="w-full rounded-lg border border-border-ui bg-surface p-2 text-center text-sm font-bold text-fg outline-none focus:ring-2 focus:ring-primary-ring dark:border-border-ui dark:bg-surface-input dark:text-fg dark:focus:ring-primary-ring [color-scheme:light] dark:[color-scheme:dark]"
                     />
                   </div>
@@ -1854,7 +2047,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               <button
                 type="button"
                 onClick={handleUncheckAll}
-                disabled={readOnly || puzzle.checkpoints.every((c) => !c.completed)}
+                disabled={
+                  readOnly || puzzle.checkpoints.every(c => !c.completed)
+                }
                 className="text-xs font-semibold text-fg-muted hover:text-primary-hover border border-border-ui rounded-lg px-2 py-1 disabled:opacity-40 focus:outline-none focus-visible:ring-2"
               >
                 {t('dashboard.uncheckAll')}
@@ -1863,7 +2058,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
 
             <div className="mb-6 rounded-2xl border border-divide bg-surface-muted/80 dark:bg-surface-muted/40 p-4 space-y-4">
               <div>
-                <p className="text-sm font-semibold text-fg">{t('dashboard.checkpointQuickAdd')}</p>
+                <p className="text-sm font-semibold text-fg">
+                  {t('dashboard.checkpointQuickAdd')}
+                </p>
                 <p className="text-xs text-fg-muted mt-1 leading-relaxed">
                   {t('dashboard.checkpointQuickAddHint')}
                 </p>
@@ -1874,7 +2071,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   {t('dashboard.checkpointFromProgress')}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {checkpointSuggestions.map((s) => (
+                  {checkpointSuggestions.map(s => (
                     <button
                       key={s}
                       type="button"
@@ -1893,7 +2090,7 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   {t('dashboard.checkpointPresets')}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {checkpointPresets.map((label) => (
+                  {checkpointPresets.map(label => (
                     <button
                       key={label}
                       type="button"
@@ -1916,8 +2113,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     type="text"
                     placeholder={t('dashboard.newCheckpointPh')}
                     value={newCheckpointName}
-                    onChange={(e) => setNewCheckpointName(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddCheckpoint()}
+                    onChange={e => setNewCheckpointName(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleAddCheckpoint()}
                     disabled={readOnly}
                     className="flex-1 min-w-0 p-2.5 text-sm border border-border-ui rounded-xl bg-surface text-fg focus:ring-2 focus:ring-primary-ring outline-none disabled:opacity-50"
                   />
@@ -1930,7 +2127,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     aria-label={t('dashboard.addCheckpoint')}
                   >
                     <Plus size={18} aria-hidden className="sm:hidden" />
-                    <span className="hidden sm:inline">{t('dashboard.addCheckpoint')}</span>
+                    <span className="hidden sm:inline">
+                      {t('dashboard.addCheckpoint')}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -1940,10 +2139,12 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               {t('dashboard.checkpointsList')}
             </p>
             {puzzle.checkpoints.length === 0 ? (
-              <p className="text-sm text-fg-faint py-2">{t('dashboard.checkpointsEmpty')}</p>
+              <p className="text-sm text-fg-faint py-2">
+                {t('dashboard.checkpointsEmpty')}
+              </p>
             ) : (
               <div className="space-y-3">
-                {puzzle.checkpoints.map((cp) => (
+                {puzzle.checkpoints.map(cp => (
                   <div
                     key={cp.id}
                     className={`flex items-stretch gap-1 rounded-xl border transition ${cp.completed ? 'bg-success-soft border-success-soft-border' : 'bg-surface-muted/50 border-divide'}`}
@@ -1952,8 +2153,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       role="button"
                       tabIndex={readOnly ? -1 : 0}
                       className={`flex min-w-0 flex-1 cursor-pointer items-center p-3 rounded-l-xl transition ${!readOnly && !cp.completed ? 'hover:border-primary-border dark:hover:border-primary-muted' : ''} ${readOnly ? 'cursor-default' : ''}`}
-                      onClick={() => !readOnly && toggleCheckpoint(puzzle.id, cp.id, cp.completed)}
-                      onKeyDown={(e) => {
+                      onClick={() =>
+                        !readOnly &&
+                        toggleCheckpoint(puzzle.id, cp.id, cp.completed)
+                      }
+                      onKeyDown={e => {
                         if (!readOnly && (e.key === 'Enter' || e.key === ' ')) {
                           e.preventDefault();
                           toggleCheckpoint(puzzle.id, cp.id, cp.completed);
@@ -1971,13 +2175,17 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                         >
                           {cp.name}
                         </span>
-                        {cp.createdBy && <p className="text-xs text-fg-faint">{cp.createdBy}</p>}
+                        {cp.createdBy && (
+                          <p className="text-xs text-fg-faint">
+                            {cp.createdBy}
+                          </p>
+                        )}
                       </div>
                     </div>
                     {!readOnly && (
                       <button
                         type="button"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           void handleDeleteCheckpoint(cp.id);
                         }}
@@ -1997,7 +2205,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
           <div className="bg-surface p-6 rounded-2xl shadow-sm border border-divide">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold flex items-center">
-                <ImageIcon className="mr-2" size={20} aria-hidden /> {t('dashboard.photosTitle')}
+                <ImageIcon className="mr-2" size={20} aria-hidden />{' '}
+                {t('dashboard.photosTitle')}
               </h2>
               <button
                 type="button"
@@ -2017,7 +2226,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                 onChange={handlePhotoUpload}
               />
             </div>
-            <p className="text-xs text-fg-faint mb-3">{t('dashboard.photoHelp')}</p>
+            <p className="text-xs text-fg-faint mb-3">
+              {t('dashboard.photoHelp')}
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {puzzle.photos.map((photo, idx) => (
                 <div
@@ -2026,8 +2237,8 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                   draggable={!readOnly}
                   onDragStart={() => !readOnly && setDragPhotoId(photo.id)}
                   onDragEnd={() => setDragPhotoId(null)}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={e => {
                     e.preventDefault();
                     handlePhotoDropReorder(photo.id);
                   }}
@@ -2060,7 +2271,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       <button
                         type="button"
                         onClick={() =>
-                          rotatePhoto(puzzle.id, photo.id, (photo.rotation + 90) % 360)
+                          rotatePhoto(
+                            puzzle.id,
+                            photo.id,
+                            (photo.rotation + 90) % 360
+                          )
                         }
                         disabled={readOnly}
                         className="bg-surface/90 text-fg-heading p-2 rounded-full hover:bg-surface dark:hover:bg-surface-muted transition disabled:opacity-30"
@@ -2079,7 +2294,9 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                       </button>
                       <button
                         type="button"
-                        onClick={() => !readOnly && deletePhoto(puzzle.id, photo.id)}
+                        onClick={() =>
+                          !readOnly && deletePhoto(puzzle.id, photo.id)
+                        }
                         disabled={readOnly}
                         className="bg-danger-fill/90 text-white p-2 rounded-full hover:bg-danger-fill-hover transition disabled:opacity-30"
                         aria-label={t('dashboard.deletePhoto')}
@@ -2094,16 +2311,17 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
                     placeholder={t('dashboard.photoCaptionPh')}
                     defaultValue={photo.caption ?? ''}
                     disabled={readOnly}
-                    onBlur={(e) => {
+                    onBlur={e => {
                       const v = e.target.value.trim().slice(0, 500);
                       const prev = (photo.caption ?? '').trim();
                       if (v !== prev && !readOnly) {
-                        updatePhoto(puzzle.id, photo.id, { caption: v.length ? v : null }).catch(
-                          (err) =>
-                            reportError('updatePhotoCaption', err, {
-                              puzzleId: puzzle.id,
-                              photoId: photo.id,
-                            }),
+                        updatePhoto(puzzle.id, photo.id, {
+                          caption: v.length ? v : null,
+                        }).catch(err =>
+                          reportError('updatePhotoCaption', err, {
+                            puzzleId: puzzle.id,
+                            photoId: photo.id,
+                          })
                         );
                       }
                     }}
@@ -2123,7 +2341,11 @@ const Dashboard: React.FC<DashboardProps> = ({ puzzle, onBack, pseudo, pseudoRef
               ))}
               {puzzle.photos.length === 0 && (
                 <div className="col-span-3 text-center text-fg-faint py-12 bg-surface-muted rounded-xl border border-dashed border-border-ui">
-                  <ImageIcon className="mx-auto mb-2 opacity-50" size={32} aria-hidden />
+                  <ImageIcon
+                    className="mx-auto mb-2 opacity-50"
+                    size={32}
+                    aria-hidden
+                  />
                   <p className="text-sm">{t('dashboard.noPhotos')}</p>
                 </div>
               )}

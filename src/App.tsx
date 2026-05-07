@@ -1,4 +1,12 @@
-import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  lazy,
+  Suspense,
+} from 'react';
 import { usePuzzle } from './hooks/useSocket';
 import Home from './components/Home';
 
@@ -27,7 +35,9 @@ function App() {
   const { puzzle, loading, loadError } = usePuzzle(roomCode);
   useDocumentRoomTitle(puzzle ?? undefined, loading);
   const savedRef = useRef<string | null>(null);
-  const [online, setOnline] = useState(() => typeof navigator !== 'undefined' && navigator.onLine);
+  const [online, setOnline] = useState(
+    () => typeof navigator !== 'undefined' && navigator.onLine
+  );
 
   const [pseudo, setPseudo] = useState(() => getPseudo());
   const [pseudoLocked, setPseudoLocked] = useState(() => isPseudoLocked());
@@ -86,10 +96,11 @@ function App() {
   const handleRefresh = useCallback(() => {
     window.location.reload();
   }, []);
-  const { pullDistance, refreshing, threshold } = usePullToRefresh(handleRefresh);
+  const { pullDistance, refreshing, threshold } =
+    usePullToRefresh(handleRefresh);
 
   const handlePseudoCommit = useCallback(() => {
-    setPseudoRefreshKey((k) => k + 1);
+    setPseudoRefreshKey(k => k + 1);
   }, []);
 
   const loadErrorMessage = useMemo(() => {
@@ -118,7 +129,11 @@ function App() {
         onPseudoCommit={handlePseudoCommit}
         puzzleProgress={
           puzzle
-            ? { placed: puzzle.placedPieces, total: puzzle.totalPieces, name: puzzle.name }
+            ? {
+                placed: puzzle.placedPieces,
+                total: puzzle.totalPieces,
+                name: puzzle.name,
+              }
             : null
         }
       />
@@ -135,7 +150,9 @@ function App() {
         {roomCode ? (
           loading ? (
             <div className="flex items-center justify-center min-h-[50vh]">
-              <p className="text-fg-faint text-lg animate-pulse">{t('app.loading')}</p>
+              <p className="text-fg-faint text-lg animate-pulse">
+                {t('app.loading')}
+              </p>
             </div>
           ) : loadError ? (
             <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4 max-w-md mx-auto text-center">
@@ -159,7 +176,9 @@ function App() {
             <Suspense
               fallback={
                 <div className="flex items-center justify-center min-h-[50vh]">
-                  <p className="text-fg-faint text-lg animate-pulse">{t('app.loading')}</p>
+                  <p className="text-fg-faint text-lg animate-pulse">
+                    {t('app.loading')}
+                  </p>
                 </div>
               }
             >
@@ -172,13 +191,17 @@ function App() {
             </Suspense>
           ) : (
             <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 px-4 max-w-md mx-auto text-center">
-              <p className="text-lg font-semibold text-fg-heading">{t('app.notFound')}</p>
+              <p className="text-lg font-semibold text-fg-heading">
+                {t('app.notFound')}
+              </p>
               {roomCode && (
                 <p className="text-sm font-mono text-fg-muted bg-surface-muted px-3 py-1 rounded-lg">
                   {roomCode}
                 </p>
               )}
-              <p className="text-fg-muted text-sm leading-relaxed">{t('app.notFoundDetail')}</p>
+              <p className="text-fg-muted text-sm leading-relaxed">
+                {t('app.notFoundDetail')}
+              </p>
               <button
                 type="button"
                 onClick={handleBack}
