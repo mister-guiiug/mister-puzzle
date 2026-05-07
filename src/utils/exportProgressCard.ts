@@ -68,7 +68,13 @@ export function exportProgressPng({
   // Cercle du logo
   ctx.fillStyle = colors.primaryLight;
   ctx.beginPath();
-  ctx.arc(padding + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+  ctx.arc(
+    padding + logoSize / 2,
+    logoY + logoSize / 2,
+    logoSize / 2,
+    0,
+    Math.PI * 2
+  );
   ctx.fill();
 
   // Emoji puzzle
@@ -120,12 +126,24 @@ export function exportProgressPng({
   if (barMode === 'placed') {
     ctx.fillStyle = colors.primary;
     ctx.beginPath();
-    ctx.roundRect(padding, currentY, Math.max(12, barWidth * pct), barHeight, 12);
+    ctx.roundRect(
+      padding,
+      currentY,
+      Math.max(12, barWidth * pct),
+      barHeight,
+      12
+    );
     ctx.fill();
   } else {
     ctx.fillStyle = colors.secondary;
     ctx.beginPath();
-    ctx.roundRect(padding, currentY, Math.max(12, barWidth * remPct), barHeight, 12);
+    ctx.roundRect(
+      padding,
+      currentY,
+      Math.max(12, barWidth * remPct),
+      barHeight,
+      12
+    );
     ctx.fill();
   }
 
@@ -219,10 +237,14 @@ export function exportProgressPng({
   ctx.fillStyle = colors.textMuted;
   ctx.font = '13px system-ui, -apple-system, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('Généré avec Mister Puzzle — misterpuzzle.app', w / 2, footerY + 25);
+  ctx.fillText(
+    'Généré avec Mister Puzzle — misterpuzzle.app',
+    w / 2,
+    footerY + 25
+  );
 
   // Export
-  canvas.toBlob((blob) => {
+  canvas.toBlob(blob => {
     if (!blob) return;
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

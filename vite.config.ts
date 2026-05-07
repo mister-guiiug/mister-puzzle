@@ -33,11 +33,14 @@ export default defineConfig({
             return 'react-vendor';
           }
           /** Un seul chunk Firebase : le paquet `firebase` ne fait souvent que réexporter `@firebase/*` (~quelques octets) ; les fusionner évite une requête réseau inutile. */
-          if (norm.includes('/@firebase/') || norm.includes('/firebase/')) return 'firebase';
+          if (norm.includes('/@firebase/') || norm.includes('/firebase/'))
+            return 'firebase';
           if (norm.includes('/lucide-react/')) return 'lucide';
           if (norm.includes('/date-fns/')) return 'date-fns';
           if (norm.includes('/framer-motion/')) return 'motion';
-          if (norm.includes('/tailwindcss/')) return 'tailwind';
+          if (norm.includes('/tailwindcss/') || norm.includes('/@tailwindcss/'))
+            return 'tailwind';
+          if (norm.includes('/zustand/')) return 'zustand';
           return 'vendor';
         },
       },

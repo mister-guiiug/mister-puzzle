@@ -26,17 +26,24 @@ function readEnv(key: (typeof KEYS)[number]): string {
 /** Valide les variables Firebase obligatoires (évite un échec opaque dans initializeApp). */
 export function getFirebaseWebConfig(): FirebaseWebConfig {
   const missing: string[] = [];
-  const entries = KEYS.map((k) => [k, readEnv(k)] as const);
+  const entries = KEYS.map(k => [k, readEnv(k)] as const);
   for (const [k, v] of entries) {
     if (!v) missing.push(k);
   }
   if (missing.length > 0) {
     throw new Error(
-      `Configuration Firebase incomplète : définissez ${missing.join(', ')} (voir .env.example).`,
+      `Configuration Firebase incomplète : définissez ${missing.join(', ')} (voir .env.example).`
     );
   }
-  const [apiKey, authDomain, databaseURL, projectId, storageBucket, messagingSenderId, appId] =
-    entries.map(([, v]) => v);
+  const [
+    apiKey,
+    authDomain,
+    databaseURL,
+    projectId,
+    storageBucket,
+    messagingSenderId,
+    appId,
+  ] = entries.map(([, v]) => v);
   return {
     apiKey,
     authDomain,

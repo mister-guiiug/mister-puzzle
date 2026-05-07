@@ -17,10 +17,12 @@ export const messages: Record<Locale, MsgValue> = {
     },
     home: {
       tagline: 'Suivez votre progression en équipe',
-      tourIntro: 'Trois repères pour utiliser l’app avec la barre du haut et cette page.',
+      tourIntro:
+        'Trois repères pour utiliser l’app avec la barre du haut et cette page.',
       tourTitle: 'Par où commencer ?',
       tourStep1Title: 'Menu latéral',
-      tourStep1Body: 'Icône ☰ en haut à gauche : puzzles récents, liste publique et recherche.',
+      tourStep1Body:
+        'Icône ☰ en haut à gauche : puzzles récents, liste publique et recherche.',
       tourStep2Title: 'Votre pseudo',
       tourStep2Body:
         'En haut à droite : ouvrez le profil pour saisir ou verrouiller votre nom (sessions collaboratives).',
@@ -34,8 +36,10 @@ export const messages: Record<Locale, MsgValue> = {
         'Rappel : menu ☰ pour l’historique et les publics · profil en haut à droite pour le pseudo.',
       yourPseudo: 'Votre pseudo',
       pseudoPlaceholder: 'Anonyme',
-      pseudoLockedHint: 'Pseudo verrouillé — cliquez sur le cadenas pour modifier.',
-      pseudoUnlockedHint: 'Affiché sur vos checkpoints et dans les sessions collaboratives.',
+      pseudoLockedHint:
+        'Pseudo verrouillé — cliquez sur le cadenas pour modifier.',
+      pseudoUnlockedHint:
+        'Affiché sur vos checkpoints et dans les sessions collaboratives.',
       createTitle: 'Créer un nouveau puzzle',
       puzzleNamePh: 'Nom du puzzle',
       gridTitle: 'Grille de pièces',
@@ -44,11 +48,14 @@ export const messages: Record<Locale, MsgValue> = {
       rows: 'Lignes',
       cols: 'Colonnes',
       total: 'Total',
-      gridLockedHint: 'Grille verrouillée — cliquez sur le cadenas pour modifier.',
+      gridLockedHint:
+        'Grille verrouillée — cliquez sur le cadenas pour modifier.',
       gridUnlockedHint: 'Ajustable plus tard depuis le tableau de bord',
       visibility: 'Visibilité',
-      visibilityPublicHint: 'Votre puzzle sera visible dans la liste des puzzles publics.',
-      visibilityPrivateHint: 'Votre puzzle ne sera pas visible dans la recherche.',
+      visibilityPublicHint:
+        'Votre puzzle sera visible dans la liste des puzzles publics.',
+      visibilityPrivateHint:
+        'Votre puzzle ne sera pas visible dans la recherche.',
       passwordOptional: 'Mot de passe (optionnel)',
       passwordPh: 'Mot de passe',
       showPassword: 'Afficher le mot de passe',
@@ -67,7 +74,8 @@ export const messages: Record<Locale, MsgValue> = {
       removeHistory: "Retirer de l'historique",
       deletedTitle: 'Puzzle introuvable',
       deletedBody: "n'existe pas ou a été supprimé.",
-      deletedHistory: 'Il est présent dans vos puzzles récents. Voulez-vous le retirer ?',
+      deletedHistory:
+        'Il est présent dans vos puzzles récents. Voulez-vous le retirer ?',
       close: 'Fermer',
       removeFromHistoryBtn: "Retirer de l'historique",
       langLabel: 'Langue',
@@ -155,10 +163,12 @@ export const messages: Record<Locale, MsgValue> = {
       deletePhoto: 'Supprimer',
       moveLeft: 'Déplacer à gauche',
       moveRight: 'Déplacer à droite',
-      readOnlyBanner: 'Mode lecture seule : les modifications sont désactivées.',
+      readOnlyBanner:
+        'Mode lecture seule : les modifications sont désactivées.',
       readOnlyToggle: 'Mode lecture seule (observateur)',
       readOnlyHint: 'Utile pour suivre sans risquer de modifier le puzzle.',
-      remoteConflict: 'Le compteur a été mis à jour ailleurs. Vous avez un brouillon local.',
+      remoteConflict:
+        'Le compteur a été mis à jour ailleurs. Vous avez un brouillon local.',
       adoptServer: 'Reprendre la valeur du serveur',
       lastActivity: 'Dernière activité',
       updatedBy: 'Mis à jour',
@@ -167,14 +177,16 @@ export const messages: Record<Locale, MsgValue> = {
       chartTitle: 'Historique des pièces posées',
       chartTitleRemaining: 'Historique des pièces restantes',
       chartEmpty: 'Ajoutez des mises à jour pour voir la courbe.',
-      chartTableCaption: 'Dernières entrées d’historique (aperçu pour lecteurs d’écran)',
+      chartTableCaption:
+        'Dernières entrées d’historique (aperçu pour lecteurs d’écran)',
       chartColTime: 'Date',
       chartColValue: 'Valeur affichée',
       chartColAuthor: 'Auteur',
       helpToggle: 'Aide — comment ça marche',
       helpBody:
         'La progression se synchronise en temps réel entre les appareils. Choisissez « Placées » ou « Restantes » selon votre habitude : le graphique et la barre suivent ce mode. Les checkpoints et photos sont partagés. En lecture seule, vous observez sans modifier.',
-      progressViewHint: 'Choisissez votre vue : le graphique et le résumé suivent ce mode.',
+      progressViewHint:
+        'Choisissez votre vue : le graphique et le résumé suivent ce mode.',
       progressFractionPlaced: 'placées',
       progressFractionRemaining: 'restantes',
       exportPng: 'Exporter une image',
@@ -188,10 +200,12 @@ export const messages: Record<Locale, MsgValue> = {
       errorCheckpointDelete: 'Impossible de supprimer le checkpoint.',
       errorVisibility: 'Impossible de modifier la visibilité.',
       errorRename: 'Impossible de renommer le puzzle.',
-      errorGridDims: 'Les dimensions de la grille doivent être supérieures à 0.',
+      errorGridDims:
+        'Les dimensions de la grille doivent être supérieures à 0.',
       errorGridUpdate: 'Impossible de mettre à jour la grille.',
       errorDelete: 'Impossible de supprimer le puzzle.',
-      errorPhoto: "Impossible d'ajouter la photo. Vérifiez la taille ou votre connexion.",
+      errorPhoto:
+        "Impossible d'ajouter la photo. Vérifiez la taille ou votre connexion.",
       errorPhotoSize: 'Fichier trop volumineux (max. 12 Mo).',
       errorPwCurrent: 'Veuillez saisir le mot de passe actuel.',
       errorPwBad: 'Mot de passe actuel incorrect.',
@@ -236,7 +250,8 @@ export const messages: Record<Locale, MsgValue> = {
       editHistory: 'Modifier le nombre de pièces',
       deleteHistory: "Supprimer l'entrée",
       historyDeleteConfirm: 'Supprimer cette entrée ?',
-      liveProgressAnnounced: '{placed} pièces placées, {remaining} restantes, {pct} % du puzzle.',
+      liveProgressAnnounced:
+        '{placed} pièces placées, {remaining} restantes, {pct} % du puzzle.',
       keyboardShortcutsHint:
         'Raccourcis : S enregistrer · ? ouvre l’aide progression · Échap ferme les fenêtres (hors champ de saisie).',
       milestonesTitle: 'Jalons',
@@ -257,10 +272,12 @@ export const messages: Record<Locale, MsgValue> = {
       loadError: 'Impossible de charger le puzzle (réseau ou serveur).',
       loadErrorPermission:
         'Accès refusé par la base de données (règles Firebase). Vérifiez le déploiement des règles ou le projet utilisé.',
-      loadErrorNetwork: 'Problème de connexion. Vérifiez le réseau puis réessayez.',
+      loadErrorNetwork:
+        'Problème de connexion. Vérifiez le réseau puis réessayez.',
       retryLoad: 'Réessayer',
       offlineTitle: 'Hors ligne',
-      offlineDetail: 'Sans connexion, les mises à jour en direct ne sont pas disponibles.',
+      offlineDetail:
+        'Sans connexion, les mises à jour en direct ne sont pas disponibles.',
     },
     nav: {
       drawerTitle: 'Navigation',
@@ -289,7 +306,8 @@ export const messages: Record<Locale, MsgValue> = {
       publicFilterProgressMax: 'Avancement max. %',
       publicFilterHint:
         'Filtre la liste publique par pourcentage complété (0–100). Laisser vide = pas de filtre.',
-      updateBannerTitle: 'Une nouvelle version de l’application est disponible.',
+      updateBannerTitle:
+        'Une nouvelle version de l’application est disponible.',
       updateBannerCta: 'Mettre à jour',
       updateBannerBadge: 'Mise à jour',
       updateBannerSnooze: 'Plus tard (24 h)',
@@ -315,13 +333,16 @@ export const messages: Record<Locale, MsgValue> = {
       tourStep1Title: 'Side menu',
       tourStep1Body: '☰ top-left: recent puzzles, public list, and search.',
       tourStep2Title: 'Your nickname',
-      tourStep2Body: 'Top-right: open profile to set or lock your display name (collaboration).',
+      tourStep2Body:
+        'Top-right: open profile to set or lock your display name (collaboration).',
       tourStep3Title: 'Create or join',
-      tourStep3Body: 'Use the forms on this page: new puzzle or room code to join.',
+      tourStep3Body:
+        'Use the forms on this page: new puzzle or room code to join.',
       tourScrollToForms: 'Jump to forms',
       tourDismiss: 'Hide this guide',
       tourShowAgain: 'Show guide again',
-      tourDismissedHint: 'Tip: ☰ for history & public puzzles · profile top-right for nickname.',
+      tourDismissedHint:
+        'Tip: ☰ for history & public puzzles · profile top-right for nickname.',
       yourPseudo: 'Your nickname',
       pseudoPlaceholder: 'Anonymous',
       pseudoLockedHint: 'Nickname locked — click the lock to edit.',
@@ -424,7 +445,8 @@ export const messages: Record<Locale, MsgValue> = {
       gridCancel: 'Cancel',
       checkpointsTitle: 'Checkpoints',
       checkpointQuickAdd: 'Add a checkpoint',
-      checkpointQuickAddHint: 'Each chip creates a checkpoint immediately. Your list is below.',
+      checkpointQuickAddHint:
+        'Each chip creates a checkpoint immediately. Your list is below.',
       checkpointFromProgress: 'From the numbers shown above',
       checkpointPresets: 'Typical milestones',
       checkpointCustom: 'Custom label',
@@ -447,7 +469,8 @@ export const messages: Record<Locale, MsgValue> = {
       readOnlyBanner: 'Read-only mode: editing is disabled.',
       readOnlyToggle: 'Read-only (observer) mode',
       readOnlyHint: 'Follow along without changing the puzzle.',
-      remoteConflict: 'The counter was updated elsewhere. You have a local draft.',
+      remoteConflict:
+        'The counter was updated elsewhere. You have a local draft.',
       adoptServer: 'Use server value',
       lastActivity: 'Last activity',
       updatedBy: 'Updated',
@@ -504,7 +527,8 @@ export const messages: Record<Locale, MsgValue> = {
       statsByPseudoToggle: 'Per-player stats (rolling 24 h)',
       statsByPseudoHint:
         'From the activity log: the nickname is whoever saved that entry. We sum positive piece gains over the last 24 hours. “Max streak” is the largest sum of consecutive gains by the same player without someone else in between (entries outside the window break the streak).',
-      statsByPseudoEmpty: 'No positive gains in this window (or older entries had no nickname).',
+      statsByPseudoEmpty:
+        'No positive gains in this window (or older entries had no nickname).',
       statsColPseudo: 'Nickname',
       statsColPieces24h: 'Pieces (24 h)',
       statsColMaxSingle: 'Best single save',
@@ -524,14 +548,16 @@ export const messages: Record<Locale, MsgValue> = {
       editHistory: 'Edit piece count',
       deleteHistory: 'Delete entry',
       historyDeleteConfirm: 'Delete this entry?',
-      liveProgressAnnounced: '{placed} pieces placed, {remaining} remaining, {pct}% of the puzzle.',
+      liveProgressAnnounced:
+        '{placed} pieces placed, {remaining} remaining, {pct}% of the puzzle.',
       keyboardShortcutsHint:
         'Shortcuts: S save · ? toggles progress help · Esc closes panels (when not typing in a field).',
       milestonesTitle: 'Milestones',
       milestonePct: '{pct}%',
       organizerBanner:
         'You created this room: suggest “Read-only” in settings to reduce accidental edits.',
-      photoTrimmedHint: 'Removed the oldest {n} photo(s) to stay within the limit of {max} images.',
+      photoTrimmedHint:
+        'Removed the oldest {n} photo(s) to stay within the limit of {max} images.',
       shareInvite: 'Invite link (prefills code on home)',
       shareDirect: 'Direct link (opens room)',
     },
@@ -574,7 +600,8 @@ export const messages: Record<Locale, MsgValue> = {
       publicLoadingSkeleton: 'Loading list…',
       publicFilterProgressMin: 'Min. progress %',
       publicFilterProgressMax: 'Max. progress %',
-      publicFilterHint: 'Filter the public list by completion (0–100). Leave empty for no filter.',
+      publicFilterHint:
+        'Filter the public list by completion (0–100). Leave empty for no filter.',
       updateBannerTitle: 'A new version of the app is available.',
       updateBannerCta: 'Update now',
       updateBannerBadge: 'Update',

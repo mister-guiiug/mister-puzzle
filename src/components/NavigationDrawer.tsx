@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+} from 'react';
 import {
   X,
   Home,
@@ -11,8 +17,18 @@ import {
   EyeOff,
   ArrowDownUp,
 } from 'lucide-react';
-import { joinPuzzle, getPublicPuzzles, hashPassword, type PuzzleState } from '../hooks/useSocket';
-import { getHistory, saveToHistory, removeFromHistory, type HistoryPuzzle } from '../utils/history';
+import {
+  joinPuzzle,
+  getPublicPuzzles,
+  hashPassword,
+  type PuzzleState,
+} from '../hooks/useSocket';
+import {
+  getHistory,
+  saveToHistory,
+  removeFromHistory,
+  type HistoryPuzzle,
+} from '../utils/history';
 import { useI18n } from '../i18n/I18nContext';
 import { reportError } from '../utils/reportError';
 import { prefetchDashboardChunk } from '../utils/prefetchDashboard';
@@ -44,7 +60,9 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   const [loadingPublic, setLoadingPublic] = useState(false);
   const [publicLoaded, setPublicLoaded] = useState(false);
   const [joining, setJoining] = useState(false);
-  const [pendingPrivate, setPendingPrivate] = useState<PuzzleState | null>(null);
+  const [pendingPrivate, setPendingPrivate] = useState<PuzzleState | null>(
+    null
+  );
   const [joinPassword, setJoinPassword] = useState('');
   const [showJoinPassword, setShowJoinPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -112,9 +130,9 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
     const tabbable = () =>
       [
         ...panel.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
         ),
-      ].filter((el) => !el.hasAttribute('disabled'));
+      ].filter(el => !el.hasAttribute('disabled'));
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
@@ -201,17 +219,27 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
 
   const filteredPublic = useMemo(() => {
     const q = publicSearch.toLowerCase().trim();
-    return publicPuzzles.filter((p) => {
-      const nameMatch = p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q);
+    return publicPuzzles.filter(p => {
+      const nameMatch =
+        p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q);
       if (!nameMatch) return false;
-      const pct = p.totalPieces > 0 ? (p.placedPieces / p.totalPieces) * 100 : 0;
+      const pct =
+        p.totalPieces > 0 ? (p.placedPieces / p.totalPieces) * 100 : 0;
       const minRaw = publicProgressMin.trim();
       const maxRaw = publicProgressMax.trim();
       const minN = minRaw === '' ? null : Number(minRaw);
       const maxN = maxRaw === '' ? null : Number(maxRaw);
-      if (minN !== null && !Number.isNaN(minN) && pct < Math.min(100, Math.max(0, minN)))
+      if (
+        minN !== null &&
+        !Number.isNaN(minN) &&
+        pct < Math.min(100, Math.max(0, minN))
+      )
         return false;
-      if (maxN !== null && !Number.isNaN(maxN) && pct > Math.min(100, Math.max(0, maxN)))
+      if (
+        maxN !== null &&
+        !Number.isNaN(maxN) &&
+        pct > Math.min(100, Math.max(0, maxN))
+      )
         return false;
       return true;
     });
@@ -219,13 +247,18 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
 
   const sortedFilteredPublic = useMemo(() => {
     const arr = [...filteredPublic];
-    const pct = (p: (typeof arr)[0]) => (p.totalPieces > 0 ? p.placedPieces / p.totalPieces : 0);
+    const pct = (p: (typeof arr)[0]) =>
+      p.totalPieces > 0 ? p.placedPieces / p.totalPieces : 0;
     arr.sort((a, b) => {
       switch (publicSort) {
         case 'nameAsc':
-          return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+          return a.name.localeCompare(b.name, undefined, {
+            sensitivity: 'base',
+          });
         case 'nameDesc':
-          return b.name.localeCompare(a.name, undefined, { sensitivity: 'base' });
+          return b.name.localeCompare(a.name, undefined, {
+            sensitivity: 'base',
+          });
         case 'progressAsc':
           return pct(a) - pct(b);
         case 'progressDesc':
@@ -282,7 +315,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
               <p className="text-sm text-fg-faint py-2">{t('nav.noRecent')}</p>
             ) : (
               <ul className="space-y-1">
-                {history.map((item) => (
+                {history.map(item => (
                   <li key={item.code} className="flex gap-1 items-stretch">
                     <button
                       type="button"
@@ -291,8 +324,12 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                       onClick={() => tryJoin(item.code)}
                       className="flex-1 min-h-12 text-left px-3 py-2.5 rounded-xl hover:bg-surface-muted dark:hover:bg-surface-muted border border-transparent hover:border-border-ui dark:hover:border-border-ui active:bg-surface-muted dark:active:bg-surface-muted transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                     >
-                      <p className="font-semibold text-fg-heading text-sm truncate">{item.name}</p>
-                      <p className="text-xs font-mono text-fg-faint">{item.code}</p>
+                      <p className="font-semibold text-fg-heading text-sm truncate">
+                        {item.name}
+                      </p>
+                      <p className="text-xs font-mono text-fg-faint">
+                        {item.code}
+                      </p>
                     </button>
                     <button
                       type="button"
@@ -314,7 +351,8 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
 
           <section>
             <h3 className="text-xs font-bold text-fg-faint uppercase tracking-wider mb-2 flex items-center gap-2">
-              <Globe size={14} className="text-success-fill" aria-hidden /> {t('nav.public')}
+              <Globe size={14} className="text-success-fill" aria-hidden />{' '}
+              {t('nav.public')}
             </h3>
             {loadingPublic && !publicLoaded ? (
               <div
@@ -323,8 +361,11 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                 aria-busy="true"
                 aria-label={t('nav.publicLoadingSkeleton')}
               >
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="h-12 rounded-xl bg-surface-muted animate-pulse" />
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div
+                    key={i}
+                    className="h-12 rounded-xl bg-surface-muted animate-pulse"
+                  />
                 ))}
               </div>
             ) : (
@@ -338,7 +379,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                   <input
                     type="search"
                     value={publicSearch}
-                    onChange={(e) => setPublicSearch(e.target.value)}
+                    onChange={e => setPublicSearch(e.target.value)}
                     placeholder={t('home.searchPh')}
                     className="w-full min-h-11 pl-10 pr-3 py-2 text-base sm:text-sm border border-border-ui rounded-xl bg-surface-muted text-fg focus:ring-2 focus:ring-success-ring outline-none"
                     enterKeyHint="search"
@@ -347,20 +388,34 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                   />
                 </div>
                 <div className="mb-2 flex items-center gap-2">
-                  <ArrowDownUp size={14} className="shrink-0 text-fg-faint" aria-hidden />
+                  <ArrowDownUp
+                    size={14}
+                    className="shrink-0 text-fg-faint"
+                    aria-hidden
+                  />
                   <label htmlFor="nav-public-sort" className="sr-only">
                     {t('nav.publicSort')}
                   </label>
                   <select
                     id="nav-public-sort"
                     value={publicSort}
-                    onChange={(e) => setPublicSort(e.target.value as typeof publicSort)}
+                    onChange={e =>
+                      setPublicSort(e.target.value as typeof publicSort)
+                    }
                     className="min-h-9 flex-1 rounded-lg border border-border-ui bg-surface px-2 py-1.5 text-xs font-medium text-fg-heading dark:border-border-ui dark:bg-surface-muted dark:text-fg"
                   >
-                    <option value="progressDesc">{t('nav.publicSortProgressDesc')}</option>
-                    <option value="progressAsc">{t('nav.publicSortProgressAsc')}</option>
-                    <option value="nameAsc">{t('nav.publicSortNameAsc')}</option>
-                    <option value="nameDesc">{t('nav.publicSortNameDesc')}</option>
+                    <option value="progressDesc">
+                      {t('nav.publicSortProgressDesc')}
+                    </option>
+                    <option value="progressAsc">
+                      {t('nav.publicSortProgressAsc')}
+                    </option>
+                    <option value="nameAsc">
+                      {t('nav.publicSortNameAsc')}
+                    </option>
+                    <option value="nameDesc">
+                      {t('nav.publicSortNameDesc')}
+                    </option>
                   </select>
                 </div>
                 <p className="text-[11px] text-fg-faint mb-1.5 leading-snug">
@@ -382,8 +437,10 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                       inputMode="numeric"
                       placeholder="0"
                       value={publicProgressMin}
-                      onChange={(e) =>
-                        setPublicProgressMin(e.target.value.replace(/[^\d]/g, '').slice(0, 3))
+                      onChange={e =>
+                        setPublicProgressMin(
+                          e.target.value.replace(/[^\d]/g, '').slice(0, 3)
+                        )
                       }
                       className="w-full min-h-9 rounded-lg border border-border-ui bg-surface px-2 py-1.5 text-xs text-fg-heading dark:border-border-ui dark:bg-surface-muted"
                     />
@@ -403,8 +460,10 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                       inputMode="numeric"
                       placeholder="100"
                       value={publicProgressMax}
-                      onChange={(e) =>
-                        setPublicProgressMax(e.target.value.replace(/[^\d]/g, '').slice(0, 3))
+                      onChange={e =>
+                        setPublicProgressMax(
+                          e.target.value.replace(/[^\d]/g, '').slice(0, 3)
+                        )
                       }
                       className="w-full min-h-9 rounded-lg border border-border-ui bg-surface px-2 py-1.5 text-xs text-fg-heading dark:border-border-ui dark:bg-surface-muted"
                     />
@@ -412,11 +471,13 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                 </div>
                 {filteredPublic.length === 0 ? (
                   <p className="text-sm text-fg-faint py-2">
-                    {publicPuzzles.length === 0 ? t('home.noPublic') : t('home.noResults')}
+                    {publicPuzzles.length === 0
+                      ? t('home.noPublic')
+                      : t('home.noResults')}
                   </p>
                 ) : (
                   <ul className="space-y-1 max-h-[min(40vh,14rem)] sm:max-h-56 overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch]">
-                    {sortedFilteredPublic.map((p) => (
+                    {sortedFilteredPublic.map(p => (
                       <li key={p.id}>
                         <button
                           type="button"
@@ -433,12 +494,18 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                               {p.placedPieces.toLocaleString(numberLocale)} /{' '}
                               {p.totalPieces.toLocaleString(numberLocale)} ·{' '}
                               {p.totalPieces > 0
-                                ? Math.round((p.placedPieces / p.totalPieces) * 100)
+                                ? Math.round(
+                                    (p.placedPieces / p.totalPieces) * 100
+                                  )
                                 : 0}
                               %
                             </p>
                           </div>
-                          <ArrowRight size={18} className="text-fg-faint shrink-0" aria-hidden />
+                          <ArrowRight
+                            size={18}
+                            className="text-fg-faint shrink-0"
+                            aria-hidden
+                          />
                         </button>
                       </li>
                     ))}
@@ -448,7 +515,9 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
             )}
           </section>
 
-          {localError && <p className="text-sm text-danger-text">{localError}</p>}
+          {localError && (
+            <p className="text-sm text-danger-text">{localError}</p>
+          )}
         </nav>
 
         {pendingPrivate && (
@@ -462,8 +531,8 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                 <input
                   type={showJoinPassword ? 'text' : 'password'}
                   value={joinPassword}
-                  onChange={(e) => setJoinPassword(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && verifyPrivateJoin()}
+                  onChange={e => setJoinPassword(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && verifyPrivateJoin()}
                   placeholder={t('home.passwordPh')}
                   className="w-full min-h-11 pl-3 pr-11 py-2 border border-primary-border rounded-xl text-base sm:text-sm"
                   autoFocus
@@ -474,7 +543,11 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                   type="button"
                   onClick={() => setShowJoinPassword(!showJoinPassword)}
                   className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center min-h-10 min-w-10 rounded-lg text-fg-muted hover:bg-surface/80 active:bg-surface"
-                  aria-label={showJoinPassword ? t('home.hidePassword') : t('home.showPassword')}
+                  aria-label={
+                    showJoinPassword
+                      ? t('home.hidePassword')
+                      : t('home.showPassword')
+                  }
                 >
                   {showJoinPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>

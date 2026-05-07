@@ -3,7 +3,9 @@ import { classifyFirebaseError } from './classifyFirebaseError';
 
 describe('classifyFirebaseError', () => {
   it('détecte permission_denied', () => {
-    expect(classifyFirebaseError('FirebaseError: permission_denied')).toBe('permission');
+    expect(classifyFirebaseError('FirebaseError: permission_denied')).toBe(
+      'permission'
+    );
     expect(classifyFirebaseError('Permission denied')).toBe('permission');
   });
 

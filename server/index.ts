@@ -13,16 +13,20 @@ const parseOrigins = (): string[] | null => {
   if (!raw) return null;
   const list = raw
     .split(',')
-    .map((s) => s.trim())
+    .map(s => s.trim())
     .filter(Boolean);
   return list.length ? list : null;
 };
 
 const allowedOrigins = parseOrigins();
-const corsOriginOption: boolean | string[] = allowedOrigins ? allowedOrigins : true;
+const corsOriginOption: boolean | string[] = allowedOrigins
+  ? allowedOrigins
+  : true;
 
 const app = express();
-app.use(cors(typeof corsOriginOption === 'boolean' ? {} : { origin: allowedOrigins! }));
+app.use(
+  cors(typeof corsOriginOption === 'boolean' ? {} : { origin: allowedOrigins! })
+);
 app.use(express.json({ limit: '50mb' }));
 
 const httpServer = createServer(app);
@@ -104,7 +108,7 @@ process.on('SIGTERM', () => {
 
 const MAX_PHOTO_PAYLOAD = 2_000_000;
 
-io.on('connection', (socket) => {
+io.on('connection', socket => {
   console.log('a user connected', socket.id);
 
   socket.on('joinRoom', (roomCode: unknown) => {
@@ -153,13 +157,17 @@ io.on('connection', (socket) => {
     if (!payload || typeof payload !== 'object') return;
     const o = payload as Record<string, unknown>;
     const roomCode = normRoom(o.roomCode);
-    const placedPieces = typeof o.placedPieces === 'number' ? o.placedPieces : NaN;
+    const placedPieces =
+      typeof o.placedPieces === 'number' ? o.placedPieces : NaN;
     if (!roomCode || !Number.isFinite(placedPieces)) return;
     if (puzzles[roomCode]) {
       const max = puzzles[roomCode].totalPieces;
       const clamped = Math.max(0, Math.min(max, Math.floor(placedPieces)));
       puzzles[roomCode].placedPieces = clamped;
-      puzzles[roomCode].history.push({ timestamp: Date.now(), placedPieces: clamped });
+      puzzles[roomCode].history.push({
+        timestamp: Date.now(),
+        placedPieces: clamped,
+      });
       savePuzzlesDebounced();
       io.to(roomCode).emit('puzzleUpdate', puzzles[roomCode]);
     }
@@ -169,10 +177,13 @@ io.on('connection', (socket) => {
     if (!payload || typeof payload !== 'object') return;
     const o = payload as Record<string, unknown>;
     const roomCode = normRoom(o.roomCode);
-    const checkpointId = typeof o.checkpointId === 'string' ? o.checkpointId : '';
+    const checkpointId =
+      typeof o.checkpointId === 'string' ? o.checkpointId : '';
     if (!roomCode || !checkpointId) return;
     if (puzzles[roomCode]) {
-      const checkpoint = puzzles[roomCode].checkpoints.find((c) => c.id === checkpointId);
+      const checkpoint = puzzles[roomCode].checkpoints.find(
+        c => c.id === checkpointId
+      );
       if (checkpoint) {
         checkpoint.completed = !checkpoint.completed;
         savePuzzlesDebounced();
@@ -208,6 +219,8 @@ httpServer.listen(PORT, () => {
   if (allowedOrigins) {
     console.log(`CORS restricted to: ${allowedOrigins.join(', ')}`);
   } else {
-    console.log('CORS: all origins (set CORS_ORIGINS=comma,separated,urls for production)');
+    console.log(
+      'CORS: all origins (set CORS_ORIGINS=comma,separated,urls for production)'
+    );
   }
 });

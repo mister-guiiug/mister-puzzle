@@ -19,7 +19,7 @@ function loadRaw(): OfflinePiecePending[] {
         x !== null &&
         typeof (x as OfflinePiecePending).roomCode === 'string' &&
         typeof (x as OfflinePiecePending).placedPieces === 'number' &&
-        typeof (x as OfflinePiecePending).createdAt === 'number',
+        typeof (x as OfflinePiecePending).createdAt === 'number'
     );
   } catch {
     return [];
@@ -49,21 +49,23 @@ export function isLikelyNetworkError(err: unknown): boolean {
   );
 }
 
-export function getOfflineQueueForRoom(roomCode: string): OfflinePiecePending | undefined {
-  return loadRaw().find((x) => x.roomCode === roomCode);
+export function getOfflineQueueForRoom(
+  roomCode: string
+): OfflinePiecePending | undefined {
+  return loadRaw().find(x => x.roomCode === roomCode);
 }
 
 export function hasPendingForRoom(roomCode: string): boolean {
-  return loadRaw().some((x) => x.roomCode === roomCode);
+  return loadRaw().some(x => x.roomCode === roomCode);
 }
 
 /**
  * Une entrée par salle : la dernière valeur demandée remplace la précédente.
  */
 export function enqueueOfflinePieceUpdate(
-  entry: Omit<OfflinePiecePending, 'createdAt'> & { createdAt?: number },
+  entry: Omit<OfflinePiecePending, 'createdAt'> & { createdAt?: number }
 ): void {
-  const items = loadRaw().filter((x) => x.roomCode !== entry.roomCode);
+  const items = loadRaw().filter(x => x.roomCode !== entry.roomCode);
   items.push({
     roomCode: entry.roomCode,
     placedPieces: entry.placedPieces,
@@ -86,7 +88,11 @@ export function clearQueue(): void {
  * Envoie chaque entrée (dernière valeur par salle), retire les réussites, garde les échecs.
  */
 export async function flushOfflinePieceQueue(
-  send: (roomCode: string, placedPieces: number, pseudo?: string) => Promise<void>,
+  send: (
+    roomCode: string,
+    placedPieces: number,
+    pseudo?: string
+  ) => Promise<void>
 ): Promise<void> {
   if (typeof navigator !== 'undefined' && !navigator.onLine) return;
 

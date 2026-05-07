@@ -1,5 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, Lock, Unlock, ChevronDown, User, Sun, Moon, SunMoon, Check } from 'lucide-react';
+import {
+  Menu,
+  Lock,
+  Unlock,
+  ChevronDown,
+  User,
+  Sun,
+  Moon,
+  SunMoon,
+  Check,
+} from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
 import { useTheme } from '../theme/ThemeContext';
 import { NavigationDrawer } from './NavigationDrawer';
@@ -139,7 +149,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span className="truncate bg-gradient-to-r from-brand-from via-brand-via to-brand-to bg-clip-text text-base font-semibold tracking-tight text-transparent sm:text-[1.05rem]">
                     {puzzleProgress?.name ? (
                       <span className="flex items-center gap-1.5">
-                        <span className="truncate max-w-[120px] sm:max-w-[150px]">{puzzleProgress.name}</span>
+                        <span className="truncate max-w-[120px] sm:max-w-[150px]">
+                          {puzzleProgress.name}
+                        </span>
                         <span className="shrink-0 text-xs font-bold text-primary">
                           {progressPercent}%
                         </span>
@@ -157,7 +169,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                         />
                       </div>
                       <span className="text-[10px] text-fg-faint tabular-nums hidden sm:inline-block">
-                        {puzzleProgress.placed.toLocaleString()}/{puzzleProgress.total.toLocaleString()}
+                        {puzzleProgress.placed.toLocaleString()}/
+                        {puzzleProgress.total.toLocaleString()}
                       </span>
                     </div>
                   )}
@@ -171,7 +184,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   type="button"
                   onClick={() => {
                     setProfileOpen(false);
-                    setThemeOpen((o) => !o);
+                    setThemeOpen(o => !o);
                   }}
                   className={`inline-flex size-10 items-center justify-center rounded-xl text-fg-muted transition hover:bg-surface/90 hover:shadow-sm dark:hover:bg-surface-muted/90 dark:hover:shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring/70 ${themeOpen ? 'bg-surface shadow-sm dark:bg-surface-muted' : ''}`}
                   aria-expanded={themeOpen}
@@ -192,7 +205,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="absolute right-0 z-[85] mt-2 w-52 overflow-hidden rounded-2xl border border-border-ui/90 bg-surface/95 p-1 shadow-lg shadow-fg/10 ring-1 ring-fg/[0.04] backdrop-blur-md dark:border-border-ui/90 dark:bg-surface/95 dark:shadow-black/40 dark:ring-surface/[0.06]"
                     role="menu"
                   >
-                    {(['light', 'dark', 'system'] as const).map((value) => (
+                    {(['light', 'dark', 'system'] as const).map(value => (
                       <button
                         key={value}
                         type="button"
@@ -201,13 +214,25 @@ export const Navbar: React.FC<NavbarProps> = ({
                         className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-fg-heading transition hover:bg-surface-muted/90 dark:hover:bg-surface-muted/80"
                       >
                         {value === 'light' && (
-                          <Sun size={16} className="shrink-0 text-solar" aria-hidden />
+                          <Sun
+                            size={16}
+                            className="shrink-0 text-solar"
+                            aria-hidden
+                          />
                         )}
                         {value === 'dark' && (
-                          <Moon size={16} className="shrink-0 text-primary-muted" aria-hidden />
+                          <Moon
+                            size={16}
+                            className="shrink-0 text-primary-muted"
+                            aria-hidden
+                          />
                         )}
                         {value === 'system' && (
-                          <SunMoon size={16} className="shrink-0 text-fg-muted" aria-hidden />
+                          <SunMoon
+                            size={16}
+                            className="shrink-0 text-fg-muted"
+                            aria-hidden
+                          />
                         )}
                         <span className="flex-1 font-medium">
                           {value === 'light' && t('nav.themeLight')}
@@ -215,7 +240,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                           {value === 'system' && t('nav.themeSystem')}
                         </span>
                         {preference === value && (
-                          <Check size={16} className="shrink-0 text-primary" aria-hidden />
+                          <Check
+                            size={16}
+                            className="shrink-0 text-primary"
+                            aria-hidden
+                          />
                         )}
                       </button>
                     ))}
@@ -233,7 +262,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   type="button"
                   onClick={() => {
                     setThemeOpen(false);
-                    setProfileOpen((o) => !o);
+                    setProfileOpen(o => !o);
                   }}
                   className={`flex min-h-10 items-center gap-2 rounded-xl py-1 pl-1 pr-1.5 transition hover:bg-surface/90 hover:shadow-sm dark:hover:bg-surface-muted/90 sm:pr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring/70 ${profileOpen ? 'bg-surface/95 shadow-sm dark:bg-surface-muted/95' : ''}`}
                   aria-expanded={profileOpen}
@@ -267,7 +296,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <input
                         type="text"
                         value={pseudo}
-                        onChange={(e) => !pseudoLocked && onPseudoChange(e.target.value)}
+                        onChange={e =>
+                          !pseudoLocked && onPseudoChange(e.target.value)
+                        }
                         onBlur={() => {
                           if (!pseudoLocked) {
                             const trimmed = pseudo.trim();
@@ -288,10 +319,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                         type="button"
                         onClick={togglePseudoLock}
                         title={
-                          pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')
+                          pseudoLocked
+                            ? t('dashboard.unlockPseudo')
+                            : t('dashboard.lockPseudo')
                         }
                         aria-label={
-                          pseudoLocked ? t('dashboard.unlockPseudo') : t('dashboard.lockPseudo')
+                          pseudoLocked
+                            ? t('dashboard.unlockPseudo')
+                            : t('dashboard.lockPseudo')
                         }
                         className={`inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl border transition active:scale-[0.98] ${pseudoLocked ? 'border-primary-border bg-primary-soft text-primary dark:border-primary-border dark:bg-primary-soft dark:text-primary-hover' : 'border-border-ui bg-surface-muted text-fg-muted dark:border-border-ui dark:bg-surface-muted/80'}`}
                       >
@@ -303,7 +338,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </button>
                     </div>
                     <p className="mt-3 text-xs leading-relaxed text-fg-muted">
-                      {pseudoLocked ? t('home.pseudoLockedHint') : t('home.pseudoUnlockedHint')}
+                      {pseudoLocked
+                        ? t('home.pseudoLockedHint')
+                        : t('home.pseudoUnlockedHint')}
                     </p>
                   </div>
                 )}

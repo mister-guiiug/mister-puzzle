@@ -24,7 +24,11 @@ function postErrorIngest(detail: ErrorReportDetail): void {
   }).catch(() => {});
 }
 
-export function reportError(scope: string, err: unknown, ctx?: Record<string, unknown>): void {
+export function reportError(
+  scope: string,
+  err: unknown,
+  ctx?: Record<string, unknown>
+): void {
   const message = err instanceof Error ? err.message : String(err);
   const detail: ErrorReportDetail = { scope, message, ctx, ts: Date.now() };
   if (import.meta.env.DEV) {
@@ -34,7 +38,9 @@ export function reportError(scope: string, err: unknown, ctx?: Record<string, un
   }
   postErrorIngest(detail);
   try {
-    window.dispatchEvent(new CustomEvent<ErrorReportDetail>('mister-puzzle-error', { detail }));
+    window.dispatchEvent(
+      new CustomEvent<ErrorReportDetail>('mister-puzzle-error', { detail })
+    );
   } catch {
     /* ignore */
   }

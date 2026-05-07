@@ -34,7 +34,7 @@ function labelPseudo(raw: string | undefined): string {
 export function computePseudoStatsFromHistory(
   history: HistoryEntry[],
   nowMs: number,
-  windowMs: number = PSEUDO_STATS_WINDOW_MS,
+  windowMs: number = PSEUDO_STATS_WINDOW_MS
 ): PseudoStatRow[] {
   const sorted = sortHistoryChrono(history);
   const cutoff = nowMs - windowMs;
@@ -46,7 +46,12 @@ export function computePseudoStatsFromHistory(
 
   const bump = (
     key: string,
-    fn: (v: { pieces: number; maxSingle: number; maxStreak: number; updates: number }) => void,
+    fn: (v: {
+      pieces: number;
+      maxSingle: number;
+      maxStreak: number;
+      updates: number;
+    }) => void
   ) => {
     if (!agg.has(key)) {
       agg.set(key, { pieces: 0, maxSingle: 0, maxStreak: 0, updates: 0 });
@@ -59,7 +64,7 @@ export function computePseudoStatsFromHistory(
 
   const finalizeStreak = (pseudoKey: string | null, sum: number) => {
     if (!pseudoKey || sum <= 0) return;
-    bump(pseudoKey, (v) => {
+    bump(pseudoKey, v => {
       v.maxStreak = Math.max(v.maxStreak, sum);
     });
   };
@@ -88,7 +93,7 @@ export function computePseudoStatsFromHistory(
       continue;
     }
 
-    bump(key, (v) => {
+    bump(key, v => {
       v.pieces += delta;
       v.maxSingle = Math.max(v.maxSingle, delta);
       v.updates += 1;
@@ -101,7 +106,7 @@ export function computePseudoStatsFromHistory(
       streakPseudo = key;
       streakSum = delta;
     }
-    bump(key, (v) => {
+    bump(key, v => {
       v.maxStreak = Math.max(v.maxStreak, streakSum);
     });
   }
@@ -117,7 +122,9 @@ export function computePseudoStatsFromHistory(
   }));
 
   rows.sort(
-    (a, b) => b.piecesInWindow - a.piecesInWindow || a.pseudoKey.localeCompare(b.pseudoKey),
+    (a, b) =>
+      b.piecesInWindow - a.piecesInWindow ||
+      a.pseudoKey.localeCompare(b.pseudoKey)
   );
   return rows;
 }
