@@ -1,4 +1,6 @@
-# CI custom (client + server check) — utilise la composite action setup-pwa.
+# CI déléguée au reusable workflow famille (dev-wpa-config).
+# Le build client exige des VITE_FIREBASE_* → injectés via `build-env` (factices).
+# Le backend `server/` est type-checké via `server-dir`.
 name: CI
 
 on:
@@ -17,26 +19,17 @@ permissions:
   packages: read
 
 jobs:
-  verify:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: mister-guiiug/dev-wpa-config/.github/actions/setup-pwa@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Client — format · lint · type · test · build
-        env:
-          VITE_PUBLIC_SITE_ORIGIN: https://example.github.io
-          VITE_FIREBASE_API_KEY: ci-dummy-key
-          VITE_FIREBASE_AUTH_DOMAIN: dummy.firebaseapp.com
-          VITE_FIREBASE_DATABASE_URL: https://dummy.firebaseio.com
-          VITE_FIREBASE_PROJECT_ID: dummy-ci
-          VITE_FIREBASE_STORAGE_BUCKET: dummy.appspot.com
-          VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
-          VITE_FIREBASE_APP_ID: 1:000000000000:web:0000000000000000000000
-        run: npm run format:check && npm run lint && npm run type-check && npm run test && npm run build
-
-      - name: Server — TypeScript
-        run: cd server && npm ci && npx tsc --noEmit
+  ci:
+    uses: mister-guiiug/dev-wpa-config/.github/workflows/pwa-ci.yml@v1
+    secrets: inherit
+    with:
+      server-dir: server
+      build-env: |
+        VITE_PUBLIC_SITE_ORIGIN=https://example.github.io
+        VITE_FIREBASE_API_KEY=ci-dummy-key
+        VITE_FIREBASE_AUTH_DOMAIN=dummy.firebaseapp.com
+        VITE_FIREBASE_DATABASE_URL=https://dummy.firebaseio.com
+        VITE_FIREBASE_PROJECT_ID=dummy-ci
+        VITE_FIREBASE_STORAGE_BUCKET=dummy.appspot.com
+        VITE_FIREBASE_MESSAGING_SENDER_ID=000000000000
+        VITE_FIREBASE_APP_ID=1:000000000000:web:0000000000000000000000
