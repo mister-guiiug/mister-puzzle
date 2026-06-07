@@ -2,18 +2,8 @@
   "extends": "@mister-guiiug/dev-wpa-config/tsconfig-node",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "moduleDetection": "force",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "erasableSyntaxOnly": true
   },
-  "include": [
-    "vite.config.ts",
-    "vitest.config.ts",
-    "playwright.config.ts",
-    "vite-plugin-seo.ts"
-  ]
+  "include": ["vite.config.ts", "vitest.config.ts", "playwright.config.ts"]
 }
