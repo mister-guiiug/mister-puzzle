@@ -3,10 +3,47 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { getPwaIconQuery, seoInjectPlugin } from './vite-plugin-seo';
+import { readFileSync } from 'node:fs';
+import {
+  pwaSeoPlugin,
+  resolveSeoPublicUrls,
+} from '@mister-guiiug/dev-wpa-config/vite-pwa-base';
 
-const pwaIconQs = getPwaIconQuery();
+const { version } = JSON.parse(readFileSync('./package.json', 'utf-8')) as {
+  version: string;
+};
+
+// Suffixe de cache pour favicon / PWA / Open Graph (incrémenter `version` dans
+// package.json après changement d'icônes).
+const pwaIconQs = `?v=${encodeURIComponent(version)}`;
 const analyze = process.env.ANALYZE === '1';
+
+// Base path : honore VITE_BASE_PATH (Lighthouse CI build à `/`, deploy à
+// `/mister-puzzle/`). Défaut = base GitHub Pages du projet.
+const base = process.env.VITE_BASE_PATH ?? '/mister-puzzle/';
+
+const { homeUrl } = resolveSeoPublicUrls({ basePath: base });
+
+const LLMS_TXT = `# Mister Puzzle
+
+> PWA web pour suivre la progression d'un puzzle à plusieurs, en temps réel (FR/EN).
+
+## Résumé
+Mister Puzzle synchronise le nombre de pièces placées ou restantes, un historique graphique, des photos d'avancement, des checkpoints et une présence « en ligne » via un code de salle. Thème clair, sombre ou système. Mode lecture seule possible.
+
+## URL et code
+- **Application :** ${homeUrl}
+- **Dépôt source :** https://github.com/mister-guiiug/mister-puzzle
+- **Données :** Firebase Realtime Database ; pas de compte obligatoire (pseudo stocké localement).
+
+## Utilisation (aperçu)
+- Créer une salle : nom du puzzle, grille lignes × colonnes, visibilité publique ou privée (mot de passe optionnel hashé côté client).
+- Rejoindre : saisir le code affiché par l'hôte.
+- PWA : installation depuis le navigateur en HTTPS ; mises à jour proposées dans l'app.
+
+## Limites (à ne pas inférer)
+L'application ne fournit pas l'image du puzzle à assembler : uniquement compteurs, grille, médias ajoutés par les participants dans la salle.
+`;
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -14,7 +51,7 @@ export default defineConfig({
     __BMAC_URL__: JSON.stringify('https://buymeacoffee.com/mister.guiiug'),
     'import.meta.env.VITE_PWA_ICON_QS': JSON.stringify(pwaIconQs),
   },
-  base: '/mister-puzzle/',
+  base,
   build: {
     sourcemap: true,
     /** Seuil relevé : le gros du JS est découpé (react, firebase, écran salle en lazy). */
@@ -47,7 +84,13 @@ export default defineConfig({
     },
   },
   plugins: [
-    seoInjectPlugin(),
+    pwaSeoPlugin({
+      siteName: 'Mister Puzzle',
+      basePath: base,
+      logoPath: '/logo.svg',
+      iconQuery: pwaIconQs,
+      llms: LLMS_TXT,
+    }),
     react(),
     tailwindcss(),
     VitePWA({
@@ -78,8 +121,8 @@ export default defineConfig({
         short_name: 'Mister Puzzle',
         description:
           'Suivi collaboratif de puzzles en temps réel : pièces, historique, photos, checkpoints',
-        start_url: '/mister-puzzle/',
-        scope: '/mister-puzzle/',
+        start_url: base,
+        scope: base,
         theme_color: '#4f46e5',
         background_color: '#ffffff',
         display: 'standalone',
