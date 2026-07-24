@@ -34,6 +34,7 @@ import {
   saveGrid,
 } from '../utils/pseudo';
 import { useI18n } from '../i18n/I18nContext';
+import { FamilyApps } from '@mister-guiiug/dev-wpa-config/react';
 import { prefetchDashboardChunk } from '../utils/prefetchDashboard';
 import { reportError } from '../utils/reportError';
 
@@ -734,6 +735,28 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
           )}
         </div>
       </div>
+
+      {/* Nos autres applications (catalogue famille) */}
+      <section className="mt-12" aria-label={t('home.otherApps')}>
+        <h2 className="mb-3 text-center text-sm font-semibold text-fg-heading">
+          {t('home.otherApps')}
+        </h2>
+        <div className="puzzle-family mx-auto max-w-md">
+          <FamilyApps
+            currentAppId="mister-puzzle"
+            showSource={false}
+            showSponsor={false}
+            labels={{
+              otherApps: t('home.otherApps'),
+              maturity: {
+                alpha: t('home.maturityAlpha'),
+                beta: t('home.maturityBeta'),
+                stable: t('home.maturityStable'),
+              },
+            }}
+          />
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="mt-12 flex flex-col items-center gap-3 text-fg-faint text-xs">
