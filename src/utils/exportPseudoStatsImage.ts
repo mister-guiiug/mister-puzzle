@@ -142,7 +142,7 @@ export function exportStatsImage(
     const rank = idx + 1;
 
     // Row background
-    ctx.fillStyle = COLORS.rowBg[idx % 2];
+    ctx.fillStyle = COLORS.rowBg[idx % 2] ?? '#ffffff';
     ctx.fillRect(
       padding - 10,
       rowY - 10,

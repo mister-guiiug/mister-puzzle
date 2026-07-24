@@ -343,6 +343,7 @@ export const ProgressChart: FC<ProgressChartProps> = ({
         // Pinch-to-zoom : deux doigts
         const touch1 = e.touches[0];
         const touch2 = e.touches[1];
+        if (!touch1 || !touch2) return;
         const distance = Math.hypot(
           touch2.clientX - touch1.clientX,
           touch2.clientY - touch1.clientY
@@ -363,6 +364,7 @@ export const ProgressChart: FC<ProgressChartProps> = ({
       if (e.touches.length === 2 && initialPinchDistanceRef.current > 0) {
         const touch1 = e.touches[0];
         const touch2 = e.touches[1];
+        if (!touch1 || !touch2) return;
         const distance = Math.hypot(
           touch2.clientX - touch1.clientX,
           touch2.clientY - touch1.clientY

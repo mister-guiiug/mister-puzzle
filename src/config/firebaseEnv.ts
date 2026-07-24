@@ -35,15 +35,17 @@ export function getFirebaseWebConfig(): FirebaseWebConfig {
       `Configuration Firebase incomplète : définissez ${missing.join(', ')} (voir .env.example).`
     );
   }
+  // `?? ''` jamais atteint (les valeurs vides ont déjà levé ci-dessus) :
+  // satisfait noUncheckedIndexedAccess sur la déstructuration.
   const [
-    apiKey,
-    authDomain,
-    databaseURL,
-    projectId,
-    storageBucket,
-    messagingSenderId,
-    appId,
-  ] = entries.map(([, v]) => v);
+    apiKey = '',
+    authDomain = '',
+    databaseURL = '',
+    projectId = '',
+    storageBucket = '',
+    messagingSenderId = '',
+    appId = '',
+  ] = entries.map(([, v]) => v ?? '');
   return {
     apiKey,
     authDomain,
