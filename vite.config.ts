@@ -8,6 +8,7 @@ import {
   pwaSeoPlugin,
   resolveSeoPublicUrls,
 } from '@mister-guiiug/dev-wpa-config/vite-pwa-base';
+import { cspPlugin } from '@mister-guiiug/dev-wpa-config/vite-csp';
 
 const { version } = JSON.parse(readFileSync('./package.json', 'utf-8')) as {
   version: string;
@@ -46,7 +47,7 @@ L'application ne fournit pas l'image du puzzle à assembler : uniquement compteu
 `;
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   define: {
     __BMAC_URL__: JSON.stringify('https://buymeacoffee.com/mister.guiiug'),
     'import.meta.env.VITE_PWA_ICON_QS': JSON.stringify(pwaIconQs),
@@ -90,6 +91,30 @@ export default defineConfig({
       logoPath: '/logo.svg',
       iconQuery: pwaIconQs,
       llms: LLMS_TXT,
+    }),
+    // CSP durcie : script-src par hash SHA-256 de l'IIFE anti-FOUC inline
+    // (plus de 'unsafe-inline' en prod). Placé après pwaSeoPlugin pour hasher
+    // aussi d'éventuels scripts injectés au build. Directives portées à
+    // l'identique depuis l'ancienne meta statique de index.html.
+    cspPlugin({
+      dev: command === 'serve',
+      imgSrc: [
+        "'self'",
+        'data:',
+        'blob:',
+        'https://firebasestorage.googleapis.com',
+      ],
+      connectSrc: [
+        "'self'",
+        'https://*.googleapis.com',
+        'https://*.firebaseio.com',
+        'wss://*.firebaseio.com',
+        'https://*.firebasedatabase.app',
+        'wss://*.firebasedatabase.app',
+      ],
+      extraDirectives: {
+        'frame-ancestors': "'none'",
+      },
     }),
     react(),
     tailwindcss(),
@@ -157,4 +182,4 @@ export default defineConfig({
         ]
       : []),
   ],
-});
+}));

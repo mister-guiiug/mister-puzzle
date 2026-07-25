@@ -1,16 +1,7 @@
 <!doctype html>
 <html lang="fr">
   <head>
-    <!--
-      Content-Security-Policy en défense en profondeur.
-      'unsafe-inline' : script anti-FOUC + styles injectés au build.
-      connect-src Firebase : Auth/Storage (googleapis) + Realtime Database
-      (https + wss firebaseio/firebasedatabase).
-    -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://firebasestorage.googleapis.com; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasedatabase.app wss://*.firebasedatabase.app; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
-    />
+    <!-- CSP injected at build by cspPlugin (@mister-guiiug/dev-wpa-config/vite-csp) -->
     <script>
       (function () {
         try {
