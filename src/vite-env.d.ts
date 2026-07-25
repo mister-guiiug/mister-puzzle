@@ -14,6 +14,7 @@ interface ImportMetaEnv {
   readonly VITE_GA_MEASUREMENT_ID?: string;
   /** URL HTTPS (POST JSON) pour recevoir les rapports d’erreur produits par `reportError` */
   readonly VITE_ERROR_INGEST_URL?: string;
+  readonly VITE_SENTRY_DSN?: string;
 
   readonly VITE_FIREBASE_API_KEY: string;
   readonly VITE_FIREBASE_AUTH_DOMAIN: string;
