@@ -792,6 +792,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     if (i < 0 || j < 0 || j >= ids.length) return;
     const next = [...ids];
     const [removed] = next.splice(i, 1);
+    if (removed === undefined) return;
     next.splice(j, 0, removed);
     try {
       await reorderPhotos(puzzle.id, next);

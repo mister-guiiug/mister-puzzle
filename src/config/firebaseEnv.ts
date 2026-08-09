@@ -35,14 +35,16 @@ export function getFirebaseWebConfig(): FirebaseWebConfig {
       `Configuration Firebase incomplète : définissez ${missing.join(', ')} (voir .env.example).`
     );
   }
+  // Les défauts ne servent qu'au typage : le throw ci-dessus garantit que les
+  // sept valeurs sont non vides.
   const [
-    apiKey,
-    authDomain,
-    databaseURL,
-    projectId,
-    storageBucket,
-    messagingSenderId,
-    appId,
+    apiKey = '',
+    authDomain = '',
+    databaseURL = '',
+    projectId = '',
+    storageBucket = '',
+    messagingSenderId = '',
+    appId = '',
   ] = entries.map(([, v]) => v);
   return {
     apiKey,

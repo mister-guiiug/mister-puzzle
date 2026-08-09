@@ -22,15 +22,18 @@ export const usePullToRefresh = (onRefresh: () => Promise<void> | void) => {
   useEffect(() => {
     const onTouchStart = (e: TouchEvent) => {
       // Only start when at the very top of the page
-      if (window.scrollY === 0) {
-        startY.current = e.touches[0].clientY;
+      const touch = e.touches[0];
+      if (window.scrollY === 0 && touch) {
+        startY.current = touch.clientY;
         pulling.current = true;
       }
     };
 
     const onTouchMove = (e: TouchEvent) => {
       if (!pulling.current || startY.current === null) return;
-      const dy = e.touches[0].clientY - startY.current;
+      const touch = e.touches[0];
+      if (!touch) return;
+      const dy = touch.clientY - startY.current;
       if (dy > 0) {
         setPullDistance(Math.min(dy, MAX_PULL));
         // Prevent native scroll when pulling down

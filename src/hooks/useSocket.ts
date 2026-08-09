@@ -247,7 +247,10 @@ const trimHistoryIfNeeded = async (roomCode: string): Promise<void> => {
   const val = snap.val() as Record<string, HistoryEntry>;
   const keys = Object.keys(val);
   if (keys.length <= MAX_HISTORY_ENTRIES) return;
-  const rows = keys.map(k => ({ key: k, ...val[k] }));
+  const rows = keys.flatMap(k => {
+    const entry = val[k];
+    return entry ? [{ key: k, ...entry }] : [];
+  });
   rows.sort((a, b) => a.timestamp - b.timestamp);
   const toDelete = rows.slice(0, rows.length - MAX_HISTORY_ENTRIES);
   const updates: Record<string, null> = {};
@@ -318,7 +321,7 @@ export const updateHistoryEntry = async (
     .map(([id, data]) => ({ ...data, id }))
     .sort((a, b) => b.timestamp - a.timestamp);
 
-  if (entries.length > 0 && entries[0].id === entryId) {
+  if (entries[0]?.id === entryId) {
     updates[`puzzles/${roomCode}/placedPieces`] = newPieces;
   }
 
@@ -342,7 +345,7 @@ export const deleteHistoryEntry = async (
     .map(([id, data]) => ({ ...data, id }))
     .sort((a, b) => b.timestamp - a.timestamp);
 
-  if (entries.length > 0 && entries[0].id === entryId) {
+  if (entries[0]?.id === entryId) {
     const nextLatest = entries[1];
     updates[`puzzles/${roomCode}/placedPieces`] = nextLatest
       ? nextLatest.placedPieces
