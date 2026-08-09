@@ -28,7 +28,7 @@ const COLORS = {
   gold: '#fbbf24',
   silver: '#9ca3af',
   bronze: '#cd7f32',
-  rowBg: ['#ffffff', '#f8fafc'] as const,
+  rowBg: ['#ffffff', '#f8fafc'],
 };
 
 function getRankColor(rank: number): string {
@@ -142,7 +142,7 @@ export function exportStatsImage(
     const rank = idx + 1;
 
     // Row background
-    ctx.fillStyle = idx % 2 === 0 ? COLORS.rowBg[0] : COLORS.rowBg[1];
+    ctx.fillStyle = COLORS.rowBg[idx % 2] ?? '#ffffff';
     ctx.fillRect(
       padding - 10,
       rowY - 10,

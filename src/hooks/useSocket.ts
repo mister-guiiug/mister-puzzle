@@ -245,12 +245,10 @@ const trimHistoryIfNeeded = async (roomCode: string): Promise<void> => {
   const snap = await get(ref(db, `puzzles/${roomCode}/history`));
   if (!snap.exists()) return;
   const val = snap.val() as Record<string, HistoryEntry>;
-  const keys = Object.keys(val);
-  if (keys.length <= MAX_HISTORY_ENTRIES) return;
-  const rows = keys.flatMap(k => {
-    const entry = val[k];
-    return entry ? [{ key: k, ...entry }] : [];
-  });
+  if (Object.keys(val).length <= MAX_HISTORY_ENTRIES) return;
+  // Object.entries (pas un accès indexé) : valeurs non-undefined pour le
+  // compilateur sous noUncheckedIndexedAccess.
+  const rows = Object.entries(val).map(([key, entry]) => ({ key, ...entry }));
   rows.sort((a, b) => a.timestamp - b.timestamp);
   const toDelete = rows.slice(0, rows.length - MAX_HISTORY_ENTRIES);
   const updates: Record<string, null> = {};

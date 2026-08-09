@@ -21,8 +21,8 @@ export const usePullToRefresh = (onRefresh: () => Promise<void> | void) => {
 
   useEffect(() => {
     const onTouchStart = (e: TouchEvent) => {
-      // Only start when at the very top of the page
       const touch = e.touches[0];
+      // Only start when at the very top of the page
       if (window.scrollY === 0 && touch) {
         startY.current = touch.clientY;
         pulling.current = true;
