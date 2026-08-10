@@ -13,7 +13,7 @@ import {
   equalTo,
   onDisconnect,
 } from 'firebase/database';
-import { db } from '../firebase';
+import { getDb } from '../firebase';
 import { normalizePuzzleFromFirebase } from '../utils/puzzleNormalize';
 import { reportError } from '../utils/reportError';
 import { PUZZLE_SCHEMA_VERSION } from '../constants/schema';
@@ -102,7 +102,7 @@ export const usePuzzle = (roomCode: string | null) => {
 
     setLoading(true);
     setLoadError(null);
-    const puzzleRef = ref(db, `puzzles/${roomCode}`);
+    const puzzleRef = ref(getDb(), `puzzles/${roomCode}`);
     const unsubscribe = onValue(
       puzzleRef,
       snapshot => {
@@ -145,7 +145,7 @@ export const createPuzzle = async (
   pseudo: string
 ): Promise<string> => {
   const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-  await set(ref(db, `puzzles/${roomCode}`), {
+  await set(ref(getDb(), `puzzles/${roomCode}`), {
     id: roomCode,
     schemaVersion: PUZZLE_SCHEMA_VERSION,
     name,
@@ -176,7 +176,7 @@ export const createPuzzle = async (
 export const joinPuzzle = async (
   roomCode: string
 ): Promise<PuzzleState | null> => {
-  const snapshot = await get(ref(db, `puzzles/${roomCode}`));
+  const snapshot = await get(ref(getDb(), `puzzles/${roomCode}`));
   if (!snapshot.exists()) return null;
   return normalizePuzzle(snapshot.val());
 };
@@ -186,7 +186,7 @@ export const getPublicPuzzles = async (): Promise<PuzzleState[]> => {
   // Try indexed query first; fall back to full fetch+filter if index not yet deployed
   try {
     const publicQuery = query(
-      ref(db, 'puzzles'),
+      ref(getDb(), 'puzzles'),
       orderByChild('isPublic'),
       equalTo(true)
     );
@@ -197,7 +197,7 @@ export const getPublicPuzzles = async (): Promise<PuzzleState[]> => {
       .filter(p => !p.passwordHash); // never show password-protected puzzles in search
   } catch (e) {
     reportError('getPublicPuzzles_indexed', e, {});
-    const snapshot = await get(ref(db, 'puzzles'));
+    const snapshot = await get(ref(getDb(), 'puzzles'));
     if (!snapshot.exists()) return [];
     return Object.values(snapshot.val() as Record<string, unknown>)
       .map(normalizePuzzle)
@@ -211,7 +211,7 @@ export const joinMember = async (
   sessionId: string,
   pseudo: string
 ): Promise<void> => {
-  const memberRef = ref(db, `puzzles/${roomCode}/members/${sessionId}`);
+  const memberRef = ref(getDb(), `puzzles/${roomCode}/members/${sessionId}`);
   await set(memberRef, { pseudo: pseudo || 'Anonyme', lastSeen: Date.now() });
   await onDisconnect(memberRef).remove();
 };
@@ -220,14 +220,14 @@ export const leaveMember = async (
   roomCode: string,
   sessionId: string
 ): Promise<void> => {
-  await remove(ref(db, `puzzles/${roomCode}/members/${sessionId}`));
+  await remove(ref(getDb(), `puzzles/${roomCode}/members/${sessionId}`));
 };
 
 export const changePassword = async (
   roomCode: string,
   newPasswordHash: string | null
 ): Promise<void> => {
-  await update(ref(db, `puzzles/${roomCode}`), {
+  await update(ref(getDb(), `puzzles/${roomCode}`), {
     passwordHash: newPasswordHash,
   });
 };
@@ -236,13 +236,13 @@ export const updateVisibility = async (
   roomCode: string,
   isPublic: boolean
 ): Promise<void> => {
-  await update(ref(db, `puzzles/${roomCode}`), { isPublic });
+  await update(ref(getDb(), `puzzles/${roomCode}`), { isPublic });
 };
 
 const MAX_HISTORY_ENTRIES = 120;
 
 const trimHistoryIfNeeded = async (roomCode: string): Promise<void> => {
-  const snap = await get(ref(db, `puzzles/${roomCode}/history`));
+  const snap = await get(ref(getDb(), `puzzles/${roomCode}/history`));
   if (!snap.exists()) return;
   const val = snap.val() as Record<string, HistoryEntry>;
   if (Object.keys(val).length <= MAX_HISTORY_ENTRIES) return;
@@ -255,7 +255,7 @@ const trimHistoryIfNeeded = async (roomCode: string): Promise<void> => {
   for (const { key } of toDelete) {
     updates[`puzzles/${roomCode}/history/${key}`] = null;
   }
-  await update(ref(db), updates);
+  await update(ref(getDb()), updates);
 };
 
 export const updatePieces = async (
@@ -263,8 +263,8 @@ export const updatePieces = async (
   placedPieces: number,
   pseudo?: string
 ): Promise<void> => {
-  const newKey = push(ref(db, `puzzles/${roomCode}/history`)).key;
-  await update(ref(db), {
+  const newKey = push(ref(getDb(), `puzzles/${roomCode}/history`)).key;
+  await update(ref(getDb()), {
     [`puzzles/${roomCode}/placedPieces`]: placedPieces,
     [`puzzles/${roomCode}/history/${newKey}`]: {
       timestamp: Date.now(),
@@ -306,7 +306,7 @@ export const updateHistoryEntry = async (
   entryId: string,
   newPieces: number
 ): Promise<void> => {
-  const historyRef = ref(db, `puzzles/${roomCode}/history`);
+  const historyRef = ref(getDb(), `puzzles/${roomCode}/history`);
   const snap = await get(historyRef);
   if (!snap.exists()) return;
   const history = snap.val() as Record<string, HistoryEntry>;
@@ -323,14 +323,14 @@ export const updateHistoryEntry = async (
     updates[`puzzles/${roomCode}/placedPieces`] = newPieces;
   }
 
-  await update(ref(db), updates);
+  await update(ref(getDb()), updates);
 };
 
 export const deleteHistoryEntry = async (
   roomCode: string,
   entryId: string
 ): Promise<void> => {
-  const historyRef = ref(db, `puzzles/${roomCode}/history`);
+  const historyRef = ref(getDb(), `puzzles/${roomCode}/history`);
   const snap = await get(historyRef);
   if (!snap.exists()) return;
   const history = snap.val() as Record<string, HistoryEntry>;
@@ -350,7 +350,7 @@ export const deleteHistoryEntry = async (
       : 0;
   }
 
-  await update(ref(db), updates);
+  await update(ref(getDb()), updates);
 };
 
 export const toggleCheckpoint = async (
@@ -359,7 +359,7 @@ export const toggleCheckpoint = async (
   currentCompleted: boolean
 ): Promise<void> => {
   await set(
-    ref(db, `puzzles/${roomCode}/checkpoints/${checkpointId}/completed`),
+    ref(getDb(), `puzzles/${roomCode}/checkpoints/${checkpointId}/completed`),
     !currentCompleted
   );
 };
@@ -369,8 +369,8 @@ export const addCheckpoint = async (
   name: string,
   pseudo?: string
 ): Promise<void> => {
-  const newKey = push(ref(db, `puzzles/${roomCode}/checkpoints`)).key!;
-  await set(ref(db, `puzzles/${roomCode}/checkpoints/${newKey}`), {
+  const newKey = push(ref(getDb(), `puzzles/${roomCode}/checkpoints`)).key!;
+  await set(ref(getDb(), `puzzles/${roomCode}/checkpoints/${newKey}`), {
     id: newKey,
     name,
     completed: false,
@@ -386,14 +386,14 @@ export const uncheckAllCheckpoints = async (
   for (const id of checkpointIds) {
     updates[`puzzles/${roomCode}/checkpoints/${id}/completed`] = false;
   }
-  await update(ref(db), updates);
+  await update(ref(getDb()), updates);
 };
 
 export const deleteCheckpoint = async (
   roomCode: string,
   checkpointId: string
 ): Promise<void> => {
-  await remove(ref(db, `puzzles/${roomCode}/checkpoints/${checkpointId}`));
+  await remove(ref(getDb(), `puzzles/${roomCode}/checkpoints/${checkpointId}`));
 };
 
 export const addPhoto = async (
@@ -401,7 +401,7 @@ export const addPhoto = async (
   photo: string
 ): Promise<void> => {
   const now = Date.now();
-  const newRef = push(ref(db, `puzzles/${roomCode}/photos`));
+  const newRef = push(ref(getDb(), `puzzles/${roomCode}/photos`));
   await set(newRef, { data: photo, rotation: 0, addedAt: now, sortOrder: now });
 };
 
@@ -411,7 +411,7 @@ export const updatePhoto = async (
   patch: { caption?: string | null; sortOrder?: number }
 ): Promise<void> => {
   await update(
-    ref(db, `puzzles/${roomCode}/photos/${photoId}`),
+    ref(getDb(), `puzzles/${roomCode}/photos/${photoId}`),
     patch as Record<string, unknown>
   );
 };
@@ -424,14 +424,14 @@ export const reorderPhotos = async (
   orderedIds.forEach((id, index) => {
     updates[`puzzles/${roomCode}/photos/${id}/sortOrder`] = index;
   });
-  await update(ref(db), updates);
+  await update(ref(getDb()), updates);
 };
 
 export const deletePhoto = async (
   roomCode: string,
   photoId: string
 ): Promise<void> => {
-  await remove(ref(db, `puzzles/${roomCode}/photos/${photoId}`));
+  await remove(ref(getDb(), `puzzles/${roomCode}/photos/${photoId}`));
 };
 
 export const rotatePhoto = async (
@@ -439,7 +439,7 @@ export const rotatePhoto = async (
   photoId: string,
   newRotation: number
 ): Promise<void> => {
-  await update(ref(db, `puzzles/${roomCode}/photos/${photoId}`), {
+  await update(ref(getDb(), `puzzles/${roomCode}/photos/${photoId}`), {
     rotation: newRotation,
   });
 };
@@ -449,7 +449,7 @@ export const updateGridSize = async (
   rows: number,
   cols: number
 ): Promise<void> => {
-  await update(ref(db, `puzzles/${roomCode}`), {
+  await update(ref(getDb(), `puzzles/${roomCode}`), {
     rows,
     cols,
     totalPieces: rows * cols,
@@ -460,9 +460,9 @@ export const renamePuzzle = async (
   roomCode: string,
   name: string
 ): Promise<void> => {
-  await update(ref(db, `puzzles/${roomCode}`), { name });
+  await update(ref(getDb(), `puzzles/${roomCode}`), { name });
 };
 
 export const deletePuzzle = async (roomCode: string): Promise<void> => {
-  await remove(ref(db, `puzzles/${roomCode}`));
+  await remove(ref(getDb(), `puzzles/${roomCode}`));
 };
