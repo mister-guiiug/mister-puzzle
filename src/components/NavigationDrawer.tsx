@@ -280,7 +280,10 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
         ref={panelRef}
         id="app-navigation-drawer"
         className={`fixed left-0 top-0 z-[70] h-full max-h-dvh w-full min-w-0 max-w-[min(100vw,24rem)] bg-surface shadow-2xl border-r border-divide flex flex-col transition-transform duration-200 ease-out pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] touch-pan-y ${open ? 'translate-x-0' : '-translate-x-full'}`}
-        aria-hidden={!open}
+        // Le tiroir reste monté (glissement translate-x) : `inert` le sort du
+        // tab order ET de l'arbre d'accessibilité, là où `aria-hidden` seul
+        // laissait ses liens focusables (axe aria-hidden-focus).
+        inert={!open}
         aria-label={t('nav.drawerTitle')}
       >
         <div className="flex items-center justify-between gap-3 px-4 py-3 sm:p-4 border-b border-divide shrink-0 min-h-[3.25rem]">
