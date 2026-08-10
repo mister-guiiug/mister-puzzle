@@ -17,7 +17,9 @@ html {
   --fg: #111827;
   --fg-heading: #1f2937;
   --fg-muted: #4b5563;
-  --fg-faint: #9ca3af;
+  /* gray-500 : le texte `text-fg-faint` (labels, hints) doit tenir le 4.5:1
+     WCAG AA sur --surface/--canvas (gray-400 ne donnait que 2.5:1). */
+  --fg-faint: #6b7280;
   --divide: #f3f4f6;
   --divide-strong: #e5e7eb;
   --border-ui: #e5e7eb;
@@ -69,13 +71,14 @@ html {
   --warm-ring: #fb923c;
   --warm-axis: #fed7aa;
 
-  /* Succès (vert) */
-  --success: #16a34a;
-  --success-hover: #15803d;
+  /* Succès (vert) — green-700 : `text-white` sur `bg-success-fill` doit tenir
+     le 4.5:1 WCAG AA (green-600 ne donnait que 3.29:1). */
+  --success: #15803d;
+  --success-hover: #166534;
   --success-soft: #f0fdf4;
   --success-soft-border: #bbf7d0;
   --success-on-soft: #166534;
-  --success-fill: #16a34a;
+  --success-fill: #15803d;
   --success-row-hover: #f0fdf4;
   --success-row-active: #dcfce7;
   --success-row-border: #bbf7d0;

@@ -485,10 +485,14 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             </div>
             <div className="flex items-center gap-3">
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-fg-muted">
+                <label
+                  htmlFor="home-grid-rows"
+                  className="mb-1 block text-xs text-fg-muted"
+                >
                   {t('home.rows')}
                 </label>
                 <input
+                  id="home-grid-rows"
                   type="number"
                   min={1}
                   value={rows}
@@ -507,10 +511,14 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 ×
               </span>
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-fg-muted">
+                <label
+                  htmlFor="home-grid-cols"
+                  className="mb-1 block text-xs text-fg-muted"
+                >
                   {t('home.cols')}
                 </label>
                 <input
+                  id="home-grid-cols"
                   type="number"
                   min={1}
                   value={cols}
