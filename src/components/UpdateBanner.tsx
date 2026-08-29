@@ -1,10 +1,17 @@
 import { RefreshCw, Sparkles, X, Clock } from 'lucide-react';
-import { useUpdatePrompt } from '../hooks/useUpdatePrompt';
+import { registerSW } from 'virtual:pwa-register';
+import { useUpdatePrompt } from '@mister-guiiug/dev-wpa-config/react/use-update-prompt';
 import { useI18n } from '../i18n/I18nContext';
 
 export function UpdateBanner() {
   const { t } = useI18n();
-  const { visible, update, snooze, dismiss } = useUpdatePrompt();
+  // Clé historique conservée : un report déjà posé avant cette migration
+  // reste honoré (même format : époque ms de fin de report).
+  const { visible, update, snooze, dismiss } = useUpdatePrompt({
+    registerSW,
+    snoozeHours: 24,
+    snoozeKey: 'mister_puzzle_update_snooze_until_ms',
+  });
 
   if (!visible) return null;
 
