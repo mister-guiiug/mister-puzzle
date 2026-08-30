@@ -314,9 +314,8 @@ export const messages: Record<Locale, MsgValue> = {
       updateBannerTitle:
         'Une nouvelle version de l’application est disponible.',
       updateBannerCta: 'Mettre à jour',
-      updateBannerBadge: 'Mise à jour',
+      updateBannerUpdating: 'Mise à jour…',
       updateBannerSnooze: 'Plus tard (24 h)',
-      updateBannerDismiss: 'Ignorer',
     },
   },
   en: {
@@ -614,9 +613,8 @@ export const messages: Record<Locale, MsgValue> = {
         'Filter the public list by completion (0–100). Leave empty for no filter.',
       updateBannerTitle: 'A new version of the app is available.',
       updateBannerCta: 'Update now',
-      updateBannerBadge: 'Update',
+      updateBannerUpdating: 'Updating…',
       updateBannerSnooze: 'Remind me in 24 h',
-      updateBannerDismiss: 'Dismiss',
     },
   },
 };

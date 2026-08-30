@@ -493,6 +493,41 @@ button,
   }
 }
 
+/* Bandeau de mise à jour — habillage de l'UpdatePromptBanner du socle
+   (`react/update-prompt-banner`), qui a remplacé la barre écrite à la main.
+   La mise en page (bande collante, dégradé, ombre, flou, zone sûre) reste en
+   utilitaires Tailwind sur la prop `className` ; ne sont repris ici que les
+   traits que `components.css` impose et que l'app ne veut pas — une carte
+   arrondie et cerclée là où il faut une bande bord à bord — plus la teinte de
+   l'action principale, que le socle laisse neutre.
+   Non « layered » : ces règles gagnent sur `@layer components` ET sur les
+   utilitaires, d'où le raccourci `border` plutôt qu'un `border-b` de plus. */
+.puzzle-update-banner {
+  border: 0;
+  border-bottom: 1px solid var(--primary-border);
+  border-radius: 0;
+}
+
+.puzzle-update-banner [data-dwc='update-banner-title'] {
+  flex: 0 1 36rem;
+  text-align: center;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.puzzle-update-banner [data-dwc='update-banner-update'] {
+  border-color: var(--primary-fill);
+  background: var(--primary-fill);
+  color: #ffffff;
+  font-weight: 700;
+  transition: background-color 150ms ease;
+}
+
+.puzzle-update-banner [data-dwc='update-banner-update']:hover {
+  border-color: var(--primary-fill-hover);
+  background: var(--primary-fill-hover);
+}
+
 /* Famille — grille « Nos autres applications » (composant partagé FamilyApps).
    La base (structure, cible tactile) vient de components.css via le contrat
    `--dwc-*` ; les règles ci-dessous, non « layered », gardent l'habillage
