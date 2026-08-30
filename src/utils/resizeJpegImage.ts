@@ -1,33 +1,66 @@
-import { MAX_UPLOAD_BYTES } from '../constants/dashboard';
+import {
+  compressImageToMaxBytes,
+  stripImageMetadata,
+  validateImageFile,
+} from '@mister-guiiug/dev-wpa-config/image';
+import {
+  MAX_PHOTO_DATA_URL_CHARS,
+  MAX_UPLOAD_BYTES,
+  PHOTO_ACCEPTED_TYPES,
+  PHOTO_JPEG_QUALITY,
+  PHOTO_MAX_DIMENSION,
+} from '../constants/dashboard';
 
 /**
- * Redimensionne une image locale en JPEG data URL (max largeur 800px).
- * @throws Error avec message `size` si fichier trop lourd, `read` / `img` en cas d’échec décodage.
+ * Budget d’octets JPEG déduit du budget de caractères de la base : le base64
+ * gonfle de 4/3, plus l’en-tête `data:image/jpeg;base64,`. On garde une marge
+ * pour ne jamais frôler la règle Firebase.
  */
-export function resizeImageToJpegDataUrl(file: File): Promise<string> {
+const DATA_URL_PREFIX = 'data:image/jpeg;base64,';
+const MAX_PHOTO_JPEG_BYTES = Math.floor(
+  ((MAX_PHOTO_DATA_URL_CHARS - DATA_URL_PREFIX.length) * 3) / 4 - 1024
+);
+
+function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
-    if (file.size > MAX_UPLOAD_BYTES) {
-      reject(new Error('size'));
-      return;
-    }
     const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 800;
-        const scale = MAX_WIDTH / img.width;
-        canvas.width = MAX_WIDTH;
-        canvas.height = img.height * scale;
-        canvas
-          .getContext('2d')
-          ?.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.7));
-      };
-      img.onerror = () => reject(new Error('img'));
-      img.src = e.target?.result as string;
-    };
+    reader.onload = () => resolve(reader.result as string);
     reader.onerror = () => reject(new Error('read'));
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(blob);
   });
+}
+
+/**
+ * Prépare une photo téléversée pour la base temps réel : contrôle, ré-encodage
+ * JPEG redimensionné, puis conversion en data URL (la RTDB ne stocke que du
+ * JSON, d’où la chaîne plutôt qu’un Blob).
+ *
+ * Le passage par canvas du socle supprime au passage EXIF / GPS : seuls les
+ * pixels survivent.
+ *
+ * @throws Error avec message `type` si le fichier n’est pas une image
+ *   reconnue, `size` s’il dépasse {@link MAX_UPLOAD_BYTES}, `read` si la
+ *   lecture échoue. Les erreurs de décodage remontent telles quelles.
+ */
+export async function resizeImageToJpegDataUrl(file: File): Promise<string> {
+  const refusal = validateImageFile(file, {
+    maxBytes: MAX_UPLOAD_BYTES,
+    acceptedTypes: PHOTO_ACCEPTED_TYPES,
+  });
+  if (refusal) throw new Error(refusal);
+
+  const jpeg = await stripImageMetadata(file, {
+    maxDimension: PHOTO_MAX_DIMENSION,
+    type: 'image/jpeg',
+    quality: PHOTO_JPEG_QUALITY,
+  });
+  const dataUrl = await blobToDataUrl(jpeg);
+  if (dataUrl.length < MAX_PHOTO_DATA_URL_CHARS) return dataUrl;
+
+  // Cas rare (panorama très allongé : une seule dimension bornée ne borne pas
+  // le poids). Sans ce repli, l’écriture serait rejetée par la règle Firebase.
+  const compressed = await compressImageToMaxBytes(file, MAX_PHOTO_JPEG_BYTES, {
+    maxDimension: PHOTO_MAX_DIMENSION,
+  });
+  return await blobToDataUrl(compressed);
 }
