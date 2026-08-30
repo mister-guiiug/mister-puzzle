@@ -1,64 +1,58 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, X } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import { ConfirmDialog } from '@mister-guiiug/dev-wpa-config/react/confirm-dialog';
 import { useI18n } from '../i18n/I18nContext';
-import { useReducedMotion } from '../hooks/useReducedMotion';
 
 interface ErrorModalProps {
   message: string | null;
   onClose: () => void;
 }
 
+/**
+ * Alerte d'erreur — coquille mince autour du `ConfirmDialog` du socle en mode
+ * MONO-ACTION (`cancelLabel={null}`, 3.23.0), qui remplace `window.alert`.
+ *
+ * POURQUOI UNE COQUILLE, et pas un appel direct. Elle garde la signature
+ * historique (`message: string | null`, `onClose`) qu'appellent Dashboard et
+ * Home, et surtout elle branche le i18n MAISON : le socle a son propre
+ * dictionnaire de libellés (`confirm.ok` → « OK »), l'app affiche
+ * « J'ai compris » / « Got it ». La prop `confirmLabel` l'emporte sur les deux
+ * autres niveaux, donc aucun `LabelsProvider` à monter pour ce seul écran.
+ *
+ * CE QUE LA MIGRATION APPORTE, et que la modale maison n'avait pas :
+ * `role="alertdialog"` + `aria-modal` + nom accessible (`aria-labelledby` sur
+ * le titre, `aria-describedby` sur le message), piège de focus, restitution du
+ * focus à la fermeture, verrou de scroll, Échap, clic sur le voile. Les trois
+ * sorties (bouton, Échap, voile) passent toutes par `onConfirm` : c'est le
+ * contrat du mode mono-action.
+ *
+ * CE QU'ELLE RETIRE : la croix du coin supérieur droit. Elle était la SEULE
+ * sortie alternative au bouton tant qu'Échap et le voile ne faisaient rien ;
+ * il y en a maintenant deux, et son `aria-label` était le libellé du bouton
+ * lui-même (« J'ai compris »), soit un doublon sans nom propre.
+ *
+ * La pastille d'alerte est décorative : elle est passée en `children` (donc
+ * dans le corps, après le titre) et remontée VISUELLEMENT au-dessus du titre
+ * par `.puzzle-alert-icon` dans index.css. L'ordre DOM sert le lecteur
+ * d'écran — nom, puis description —, l'ordre visuel sert l'œil.
+ */
 const ErrorModal: React.FC<ErrorModalProps> = ({ message, onClose }) => {
   const { t } = useI18n();
-  const reduceMotion = useReducedMotion();
 
   return (
-    <AnimatePresence>
-      {message && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-overlay-strong backdrop-blur-sm">
-          <motion.div
-            initial={
-              reduceMotion ? { opacity: 1 } : { opacity: 0, scale: 0.9, y: 20 }
-            }
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={
-              reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 20 }
-            }
-            transition={{ duration: reduceMotion ? 0.08 : 0.2 }}
-            className="bg-surface rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-divide"
-          >
-            <div className="p-6">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-danger-icon-bg rounded-full text-danger-icon-text">
-                <AlertCircle size={24} />
-              </div>
-              <h3 className="text-lg font-bold text-center text-fg mb-2">
-                {t('common.errorModalTitle')}
-              </h3>
-              <p className="text-sm text-center text-fg-muted">{message}</p>
-            </div>
-            <div className="p-4 bg-surface-muted/90 border-t border-divide">
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-full flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-danger-fill rounded-xl hover:bg-danger-fill-hover transition-colors focus:outline-none focus:ring-2 focus:ring-danger-ring focus:ring-offset-2"
-              >
-                {t('common.errorModalClose')}
-              </button>
-            </div>
-          </motion.div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors"
-            aria-label={t('common.errorModalClose')}
-          >
-            <X size={24} />
-          </button>
-        </div>
-      )}
-    </AnimatePresence>
+    <ConfirmDialog
+      className="puzzle-alert"
+      open={Boolean(message)}
+      title={t('common.errorModalTitle')}
+      confirmLabel={t('common.errorModalClose')}
+      cancelLabel={null}
+      onConfirm={onClose}
+    >
+      <span className="puzzle-alert-icon" aria-hidden="true">
+        <AlertCircle size={24} />
+      </span>
+      {message}
+    </ConfirmDialog>
   );
 };
 

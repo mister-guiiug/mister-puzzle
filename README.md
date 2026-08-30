@@ -144,7 +144,6 @@ Installez Mister Puzzle sur votre téléphone ou ordinateur pour un accès rapid
 | State | [Zustand 5](https://zustand-demo.pmnd.rs/) |
 | Validation | [Zod 3](https://zod.dev/) |
 | Données | [Firebase Realtime Database](https://firebase.google.com/docs/database) (`firebase ^11`) |
-| Animations | [Framer Motion](https://www.framer.com/motion/) |
 | Icônes UI | [Lucide React](https://lucide.dev/) |
 | Dates | [date-fns](https://date-fns.org/) |
 | Tests | [Vitest 3](https://vitest.dev/) (jsdom) + [Testing Library](https://testing-library.com/) + [Playwright](https://playwright.dev/) + [@axe-core/playwright](https://github.com/dequelabs/axe-core-npm) |
