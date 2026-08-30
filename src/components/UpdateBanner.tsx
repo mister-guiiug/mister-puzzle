@@ -1,59 +1,85 @@
-import { RefreshCw, Sparkles, X, Clock } from 'lucide-react';
 import { registerSW } from 'virtual:pwa-register';
-import { useUpdatePrompt } from '@mister-guiiug/dev-wpa-config/react/use-update-prompt';
+import { UpdatePromptBanner } from '@mister-guiiug/dev-wpa-config/react/update-prompt-banner';
 import { useI18n } from '../i18n/I18nContext';
+
+/**
+ * Bandeau « nouvelle version disponible », rendu par le socle
+ * (`react/update-prompt-banner`). Ce fichier ne garde que le câblage propre à
+ * Mister Puzzle : `registerSW`, la durée de report, l'habillage et les
+ * libellés.
+ *
+ * POURQUOI `registerSW` EST PASSÉ ICI. Le bandeau du socle n'importe pas
+ * `virtual:pwa-register` — ce module virtuel n'existe que dans un build Vite
+ * avec vite-plugin-pwa. Sans cette prop, `needRefresh` reste faux et le bandeau
+ * ne s'affiche JAMAIS, sans erreur ni test rouge. C'est le seul point de
+ * câblage qui compte, et `UpdateBanner.test.tsx` le verrouille.
+ *
+ * CE QUI CHANGE POUR L'UTILISATEUR. La barre écrite à la main offrait DEUX
+ * sorties : « Plus tard (24 h) », persistée, et « Ignorer », le temps de la
+ * session. Le socle n'en rend qu'une — avec `snoozeHours > 0`, c'est le report.
+ * La sortie la plus forte est donc conservée, la plus faible disparaît (elle
+ * n'apportait rien de plus : les deux masquaient le bandeau sur-le-champ).
+ * Disparaît aussi la pastille « Mise à jour », décorative.
+ *
+ * UN SECOND BOUTON DE SORTIE et une CLÉ DE REPORT CONFIGURABLE sont les deux
+ * capacités que le socle n'offre pas : candidates à une évolution, pas des
+ * motifs pour rester à l'écart.
+ */
+
+/** Clé de report du socle, non configurable via `UpdatePromptBanner`. */
+const SOCLE_SNOOZE_KEY = 'dwc_sw_update_snoozed_until';
+
+/** Clé historique de l'app, portée par la version écrite à la main. */
+const LEGACY_SNOOZE_KEY = 'mister_puzzle_update_snooze_until_ms';
+
+/**
+ * Reprend un report déjà posé sous l'ancienne clé.
+ *
+ * `UpdatePromptBanner` ne prend pas de `snoozeKey` : il lit toujours celle du
+ * socle. Sans cette reprise, un report en cours serait oublié et le bandeau
+ * reviendrait aussitôt — exactement ce que la version précédente avait pris
+ * soin d'éviter. Même format des deux côtés : une époque en millisecondes.
+ *
+ * Appelée une fois au chargement du module, donc avant le premier rendu du
+ * bandeau, qui lit la valeur à l'initialisation. Non exportée : c'est cet
+ * appel-là que le test éprouve, pas la fonction isolée.
+ */
+function adoptLegacySnooze(): void {
+  try {
+    const legacy = localStorage.getItem(LEGACY_SNOOZE_KEY);
+    if (legacy === null) return;
+    localStorage.removeItem(LEGACY_SNOOZE_KEY);
+
+    const until = Number(legacy);
+    // Un report expiré ou illisible n'a rien à reporter : on se contente
+    // d'avoir retiré la clé morte.
+    if (!Number.isFinite(until) || until <= Date.now()) return;
+
+    const current = Number(localStorage.getItem(SOCLE_SNOOZE_KEY) ?? 0);
+    if (!(current > until))
+      localStorage.setItem(SOCLE_SNOOZE_KEY, String(until));
+  } catch {
+    /* stockage refusé (navigation privée) : le report repart de zéro */
+  }
+}
+
+adoptLegacySnooze();
 
 export function UpdateBanner() {
   const { t } = useI18n();
-  // Clé historique conservée : un report déjà posé avant cette migration
-  // reste honoré (même format : époque ms de fin de report).
-  const { visible, update, snooze, dismiss } = useUpdatePrompt({
-    registerSW,
-    snoozeHours: 24,
-    snoozeKey: 'mister_puzzle_update_snooze_until_ms',
-  });
-
-  if (!visible) return null;
 
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="sticky top-0 z-[60] w-full flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-3 py-3 sm:py-3.5 border-b border-primary-border bg-gradient-to-r from-primary-soft via-surface to-primary-soft shadow-md backdrop-blur-sm pt-[max(0.75rem,env(safe-area-inset-top,0px))]"
-    >
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-fill px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
-        <Sparkles size={12} className="shrink-0" aria-hidden />
-        {t('nav.updateBannerBadge')}
-      </span>
-      <p className="m-0 text-sm sm:text-base text-fg text-center max-w-xl font-medium basis-full sm:basis-auto">
-        {t('nav.updateBannerTitle')}
-      </p>
-      <div className="flex flex-wrap items-center justify-center gap-2 w-full sm:w-auto">
-        <button
-          type="button"
-          onClick={update}
-          className="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-white bg-primary-fill rounded-xl hover:bg-primary-fill-hover active:scale-[0.98] transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring focus-visible:ring-offset-2"
-        >
-          <RefreshCw size={18} className="shrink-0" aria-hidden />
-          {t('nav.updateBannerCta')}
-        </button>
-        <button
-          type="button"
-          onClick={snooze}
-          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-semibold text-fg-heading border border-border-ui rounded-xl bg-surface hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
-        >
-          <Clock size={16} className="shrink-0 text-fg-muted" aria-hidden />
-          {t('nav.updateBannerSnooze')}
-        </button>
-        <button
-          type="button"
-          onClick={dismiss}
-          className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium text-fg-muted hover:text-fg-heading rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
-        >
-          <X size={18} className="shrink-0" aria-hidden />
-          {t('nav.updateBannerDismiss')}
-        </button>
-      </div>
-    </div>
+    <UpdatePromptBanner
+      registerSW={registerSW}
+      snoozeHours={24}
+      className="puzzle-update-banner sticky top-0 z-[60] w-full justify-center gap-2 sm:gap-3 px-3 py-3 sm:py-3.5 bg-gradient-to-r from-primary-soft via-surface to-primary-soft shadow-md backdrop-blur-sm pt-[max(0.75rem,env(safe-area-inset-top,0px))]"
+      title={t('nav.updateBannerTitle')}
+      updateLabel={t('nav.updateBannerCta')}
+      // Le i18n de l'app est écrit à la main (pas `createI18n`), donc AUCUN
+      // `LabelsProvider` n'est monté : sans ce libellé, l'état transitoire du
+      // socle resterait en français pour tout le monde.
+      updatingLabel={t('nav.updateBannerUpdating')}
+      snoozeLabel={t('nav.updateBannerSnooze')}
+    />
   );
 }
