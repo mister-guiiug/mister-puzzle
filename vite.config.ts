@@ -75,7 +75,6 @@ export default defineConfig(({ command }) => ({
             return 'firebase';
           if (norm.includes('/lucide-react/')) return 'lucide';
           if (norm.includes('/date-fns/')) return 'date-fns';
-          if (norm.includes('/framer-motion/')) return 'motion';
           if (norm.includes('/tailwindcss/') || norm.includes('/@tailwindcss/'))
             return 'tailwind';
           if (norm.includes('/zustand/')) return 'zustand';

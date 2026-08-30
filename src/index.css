@@ -387,6 +387,112 @@ button,
    components.css depuis la 3.22.0 (règle `:where(#root) > [data-dwc='error-boundary']`,
    écran centré plein écran) — la copie locale de ce bloc a été supprimée. */
 
+/* Alerte d'erreur — habillage du ConfirmDialog du socle en mode mono-action
+   (`cancelLabel={null}`, 3.23.0 ; voir ErrorModal.tsx). La charpente, le rôle
+   `alertdialog`, Échap, le voile cliquable et le piège de focus viennent du
+   composant ; les règles ci-dessous, non « layered », rendent l'identité de
+   l'ancienne modale maison : pastille d'alerte, textes centrés, bandeau de
+   pied et bouton pleine largeur en teinte danger.
+   Scopées sous `.puzzle-alert` (la prop `className` du composant) pour ne
+   toucher aucune autre boîte de confirmation. */
+.puzzle-alert[data-dwc='confirm'] {
+  /* Le socle empile à 60. L'app monte au-dessus le tiroir (70), les menus de
+     la barre (80/85) et le bandeau de confirmation du tableau de bord (90) :
+     sans ce rappel, l'alerte s'afficherait DERRIÈRE eux. C'est le z-[100] que
+     portait l'ancienne modale. */
+  z-index: 100;
+}
+
+.puzzle-alert [data-dwc='confirm-backdrop'] {
+  background: var(--overlay-strong);
+  backdrop-filter: blur(4px);
+}
+
+.puzzle-alert [data-dwc='confirm-panel'] {
+  /* Le rembourrage passe aux enfants : le bandeau de pied doit aller au bord
+     du panneau. Le `overflow-y: auto` du socle continue de rogner les coins. */
+  padding: 0;
+  border: 1px solid var(--divide);
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+}
+
+.puzzle-alert [data-dwc='confirm-title'] {
+  /* Réserve du haut = 1.5rem (marge du bloc) + 3rem (pastille) + 1rem
+     (respiration) : la pastille y est posée en absolu, voir plus bas. */
+  padding: 5.5rem 1.5rem 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--fg);
+}
+
+.puzzle-alert [data-dwc='confirm-body'] {
+  margin-top: 0.5rem;
+  padding: 0 1.5rem 1.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+  color: var(--fg-muted);
+}
+
+/* Pastille décorative : rendue dans le corps (après le titre) pour ne pas
+   s'intercaler entre le nom et la description de la boîte, puis remontée
+   visuellement dans la réserve du titre. Le panneau est `position: relative`
+   côté socle, et c'est aussi le conteneur de défilement : la pastille suit
+   donc le contenu si le message est long. */
+.puzzle-alert-icon {
+  position: absolute;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  background: var(--danger-icon-bg);
+  color: var(--danger-icon-text);
+}
+
+.puzzle-alert [data-dwc='confirm-actions'] {
+  margin-top: 0;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--surface-muted) 90%, transparent);
+  border-top: 1px solid var(--divide);
+}
+
+/* Seul de sa rangée, le bouton la prend en entier (`:only-child { flex: 1 }`
+   du socle) : reste la teinte. La hauteur minimale de 2.75rem du socle est
+   CONSERVÉE — l'ancien `py-2` donnait une cible de 36 px, sous le seuil de
+   44 px que l'app tient partout ailleurs. */
+.puzzle-alert [data-dwc='confirm-confirm'] {
+  font-size: 0.875rem;
+  border-color: var(--danger-fill);
+  background: var(--danger-fill);
+  color: #ffffff;
+  transition: background-color 150ms ease;
+}
+
+.puzzle-alert [data-dwc='confirm-confirm']:hover {
+  border-color: var(--danger-fill-hover);
+  background: var(--danger-fill-hover);
+}
+
+.puzzle-alert [data-dwc='confirm-confirm']:focus-visible {
+  outline: 2px solid var(--danger-ring);
+  outline-offset: 2px;
+}
+
+/* Le socle n'a pas (encore) inscrit `confirm-panel` dans son bloc
+   `prefers-reduced-motion` — seul `sheet-panel` y figure. L'ancienne modale
+   respectait le réglage via framer-motion : on le tient ici. */
+@media (prefers-reduced-motion: reduce) {
+  .puzzle-alert [data-dwc='confirm-panel'] {
+    animation-duration: 0.001ms;
+  }
+}
+
 /* Famille — grille « Nos autres applications » (composant partagé FamilyApps).
    La base (structure, cible tactile) vient de components.css via le contrat
    `--dwc-*` ; les règles ci-dessous, non « layered », gardent l'habillage
