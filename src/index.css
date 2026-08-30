@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 @import '@mister-guiiug/dev-wpa-config/tailwind-preset.css';
+/* Habillage opt-in des composants du socle : tout est en `@layer components`,
+   le CSS non « layered » de l'app garde donc le dernier mot. */
+@import '@mister-guiiug/dev-wpa-config/components.css';
 
 /* Thème manuel : classe `dark` sur <html> (voir ThemeContext + script dans index.html). */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -236,6 +239,48 @@ html.dark {
     rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 }
 
+/* Contrat des composants partagés (components.css) : les jetons `--dwc-*`
+   branchés une seule fois sur les tokens sémantiques de l'app. La plupart
+   pointent sur des variables redéfinies par `html.dark` et suivent donc le
+   thème sombre tout seuls ; seuls les jetons posés en dur sont repris dans le
+   bloc sombre ci-dessous. */
+html {
+  --dwc-surface: var(--surface);
+  --dwc-surface-2: var(--surface-muted);
+  --dwc-text: var(--fg);
+  --dwc-text-soft: var(--fg-muted);
+  --dwc-border: var(--border-ui);
+  /* Le pourtour d'un CONTRÔLE (champ, bouton secondaire), pas un filet de
+     séparation : WCAG 1.4.11 lui demande 3:1. `--border-ui-strong` (#d1d5db)
+     ne tient que 1,5:1 sur la surface — `--fg-faint` (gray-500) donne 4,8:1
+     en clair et 3,7:1 en sombre. */
+  --dwc-border-strong: var(--fg-faint);
+  --dwc-primary: var(--primary-fill);
+  --dwc-primary-contrast: #ffffff;
+  --dwc-primary-soft: var(--primary-soft);
+  --dwc-success: var(--success);
+  /* Pas d'ambre lisible en texte dans la palette (`--solar` #f59e0b ne donne
+     que 2,2:1 sur blanc) : ambre 700/400, même choix que miss-genius. */
+  --dwc-warning: #b45309;
+  --dwc-danger: var(--danger-text);
+  /* Pas de bleu non plus (l'indigo est la marque) : bleu lisible, même choix
+     que miss-uwh et miss-genius. */
+  --dwc-info: #0369a1;
+  /* rounded-xl, le rayon dominant de l'app (cartes famille, boutons). */
+  --dwc-radius: 0.75rem;
+  --dwc-shadow: var(--shadow);
+}
+
+html.dark {
+  /* En sombre, la primaire de l'app est un indigo CLAIR (#a5b4fc) : posée en
+     aplat, son texte s'inverse vers le fond sombre — le blanc sur
+     `--primary-fill` (#6366f1) ne tiendrait que 4,5:1 tout juste. */
+  --dwc-primary: var(--primary);
+  --dwc-primary-contrast: var(--canvas);
+  --dwc-warning: #fbbf24;
+  --dwc-info: #38bdf8;
+}
+
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
@@ -338,40 +383,18 @@ button,
   touch-action: manipulation;
 }
 
-/* Écran de secours du composant partagé ErrorBoundary (dev-wpa-config).
-   Sans variable de thème : doit rester lisible même si le CSS applicatif
-   n'est pas chargé. */
-[data-dwc='error-boundary'] {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  padding: 2rem;
-  text-align: center;
-}
-
-[data-dwc='error-boundary-title'] {
-  font-size: 1.125rem;
-  font-weight: 600;
-}
-
-[data-dwc='error-boundary-reset'] {
-  border: 1px solid currentColor;
-  border-radius: 0.75rem;
-  padding: 0.6rem 1.2rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: transparent;
-  color: inherit;
-}
+/* Écran de secours du composant partagé ErrorBoundary : stylé par
+   components.css depuis la 3.22.0 (règle `:where(#root) > [data-dwc='error-boundary']`,
+   écran centré plein écran) — la copie locale de ce bloc a été supprimée. */
 
 /* Famille — grille « Nos autres applications » (composant partagé FamilyApps).
-   Attributs [data-dwc="…"] scopés sous .puzzle-family ; couleurs via les tokens
-   sémantiques (--surface-muted/--fg/--fg-muted/--border-ui/--primary) → le mode
-   sombre (classe .dark) est géré automatiquement. Le titre interne du composant
-   est masqué : la section fournit déjà son <h2>. */
+   La base (structure, cible tactile) vient de components.css via le contrat
+   `--dwc-*` ; les règles ci-dessous, non « layered », gardent l'habillage
+   propre à l'app. Attributs [data-dwc="…"] scopés sous .puzzle-family ;
+   couleurs via les tokens sémantiques (--surface-muted/--fg/--fg-muted/
+   --border-ui/--primary) → le mode sombre (classe .dark) est géré
+   automatiquement. Le titre interne du composant est masqué : la section
+   fournit déjà son <h2>. */
 .puzzle-family [data-dwc='family-apps-title'] {
   display: none;
 }
@@ -444,6 +467,10 @@ button,
   font-size: 0.78rem;
   color: var(--fg-muted);
   line-height: 1.4;
+  /* Écart voulu vs components.css : la description garde ses retours à la
+     ligne (la base du socle la tronque en une ligne avec ellipse). */
+  white-space: normal;
+  overflow: visible;
 }
 
 .puzzle-family [data-dwc='family-app-arrow'] {
