@@ -1,3 +1,12 @@
+/**
+ * GÉNÉRATION d’une carte de stats à partager (canvas → PNG → téléchargement).
+ *
+ * À ne pas confondre avec le TRAITEMENT d’une image téléversée, qui vit dans
+ * `resizeJpegImage.ts` et s’appuie sur `@mister-guiiug/dev-wpa-config/image`.
+ * Ce module-ci n’a pas d’image d’entrée : il n’y a rien à valider, à
+ * redimensionner ni à dépouiller de ses métadonnées. Le module `image` du
+ * socle n’a donc aucune prise ici — inutile de refaire l’analyse.
+ */
 import type { PseudoStatRow } from './pseudoStats';
 
 export type StatsImageFormat = 'square' | 'horizontal';

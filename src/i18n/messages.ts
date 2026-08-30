@@ -211,6 +211,7 @@ export const messages: Record<Locale, MsgValue> = {
       errorPhoto:
         "Impossible d'ajouter la photo. Vérifiez la taille ou votre connexion.",
       errorPhotoSize: 'Fichier trop volumineux (max. 12 Mo).',
+      errorPhotoType: 'Ce fichier n’est pas une image reconnue.',
       errorPwCurrent: 'Veuillez saisir le mot de passe actuel.',
       errorPwBad: 'Mot de passe actuel incorrect.',
       errorPwChange: 'Impossible de modifier le mot de passe.',
@@ -513,6 +514,7 @@ export const messages: Record<Locale, MsgValue> = {
       errorDelete: 'Could not delete puzzle.',
       errorPhoto: 'Could not add photo. Check size or connection.',
       errorPhotoSize: 'File too large (max 12 MB).',
+      errorPhotoType: 'This file is not a recognised image.',
       errorPwCurrent: 'Enter the current password.',
       errorPwBad: 'Current password is incorrect.',
       errorPwChange: 'Could not change password.',

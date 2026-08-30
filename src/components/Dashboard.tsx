@@ -754,6 +754,8 @@ const Dashboard: React.FC<DashboardProps> = ({
       } catch (err) {
         if ((err as Error).message === 'size') {
           setError(t('dashboard.errorPhotoSize'));
+        } else if ((err as Error).message === 'type') {
+          setError(t('dashboard.errorPhotoType'));
         } else {
           setError(t('dashboard.errorPhoto'));
         }
