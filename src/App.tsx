@@ -13,6 +13,7 @@ import Home from './components/Home';
 const Dashboard = lazy(() => import('./components/Dashboard'));
 import { Navbar } from './components/Navbar';
 import { UpdateBanner } from './components/UpdateBanner';
+import { ConnectionBanner } from './components/ConnectionBanner';
 import { saveToHistory } from './utils/history';
 import { usePullToRefresh } from './hooks/usePullToRefresh';
 import PullToRefreshIndicator from './components/PullToRefreshIndicator';
@@ -35,9 +36,6 @@ function App() {
   const { puzzle, loading, loadError } = usePuzzle(roomCode);
   useDocumentRoomTitle(puzzle ?? undefined, loading);
   const savedRef = useRef<string | null>(null);
-  const [online, setOnline] = useState(
-    () => typeof navigator !== 'undefined' && navigator.onLine
-  );
 
   const [pseudo, setPseudo] = useState(() => getPseudo());
   const [pseudoLocked, setPseudoLocked] = useState(() => isPseudoLocked());
@@ -63,17 +61,16 @@ function App() {
     if (roomCode) prefetchDashboardChunk();
   }, [roomCode]);
 
+  // L'AFFICHAGE est parti dans `ConnectionBanner` (composant du socle, avec sa
+  // temporisation) ; ce qui reste ici est la VIDANGE de la file de pièces au
+  // retour du réseau — un comportement existant, ni touché ni étendu.
   useEffect(() => {
     const on = () => {
-      setOnline(true);
       void flushOfflinePieceQueue(updatePieces);
     };
-    const off = () => setOnline(false);
     window.addEventListener('online', on);
-    window.addEventListener('offline', off);
     return () => {
       window.removeEventListener('online', on);
-      window.removeEventListener('offline', off);
     };
   }, []);
 
@@ -138,15 +135,7 @@ function App() {
         }
       />
       <main id="contenu-principal" className="min-h-screen bg-canvas text-fg">
-        {!online && (
-          <div
-            className="bg-warning-soft border-b border-warning-border text-warning-fg text-sm px-4 py-3 text-center"
-            role="alert"
-          >
-            <strong className="font-semibold">{t('app.offlineTitle')}</strong> —{' '}
-            {t('app.offlineDetail')}
-          </div>
-        )}
+        <ConnectionBanner />
         {roomCode ? (
           loading ? (
             <div className="flex items-center justify-center min-h-[50vh]">

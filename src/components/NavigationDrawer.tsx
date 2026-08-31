@@ -32,6 +32,7 @@ import {
 import { useI18n } from '../i18n/I18nContext';
 import { reportError } from '../utils/reportError';
 import { prefetchDashboardChunk } from '../utils/prefetchDashboard';
+import { useNetworkGuard } from '../hooks/useNetworkGuard';
 
 export type NavigationDrawerProps = {
   open: boolean;
@@ -66,6 +67,11 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   const [joinPassword, setJoinPassword] = useState('');
   const [showJoinPassword, setShowJoinPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  // Ouvrir une salle depuis l'historique OU depuis la liste publique lit
+  // Firebase. L'historique lui-même est local (`utils/history`) : il continue
+  // de s'afficher hors ligne, ce sont seulement ses entrées qui deviennent
+  // inertes — voir la salle qu'on a visitée vaut mieux qu'une liste vide.
+  const guard = useNetworkGuard();
   const panelRef = useRef<HTMLDivElement>(null);
 
   const refreshHistory = useCallback(() => setHistory(getHistory()), []);
@@ -167,6 +173,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   };
 
   const tryJoin = async (code: string) => {
+    if (!guard.allowed) return;
     const c = code.trim().toUpperCase();
     if (!c) return;
     setJoining(true);
@@ -323,9 +330,10 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                     <button
                       type="button"
                       disabled={joining}
+                      {...guard.disabledProps}
                       onMouseEnter={prefetchDashboardChunk}
-                      onClick={() => tryJoin(item.code)}
-                      className="flex-1 min-h-12 text-left px-3 py-2.5 rounded-xl hover:bg-surface-muted dark:hover:bg-surface-muted border border-transparent hover:border-border-ui dark:hover:border-border-ui active:bg-surface-muted dark:active:bg-surface-muted transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
+                      onClick={guard.wrap(() => tryJoin(item.code))}
+                      className="flex-1 min-h-12 text-left px-3 py-2.5 rounded-xl hover:bg-surface-muted dark:hover:bg-surface-muted border border-transparent hover:border-border-ui dark:hover:border-border-ui active:bg-surface-muted dark:active:bg-surface-muted transition disabled:opacity-50 aria-disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                     >
                       <p className="font-semibold text-fg-heading text-sm truncate">
                         {item.name}
@@ -485,9 +493,10 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                         <button
                           type="button"
                           disabled={joining}
+                          {...guard.disabledProps}
                           onMouseEnter={prefetchDashboardChunk}
-                          onClick={() => tryJoin(p.id)}
-                          className="w-full flex items-center justify-between gap-3 min-h-12 px-3 py-2.5 rounded-xl hover:bg-success-row-hover active:bg-success-row-active text-left border border-transparent hover:border-success-row-border transition disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
+                          onClick={guard.wrap(() => tryJoin(p.id))}
+                          className="w-full flex items-center justify-between gap-3 min-h-12 px-3 py-2.5 rounded-xl hover:bg-success-row-hover active:bg-success-row-active text-left border border-transparent hover:border-success-row-border transition disabled:opacity-50 aria-disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
                         >
                           <div className="min-w-0">
                             <p className="font-semibold text-fg-heading text-sm truncate">
@@ -518,6 +527,11 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
             )}
           </section>
 
+          {guard.reason && (
+            <p role="status" className="text-sm text-warning-fg">
+              {guard.reason}
+            </p>
+          )}
           {localError && (
             <p className="text-sm text-danger-text">{localError}</p>
           )}
