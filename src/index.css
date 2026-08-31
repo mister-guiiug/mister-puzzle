@@ -528,6 +528,20 @@ button,
   background: var(--primary-fill-hover);
 }
 
+/* Bandeau hors-ligne (composant partagé ConnectionBanner). L'habillage du socle
+   est une carte arrondie et encadrée ; l'app le veut en BANDE pleine largeur,
+   comme le bloc écrit à la main qu'il remplace — mêmes couleurs `--warning-*`,
+   même bordure basse, même absence de rayon. Règle non « layered » : elle
+   l'emporte sur `components.css` (@layer components). */
+.puzzle-connection-banner {
+  border: 0;
+  border-bottom: 1px solid var(--warning-border);
+  border-radius: 0;
+  background: var(--warning-soft);
+  color: var(--warning-fg);
+  padding: 0.75rem 1rem;
+}
+
 /* Famille — grille « Nos autres applications » (composant partagé FamilyApps).
    La base (structure, cible tactile) vient de components.css via le contrat
    `--dwc-*` ; les règles ci-dessous, non « layered », gardent l'habillage

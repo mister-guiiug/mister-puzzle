@@ -21,6 +21,7 @@ import {
   type PuzzleState,
 } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
+import { useNetworkGuard } from '../hooks/useNetworkGuard';
 import {
   getHistory,
   saveToHistory,
@@ -67,6 +68,10 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   const [roomCode, setRoomCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Créer et rejoindre écrivent/lisent dans Firebase : les deux sont sans issue
+  // hors ligne. Le reste de cet écran — grille, pseudo, langue, historique
+  // local, thème — n'a jamais eu besoin du réseau et ne change pas.
+  const guard = useNetworkGuard();
   const [history, setHistory] = useState<HistoryPuzzle[]>([]);
 
   // Private puzzle password verification
@@ -160,6 +165,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   };
 
   const handleCreate = async () => {
+    if (!guard.allowed) return;
     if (!name.trim()) {
       setError(t('home.errorName'));
       return;
@@ -195,6 +201,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   };
 
   const handleJoin = async (manualCode?: string) => {
+    // La touche Entrée du champ code appelle ce handler SANS passer par le
+    // bouton : le garde doit tenir ici aussi, pas seulement sur les props.
+    if (!guard.allowed) return;
     const codeToJoin = (manualCode || roomCode).trim().toUpperCase();
     if (!codeToJoin) {
       setError(t('home.errorCode'));
@@ -632,12 +641,18 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
 
           <button
             type="button"
-            onClick={handleCreate}
+            {...guard.disabledProps}
+            onClick={guard.wrap(handleCreate)}
             disabled={loading}
-            className="w-full bg-primary-fill text-white p-2 rounded font-bold hover:bg-primary-fill-hover transition disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
+            className="w-full bg-primary-fill text-white p-2 rounded font-bold hover:bg-primary-fill-hover transition disabled:opacity-50 disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
           >
             {loading ? t('home.creating') : t('home.createBtn')}
           </button>
+          {guard.reason && (
+            <p role="status" className="mt-2 text-sm text-warning-fg">
+              {guard.reason}
+            </p>
+          )}
         </div>
 
         {/* Join */}
@@ -671,10 +686,11 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             </div>
             <button
               type="button"
-              onClick={() => handleJoin()}
+              {...guard.disabledProps}
+              onClick={guard.wrap(() => handleJoin())}
               onMouseEnter={prefetchDashboardChunk}
               disabled={loading || !!pendingPuzzle}
-              className="bg-success-fill text-white px-4 py-2 rounded font-bold hover:bg-success-hover transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
+              className="bg-success-fill text-white px-4 py-2 rounded font-bold hover:bg-success-hover transition disabled:opacity-50 disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:cursor-not-allowed flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
               aria-label={t('home.joinBtn')}
             >
               {loading ? (

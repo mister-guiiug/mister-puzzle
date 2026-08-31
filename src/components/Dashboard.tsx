@@ -65,6 +65,7 @@ import { useI18n } from '../i18n/I18nContext';
 import { ProgressChart } from './ProgressChart';
 import { exportProgressPng } from '../utils/exportProgressCard';
 import { reportError } from '../utils/reportError';
+import { useNetworkGuard } from '../hooks/useNetworkGuard';
 import { notifySaveSuccess } from '../utils/haptic';
 import {
   downloadHistoryCsv,
@@ -106,6 +107,15 @@ const Dashboard: React.FC<DashboardProps> = ({
   const lastServerPlacedRef = useRef(puzzle.placedPieces);
   const [remoteConflict, setRemoteConflict] = useState(false);
   const [readOnly, setReadOnlyState] = useState(getReadOnlyMode);
+  const guard = useNetworkGuard();
+  // LECTURE SEULE ET HORS LIGNE BLOQUENT LES MÊMES COMMANDES, À UNE EXCEPTION.
+  // Toutes les écritures de ce tableau de bord partent dans Firebase et n'ont
+  // aucun recours hors ligne — sauf le comptage de pièces, qui passe par
+  // `updatePiecesResilient` et sa file locale (`offlinePieceQueue`). Cette file
+  // EXISTE DÉJÀ et fonctionne : les +/-, le champ, la sauvegarde et le
+  // raccourci `S` gardent donc `readOnly` seul. Les griser casserait la seule
+  // chose que l'app sait faire sans réseau.
+  const remoteLocked = readOnly || !guard.allowed;
 
   const [dragPhotoId, setDragPhotoId] = useState<string | null>(null);
 
@@ -521,7 +531,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   }, []);
 
   const handleUpdateHistoryEntry = async (entryId: string, pieces: number) => {
-    if (readOnly) return;
+    if (remoteLocked) return;
     try {
       await updateHistoryEntry(puzzle.id, entryId, pieces);
       setEditingHistoryId(null);
@@ -535,7 +545,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleDeleteHistoryEntry = async (entryId: string) => {
-    if (readOnly) return;
+    if (remoteLocked) return;
     try {
       await deleteHistoryEntry(puzzle.id, entryId);
       setDeletingHistoryId(null);
@@ -555,7 +565,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleAddCheckpoint = async () => {
-    if (readOnly || !newCheckpointName.trim()) return;
+    if (remoteLocked || !newCheckpointName.trim()) return;
     try {
       await addCheckpoint(
         puzzle.id,
@@ -570,7 +580,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handlePresetCheckpoint = async (name: string) => {
-    if (readOnly) return;
+    if (remoteLocked) return;
     try {
       await addCheckpoint(puzzle.id, name, pseudo || undefined);
     } catch (err) {
@@ -580,7 +590,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleUncheckAll = async () => {
-    if (readOnly || puzzle.checkpoints.length === 0) return;
+    if (remoteLocked || puzzle.checkpoints.length === 0) return;
     try {
       await uncheckAllCheckpoints(
         puzzle.id,
@@ -593,7 +603,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleDeleteCheckpoint = async (checkpointId: string) => {
-    if (readOnly) return;
+    if (remoteLocked) return;
     try {
       await deleteCheckpoint(puzzle.id, checkpointId);
     } catch (err) {
@@ -606,7 +616,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleChangePassword = async () => {
-    if (readOnly) return;
+    if (remoteLocked) return;
     setPwMessage(null);
     if (puzzle.passwordHash) {
       if (!currentPwd) {
@@ -636,7 +646,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleUpdateVisibility = async (newIsPublic: boolean) => {
-    if (readOnly) return;
+    if (remoteLocked) return;
     try {
       await updateVisibility(puzzle.id, newIsPublic);
     } catch (err) {
@@ -649,7 +659,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleRename = async () => {
-    if (readOnly) return;
+    if (remoteLocked) return;
     const trimmed = nameInput.trim();
     if (!trimmed || trimmed === puzzle.name) {
       setEditingName(false);
@@ -668,7 +678,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleGridUpdate = async () => {
-    if (readOnly) return;
+    if (remoteLocked) return;
     if (gridRows <= 0 || gridCols <= 0) {
       setError(t('dashboard.errorGridDims'));
       return;
@@ -683,7 +693,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleDelete = async () => {
-    if (readOnly) return;
+    if (remoteLocked) return;
     try {
       await deletePuzzle(puzzle.id);
       onBack();
@@ -731,7 +741,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (readOnly) return;
+    if (remoteLocked) return;
     const file = e.target.files?.[0];
     if (file) {
       try {
@@ -766,7 +776,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handlePhotoDropReorder = async (targetId: string) => {
-    if (readOnly || !dragPhotoId || dragPhotoId === targetId) {
+    if (remoteLocked || !dragPhotoId || dragPhotoId === targetId) {
       setDragPhotoId(null);
       return;
     }
@@ -787,7 +797,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const movePhoto = async (photoId: string, delta: number) => {
-    if (readOnly) return;
+    if (remoteLocked) return;
     const ids = puzzle.photos.map(p => p.id);
     const i = ids.indexOf(photoId);
     const j = i + delta;
@@ -836,6 +846,18 @@ const Dashboard: React.FC<DashboardProps> = ({
           </div>
         )}
 
+        {/* Le motif, au même endroit que la bannière « lecture seule » : les
+            deux modes grisent les mêmes commandes, ils s'expliquent au même
+            endroit. */}
+        {guard.reason && (
+          <div
+            className="mb-4 p-3 rounded-xl bg-warning-soft border border-warning-border text-warning-fg text-sm font-medium text-center"
+            role="status"
+          >
+            {guard.reason}
+          </div>
+        )}
+
         {offlineQueuePending && !netOnline && (
           <div
             className="mb-4 p-3 rounded-xl bg-primary-soft border border-primary-border text-primary-strong text-sm font-medium text-center"
@@ -862,7 +884,9 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <input
                     type="text"
                     value={nameInput}
-                    onChange={e => !readOnly && setNameInput(e.target.value)}
+                    onChange={e =>
+                      !remoteLocked && setNameInput(e.target.value)
+                    }
                     onKeyDown={e => {
                       if (e.key === 'Enter') handleRename();
                       if (e.key === 'Escape') {
@@ -873,7 +897,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     className="text-2xl font-bold text-fg-heading border-b-2 border-primary-ring bg-transparent outline-none focus-visible:ring-2 focus-visible:ring-primary-ring rounded"
                     autoFocus
                     maxLength={100}
-                    readOnly={readOnly}
+                    readOnly={remoteLocked}
                     aria-label={t('dashboard.rename')}
                   />
                   <button
@@ -905,8 +929,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </h1>
                   <button
                     type="button"
-                    onClick={() => !readOnly && setEditingName(true)}
-                    disabled={readOnly}
+                    onClick={() => !remoteLocked && setEditingName(true)}
+                    disabled={remoteLocked}
                     className="p-1 text-fg-faint hover:text-primary-muted transition opacity-0 group-hover/name:opacity-100 disabled:opacity-0 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring rounded"
                     title={t('dashboard.rename')}
                     aria-label={t('dashboard.rename')}
@@ -1015,9 +1039,9 @@ const Dashboard: React.FC<DashboardProps> = ({
                     <button
                       type="button"
                       role="menuitem"
-                      disabled={readOnly}
+                      disabled={remoteLocked}
                       onClick={() => {
-                        if (!readOnly) {
+                        if (!remoteLocked) {
                           setConfirmDelete(true);
                           setActionsOpen(false);
                         }
@@ -1113,7 +1137,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <button
                     type="button"
                     onClick={() => handleUpdateVisibility(true)}
-                    disabled={readOnly}
+                    disabled={remoteLocked}
                     className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition disabled:opacity-40 ${puzzle.isPublic ? 'bg-success-fill text-white' : 'bg-surface text-fg-muted hover:bg-surface-muted dark:text-fg-muted dark:hover:bg-surface-muted'}`}
                   >
                     <Globe size={14} aria-hidden /> {t('common.public')}
@@ -1121,7 +1145,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <button
                     type="button"
                     onClick={() => handleUpdateVisibility(false)}
-                    disabled={readOnly}
+                    disabled={remoteLocked}
                     className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition disabled:opacity-40 ${!puzzle.isPublic ? 'bg-primary-fill text-white' : 'bg-surface text-fg-muted hover:bg-surface-muted dark:text-fg-muted dark:hover:bg-surface-muted'}`}
                   >
                     <Lock size={14} aria-hidden /> {t('common.private')}
@@ -1146,7 +1170,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                       className="w-full p-2 border border-border-ui rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-ring"
                       value={currentPwd}
                       onChange={e => setCurrentPwd(e.target.value)}
-                      disabled={readOnly}
+                      disabled={remoteLocked}
                     />
                   )}
                   <div className="relative">
@@ -1160,7 +1184,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                       className="w-full p-2 pr-8 border border-border-ui rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-ring"
                       value={newPwd}
                       onChange={e => setNewPwd(e.target.value)}
-                      disabled={readOnly}
+                      disabled={remoteLocked}
                     />
                     <button
                       type="button"
@@ -1177,7 +1201,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <button
                     type="button"
                     onClick={handleChangePassword}
-                    disabled={readOnly}
+                    disabled={remoteLocked}
                     className="bg-primary-fill text-white px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-primary-fill-hover transition disabled:opacity-40"
                   >
                     {puzzle.passwordHash
@@ -1524,8 +1548,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                 </div>
                 <button
                   type="button"
-                  onClick={() => !readOnly && setFlagConfirm(true)}
-                  disabled={readOnly}
+                  onClick={() => !remoteLocked && setFlagConfirm(true)}
+                  disabled={remoteLocked}
                   title={t('dashboard.flagTitle')}
                   aria-label={t('dashboard.flagTitle')}
                   className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 px-4 rounded-xl transition shadow-sm font-bold disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
@@ -1694,7 +1718,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                           </time>
                         </div>
 
-                        {!readOnly && !editingHistoryId && (
+                        {!remoteLocked && !editingHistoryId && (
                           <div className="mt-1 flex items-center gap-2">
                             <button
                               type="button"
@@ -1979,7 +2003,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   setGridCols(puzzle.cols ?? 0);
                   setShowGridEditor(!showGridEditor);
                 }}
-                disabled={readOnly}
+                disabled={remoteLocked}
                 className="flex items-center gap-1 text-xs text-fg-faint hover:text-primary-muted transition disabled:opacity-40 focus:outline-none focus-visible:ring-2 rounded"
               >
                 <Grid size={12} aria-hidden />
@@ -2051,7 +2075,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 type="button"
                 onClick={handleUncheckAll}
                 disabled={
-                  readOnly || puzzle.checkpoints.every(c => !c.completed)
+                  remoteLocked || puzzle.checkpoints.every(c => !c.completed)
                 }
                 className="text-xs font-semibold text-fg-muted hover:text-primary-hover border border-border-ui rounded-lg px-2 py-1 disabled:opacity-40 focus:outline-none focus-visible:ring-2"
               >
@@ -2079,7 +2103,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                       key={s}
                       type="button"
                       onClick={() => handlePresetCheckpoint(s)}
-                      disabled={readOnly}
+                      disabled={remoteLocked}
                       className="text-xs px-3 py-2 rounded-xl border border-border-ui bg-surface text-fg-heading hover:border-primary-ring hover:bg-primary-soft-hover disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring max-w-full text-left break-words"
                     >
                       {s}
@@ -2098,7 +2122,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                       key={label}
                       type="button"
                       onClick={() => handlePresetCheckpoint(label)}
-                      disabled={readOnly}
+                      disabled={remoteLocked}
                       className="text-xs px-3 py-2 rounded-xl border border-border-ui bg-surface text-fg-heading hover:border-primary-ring hover:bg-primary-soft-hover disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring max-w-full text-left break-words"
                     >
                       {label}
@@ -2118,13 +2142,13 @@ const Dashboard: React.FC<DashboardProps> = ({
                     value={newCheckpointName}
                     onChange={e => setNewCheckpointName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddCheckpoint()}
-                    disabled={readOnly}
+                    disabled={remoteLocked}
                     className="flex-1 min-w-0 p-2.5 text-sm border border-border-ui rounded-xl bg-surface text-fg focus:ring-2 focus:ring-primary-ring outline-none disabled:opacity-50"
                   />
                   <button
                     type="button"
                     onClick={handleAddCheckpoint}
-                    disabled={readOnly || !newCheckpointName.trim()}
+                    disabled={remoteLocked || !newCheckpointName.trim()}
                     className="shrink-0 px-3 py-2 bg-primary-fill text-white rounded-xl hover:bg-primary-fill-hover transition disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring text-sm font-semibold"
                     title={t('dashboard.addCheckpoint')}
                     aria-label={t('dashboard.addCheckpoint')}
@@ -2154,14 +2178,17 @@ const Dashboard: React.FC<DashboardProps> = ({
                   >
                     <div
                       role="button"
-                      tabIndex={readOnly ? -1 : 0}
-                      className={`flex min-w-0 flex-1 cursor-pointer items-center p-3 rounded-l-xl transition ${!readOnly && !cp.completed ? 'hover:border-primary-border dark:hover:border-primary-muted' : ''} ${readOnly ? 'cursor-default' : ''}`}
+                      tabIndex={remoteLocked ? -1 : 0}
+                      className={`flex min-w-0 flex-1 cursor-pointer items-center p-3 rounded-l-xl transition ${!remoteLocked && !cp.completed ? 'hover:border-primary-border dark:hover:border-primary-muted' : ''} ${remoteLocked ? 'cursor-default' : ''}`}
                       onClick={() =>
-                        !readOnly &&
+                        !remoteLocked &&
                         toggleCheckpoint(puzzle.id, cp.id, cp.completed)
                       }
                       onKeyDown={e => {
-                        if (!readOnly && (e.key === 'Enter' || e.key === ' ')) {
+                        if (
+                          !remoteLocked &&
+                          (e.key === 'Enter' || e.key === ' ')
+                        ) {
                           e.preventDefault();
                           toggleCheckpoint(puzzle.id, cp.id, cp.completed);
                         }
@@ -2185,7 +2212,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         )}
                       </div>
                     </div>
-                    {!readOnly && (
+                    {!remoteLocked && (
                       <button
                         type="button"
                         onClick={e => {
@@ -2213,8 +2240,8 @@ const Dashboard: React.FC<DashboardProps> = ({
               </h2>
               <button
                 type="button"
-                onClick={() => !readOnly && fileInputRef.current?.click()}
-                disabled={readOnly}
+                onClick={() => !remoteLocked && fileInputRef.current?.click()}
+                disabled={remoteLocked}
                 className="bg-primary-track text-primary p-2 rounded-full hover:bg-primary-soft-active transition disabled:opacity-40 focus:outline-none focus-visible:ring-2"
                 aria-label={t('dashboard.addPhoto')}
               >
@@ -2237,8 +2264,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <div
                   key={photo.id}
                   className="relative rounded-lg overflow-hidden border border-divide group"
-                  draggable={!readOnly}
-                  onDragStart={() => !readOnly && setDragPhotoId(photo.id)}
+                  draggable={!remoteLocked}
+                  onDragStart={() => !remoteLocked && setDragPhotoId(photo.id)}
                   onDragEnd={() => setDragPhotoId(null)}
                   onDragOver={e => e.preventDefault()}
                   onDrop={e => {
@@ -2265,7 +2292,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                       <button
                         type="button"
                         onClick={() => movePhoto(photo.id, -1)}
-                        disabled={readOnly || idx === 0}
+                        disabled={remoteLocked || idx === 0}
                         className="bg-surface/90 text-fg-heading p-2 rounded-full hover:bg-surface dark:hover:bg-surface-muted transition disabled:opacity-30"
                         aria-label={t('dashboard.moveLeft')}
                       >
@@ -2280,7 +2307,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                             (photo.rotation + 90) % 360
                           )
                         }
-                        disabled={readOnly}
+                        disabled={remoteLocked}
                         className="bg-surface/90 text-fg-heading p-2 rounded-full hover:bg-surface dark:hover:bg-surface-muted transition disabled:opacity-30"
                         aria-label={t('dashboard.rotate')}
                       >
@@ -2289,7 +2316,9 @@ const Dashboard: React.FC<DashboardProps> = ({
                       <button
                         type="button"
                         onClick={() => movePhoto(photo.id, 1)}
-                        disabled={readOnly || idx >= puzzle.photos.length - 1}
+                        disabled={
+                          remoteLocked || idx >= puzzle.photos.length - 1
+                        }
                         className="bg-surface/90 text-fg-heading p-2 rounded-full hover:bg-surface dark:hover:bg-surface-muted transition disabled:opacity-30"
                         aria-label={t('dashboard.moveRight')}
                       >
@@ -2298,9 +2327,9 @@ const Dashboard: React.FC<DashboardProps> = ({
                       <button
                         type="button"
                         onClick={() =>
-                          !readOnly && deletePhoto(puzzle.id, photo.id)
+                          !remoteLocked && deletePhoto(puzzle.id, photo.id)
                         }
-                        disabled={readOnly}
+                        disabled={remoteLocked}
                         className="bg-danger-fill/90 text-white p-2 rounded-full hover:bg-danger-fill-hover transition disabled:opacity-30"
                         aria-label={t('dashboard.deletePhoto')}
                       >
@@ -2313,11 +2342,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                     type="text"
                     placeholder={t('dashboard.photoCaptionPh')}
                     defaultValue={photo.caption ?? ''}
-                    disabled={readOnly}
+                    disabled={remoteLocked}
                     onBlur={e => {
                       const v = e.target.value.trim().slice(0, 500);
                       const prev = (photo.caption ?? '').trim();
-                      if (v !== prev && !readOnly) {
+                      if (v !== prev && !remoteLocked) {
                         updatePhoto(puzzle.id, photo.id, {
                           caption: v.length ? v : null,
                         }).catch(err =>

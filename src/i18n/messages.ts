@@ -283,6 +283,8 @@ export const messages: Record<Locale, MsgValue> = {
       offlineTitle: 'Hors ligne',
       offlineDetail:
         'Sans connexion, les mises à jour en direct ne sont pas disponibles.',
+      offlineAction:
+        'Indisponible hors ligne — reconnecte-toi pour faire cette action.',
     },
     nav: {
       drawerTitle: 'Navigation',
@@ -583,6 +585,7 @@ export const messages: Record<Locale, MsgValue> = {
       retryLoad: 'Retry',
       offlineTitle: 'Offline',
       offlineDetail: 'Without a connection, live updates are not available.',
+      offlineAction: 'Unavailable offline — reconnect to do this.',
     },
     nav: {
       drawerTitle: 'Navigation',
