@@ -49,7 +49,6 @@ export function isLikelyNetworkError(err: unknown): boolean {
   );
 }
 
-
 export function hasPendingForRoom(roomCode: string): boolean {
   return loadRaw().some(x => x.roomCode === roomCode);
 }
