@@ -40,9 +40,12 @@ test.describe('mister-puzzle - Fonctionnalités critiques @critical', () => {
     await expect(page.locator('nav, .navbar, header').first()).toBeVisible();
 
     // Vérifier le menu mobile
+    // Le bouton d'OUVERTURE seulement : « Fermer le menu » existe aussi dans
+    // le DOM, caché tant que le tiroir est fermé, et `aria-label*="menu"` le
+    // trouvait en premier — clic impossible, test en dépassement de délai.
     const menuButton = page
       .locator(
-        'button[aria-label*="menu"], button[aria-label*="Menu"], .menu-button'
+        'button[aria-label*="Ouvrir"], button[aria-label*="Open"], .menu-button'
       )
       .first();
     if (await menuButton.isVisible()) {
