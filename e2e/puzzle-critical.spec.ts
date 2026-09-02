@@ -37,18 +37,21 @@ test.describe('mister-puzzle - Fonctionnalités critiques @critical', () => {
     // Test mobile
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
-    await expect(page.locator('nav, .navbar, header')).toBeVisible();
+    await expect(page.locator('nav, .navbar, header').first()).toBeVisible();
 
     // Vérifier le menu mobile
+    // Le bouton d'OUVERTURE seulement : « Fermer le menu » existe aussi dans
+    // le DOM, caché tant que le tiroir est fermé, et `aria-label*="menu"` le
+    // trouvait en premier — clic impossible, test en dépassement de délai.
     const menuButton = page
       .locator(
-        'button[aria-label*="menu"], button[aria-label*="Menu"], .menu-button'
+        'button[aria-label*="Ouvrir"], button[aria-label*="Open"], .menu-button'
       )
       .first();
     if (await menuButton.isVisible()) {
       await menuButton.click();
       await expect(
-        page.locator('.drawer, .menu, [role="navigation"]')
+        page.locator('.drawer, .menu, [role="navigation"]').first()
       ).toBeVisible();
     }
   });
@@ -89,7 +92,7 @@ test.describe('mister-puzzle - Fonctionnalités critiques @critical', () => {
 
       // Devrait afficher un message d'erreur offline
       await expect(
-        page.locator('text=offline, text=connexion, text=erreur')
+        page.locator('text=offline, text=connexion, text=erreur').first()
       ).toBeVisible();
     }
   });
@@ -161,7 +164,9 @@ test.describe('mister-puzzle - Collaboratif', () => {
     await page.waitForLoadState('networkidle');
 
     // Vérifier que le dashboard se charge
-    await expect(page.locator('.dashboard, .puzzle, main')).toBeVisible();
+    await expect(
+      page.locator('.dashboard, .puzzle, main').first()
+    ).toBeVisible();
   });
 
   test('indicateur offline visible', async ({ page }) => {
@@ -172,7 +177,7 @@ test.describe('mister-puzzle - Collaboratif', () => {
 
     // Vérifier l'indicateur offline
     await expect(
-      page.locator('text=offline, text=Hors ligne, [role="alert"]')
+      page.locator('text=offline, text=Hors ligne, [role="alert"]').first()
     ).toBeVisible();
   });
 });
