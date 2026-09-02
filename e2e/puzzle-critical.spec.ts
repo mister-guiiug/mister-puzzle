@@ -4,7 +4,8 @@
 
 import { test, expect } from '@playwright/test';
 
-test.describe('mister-puzzle - Fonctionnalités critiques', () => {
+// Tag @critical : c'est ce que la CI famille (pwa-ci.yml, e2e-grep) exécute.
+test.describe('mister-puzzle - Fonctionnalités critiques @critical', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
