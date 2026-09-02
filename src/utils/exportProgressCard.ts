@@ -1,3 +1,4 @@
+import { getDefaultLocale } from '@mister-guiiug/dev-wpa-config/format';
 export type ExportBarMode = 'placed' | 'remaining';
 
 type ExportOpts = {
@@ -160,17 +161,17 @@ export function exportProgressPng({
   const stats = [
     {
       label: 'Pièces placées',
-      value: placed.toLocaleString('fr-FR'),
+      value: placed.toLocaleString(getDefaultLocale()),
       color: colors.primary,
     },
     {
       label: 'Restantes',
-      value: remaining.toLocaleString('fr-FR'),
+      value: remaining.toLocaleString(getDefaultLocale()),
       color: colors.secondary,
     },
     {
       label: 'Total',
-      value: total.toLocaleString('fr-FR'),
+      value: total.toLocaleString(getDefaultLocale()),
       color: colors.textMuted,
     },
   ];

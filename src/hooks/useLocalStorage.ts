@@ -4,8 +4,11 @@
  */
 
 import { useState, useCallback } from 'react';
+import { createLogger } from '@mister-guiiug/dev-wpa-config/logger';
 
-export function useLocalStorage<T>(
+const log = createLogger('hooks');
+
+function useLocalStorage<T>(
   key: string,
   initialValue: T
 ): [T, (value: T | ((val: T) => T)) => void, () => void] {
@@ -18,7 +21,7 @@ export function useLocalStorage<T>(
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      console.warn(`Error reading localStorage key "${key}":`, error);
+      log.warn(`Error reading localStorage key "${key}":`, { error: error });
       return initialValue;
     }
   });
@@ -34,7 +37,7 @@ export function useLocalStorage<T>(
           window.localStorage.setItem(key, JSON.stringify(valueToStore));
         }
       } catch (error) {
-        console.warn(`Error setting localStorage key "${key}":`, error);
+        log.warn(`Error setting localStorage key "${key}":`, { error: error });
       }
     },
     [key, storedValue]
@@ -48,7 +51,7 @@ export function useLocalStorage<T>(
         window.localStorage.removeItem(key);
       }
     } catch (error) {
-      console.warn(`Error removing localStorage key "${key}":`, error);
+      log.warn(`Error removing localStorage key "${key}":`, { error: error });
     }
   }, [key, initialValue]);
 

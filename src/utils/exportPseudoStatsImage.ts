@@ -8,6 +8,7 @@
  * socle n’a donc aucune prise ici — inutile de refaire l’analyse.
  */
 import type { PseudoStatRow } from './pseudoStats';
+import { getDefaultLocale } from '@mister-guiiug/dev-wpa-config/format';
 
 export type StatsImageFormat = 'square' | 'horizontal';
 export type StatsImageLabels = {
@@ -61,7 +62,7 @@ export function exportStatsImage(
   labels: StatsImageLabels,
   format: StatsImageFormat = 'square',
   anonLabel: string = 'Anonyme',
-  locale: string = 'fr-FR'
+  locale: string = getDefaultLocale()
 ): void {
   const { width, height } = DIMENSIONS[format];
   const canvas = document.createElement('canvas');
