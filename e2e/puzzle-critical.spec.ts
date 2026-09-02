@@ -50,9 +50,8 @@ test.describe('mister-puzzle - Fonctionnalités critiques @critical', () => {
       .first();
     if (await menuButton.isVisible()) {
       await menuButton.click();
-      await expect(
-        page.locator('.drawer, .menu, [role="navigation"]').first()
-      ).toBeVisible();
+      // Le tiroir est l'<aside id="app-navigation-drawer"> de NavigationDrawer.
+      await expect(page.locator('#app-navigation-drawer')).toBeVisible();
     }
   });
 
