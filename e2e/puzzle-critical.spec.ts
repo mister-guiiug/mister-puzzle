@@ -37,7 +37,7 @@ test.describe('mister-puzzle - Fonctionnalités critiques @critical', () => {
     // Test mobile
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
-    await expect(page.locator('nav, .navbar, header')).toBeVisible();
+    await expect(page.locator('nav, .navbar, header').first()).toBeVisible();
 
     // Vérifier le menu mobile
     const menuButton = page
@@ -48,7 +48,7 @@ test.describe('mister-puzzle - Fonctionnalités critiques @critical', () => {
     if (await menuButton.isVisible()) {
       await menuButton.click();
       await expect(
-        page.locator('.drawer, .menu, [role="navigation"]')
+        page.locator('.drawer, .menu, [role="navigation"]').first()
       ).toBeVisible();
     }
   });
@@ -89,7 +89,7 @@ test.describe('mister-puzzle - Fonctionnalités critiques @critical', () => {
 
       // Devrait afficher un message d'erreur offline
       await expect(
-        page.locator('text=offline, text=connexion, text=erreur')
+        page.locator('text=offline, text=connexion, text=erreur').first()
       ).toBeVisible();
     }
   });
@@ -161,7 +161,9 @@ test.describe('mister-puzzle - Collaboratif', () => {
     await page.waitForLoadState('networkidle');
 
     // Vérifier que le dashboard se charge
-    await expect(page.locator('.dashboard, .puzzle, main')).toBeVisible();
+    await expect(
+      page.locator('.dashboard, .puzzle, main').first()
+    ).toBeVisible();
   });
 
   test('indicateur offline visible', async ({ page }) => {
@@ -172,7 +174,7 @@ test.describe('mister-puzzle - Collaboratif', () => {
 
     // Vérifier l'indicateur offline
     await expect(
-      page.locator('text=offline, text=Hors ligne, [role="alert"]')
+      page.locator('text=offline, text=Hors ligne, [role="alert"]').first()
     ).toBeVisible();
   });
 });
