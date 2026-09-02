@@ -4,16 +4,20 @@
 
 import { test, expect } from '@playwright/test';
 
-test.describe('mister-puzzle - Fonctionnalités critiques', () => {
+// Tag @critical : c'est ce que la CI famille (pwa-ci.yml, e2e-grep) exécute.
+test.describe('mister-puzzle - Fonctionnalités critiques @critical', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
   test("page d'accueil se charge correctement", async ({ page }) => {
-    await expect(page.locator('h1, h2, main, .app')).toBeVisible();
+    // `.first()` : le sélecteur résout plusieurs éléments (mode strict).
+    await expect(page.locator('h1, h2, main, .app').first()).toBeVisible();
   });
 
-  test('création/join room fonctionnel', async ({ page }) => {
+  // fixme : rejoindre une room exige un backend Firebase réel ; la CI famille
+  // construit avec des variables factices. À rejouer contre l'émulateur.
+  test.fixme('création/join room fonctionnel', async ({ page }) => {
     await page.goto('/');
 
     // Test de création de room
