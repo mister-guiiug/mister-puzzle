@@ -49,12 +49,6 @@ export function isLikelyNetworkError(err: unknown): boolean {
   );
 }
 
-export function getOfflineQueueForRoom(
-  roomCode: string
-): OfflinePiecePending | undefined {
-  return loadRaw().find(x => x.roomCode === roomCode);
-}
-
 export function hasPendingForRoom(roomCode: string): boolean {
   return loadRaw().some(x => x.roomCode === roomCode);
 }

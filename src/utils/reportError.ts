@@ -1,3 +1,6 @@
+import { createLogger } from '@mister-guiiug/dev-wpa-config/logger';
+
+const log = createLogger('reportError');
 export type ErrorReportDetail = {
   scope: string;
   message: string;
@@ -32,9 +35,9 @@ export function reportError(
   const message = err instanceof Error ? err.message : String(err);
   const detail: ErrorReportDetail = { scope, message, ctx, ts: Date.now() };
   if (import.meta.env.DEV) {
-    console.error('[reportError]', detail, err);
+    log.error('[reportError]', { error: detail, details: [err] });
   } else {
-    console.warn('[reportError]', detail);
+    log.warn('[reportError]', { error: detail });
   }
   postErrorIngest(detail);
   try {
