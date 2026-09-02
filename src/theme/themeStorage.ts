@@ -20,12 +20,6 @@ export const setThemePreference = (value: ThemePreference): void => {
   }
 };
 
-const getSystemDark = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches;
-};
-
-
 export const applyThemeClass = (mode: 'light' | 'dark'): void => {
   document.documentElement.classList.toggle('dark', mode === 'dark');
   document.documentElement.style.colorScheme = mode;
