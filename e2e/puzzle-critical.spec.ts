@@ -11,7 +11,8 @@ test.describe('mister-puzzle - Fonctionnalités critiques @critical', () => {
   });
 
   test("page d'accueil se charge correctement", async ({ page }) => {
-    await expect(page.locator('h1, h2, main, .app')).toBeVisible();
+    // `.first()` : le sélecteur résout plusieurs éléments (mode strict).
+    await expect(page.locator('h1, h2, main, .app').first()).toBeVisible();
   });
 
   test('création/join room fonctionnel', async ({ page }) => {
