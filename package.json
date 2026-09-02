@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && pwa-bundle-budget",
     "build:analyze": "cross-env ANALYZE=1 npm run build",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -17,6 +17,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "type-check": "tsc -b"
+  },
+  "bundleBudget": {
+    "totalGzipKb": 320
   },
   "dependencies": {
     "@sentry/react": "^8.45.0",
