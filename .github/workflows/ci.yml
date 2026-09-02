@@ -23,6 +23,7 @@ jobs:
     uses: mister-guiiug/dev-wpa-config/.github/workflows/pwa-ci.yml@v3
     secrets: inherit
     with:
+      run-e2e: true
       server-dir: server
       build-env: |
         VITE_PUBLIC_SITE_ORIGIN=https://example.github.io

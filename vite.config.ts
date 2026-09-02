@@ -85,6 +85,9 @@ export default defineConfig(({ command }) => ({
   },
   plugins: [
     pwaSeoPlugin({
+      // Deux <meta name="theme-color"> par schéma : la barre du navigateur suit
+      // le mode sombre dès le premier rendu (relevé du 02/09/2026 : 5 apps sur 16).
+      themeColor: { light: '#f9fafb', dark: '#0f1014' },
       siteName: 'Mister Puzzle',
       basePath: base,
       logoPath: '/logo.svg',
@@ -141,6 +144,8 @@ export default defineConfig(({ command }) => ({
         'logo.svg',
       ],
       manifest: {
+        id: base,
+        lang: 'fr',
         name: 'Mister Puzzle',
         short_name: 'Mister Puzzle',
         description:
@@ -166,6 +171,12 @@ export default defineConfig(({ command }) => ({
             src: `pwa-512x512.png${pwaIconQs}`,
             sizes: '512x512',
             type: 'image/png',
+          },
+          {
+            src: `pwa-maskable-512.png${pwaIconQs}`,
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
           },
         ],
         screenshots: [
