@@ -1,8 +1,8 @@
 @import 'tailwindcss';
-@import '@mister-guiiug/dev-wpa-config/tailwind-preset.css';
+@import '@mister-guiiug/dev-pwa-config/tailwind-preset.css';
 /* Habillage opt-in des composants du socle : tout est en `@layer components`,
    le CSS non « layered » de l'app garde donc le dernier mot. */
-@import '@mister-guiiug/dev-wpa-config/components.css';
+@import '@mister-guiiug/dev-pwa-config/components.css';
 
 /* Thème manuel : classe `dark` sur <html> (voir ThemeContext + script dans index.html). */
 @custom-variant dark (&:where(.dark, .dark *));

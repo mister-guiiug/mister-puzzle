@@ -149,8 +149,8 @@ Installez Mister Puzzle sur votre téléphone ou ordinateur pour un accès rapid
 | Tests | [Vitest 3](https://vitest.dev/) (jsdom) + [Testing Library](https://testing-library.com/) + [Playwright](https://playwright.dev/) + [@axe-core/playwright](https://github.com/dequelabs/axe-core-npm) |
 | Monitoring | [@sentry/react](https://docs.sentry.io/platforms/javascript/guides/react/) + [web-vitals 4](https://web.dev/vitals/) |
 | Bundle analyzer | [`rollup-plugin-visualizer`](https://github.com/btd/rollup-plugin-visualizer) (`npm run build:analyze`) |
-| Configs partagées | [`@mister-guiiug/dev-wpa-config`](../dev-wpa-config/README.md) (ESLint, Prettier, TS, Vitest) |
-| Photos téléversées | `@mister-guiiug/dev-wpa-config/image` (contrôle, ré-encodage JPEG sans EXIF/GPS) — voir `src/utils/resizeJpegImage.ts` |
+| Configs partagées | [`@mister-guiiug/dev-pwa-config`](../dev-pwa-config/README.md) (ESLint, Prettier, TS, Vitest) |
+| Photos téléversées | `@mister-guiiug/dev-pwa-config/image` (contrôle, ré-encodage JPEG sans EXIF/GPS) — voir `src/utils/resizeJpegImage.ts` |
 | PWA | [`vite-plugin-pwa 1.2`](https://vite-pwa-org.netlify.app/) |
 
 ### Installation pour les développeurs

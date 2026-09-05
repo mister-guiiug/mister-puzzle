@@ -35,7 +35,7 @@ import {
   saveGrid,
 } from '../utils/pseudo';
 import { useI18n } from '../i18n/I18nContext';
-import { FamilyApps } from '@mister-guiiug/dev-wpa-config/react';
+import { FamilyApps } from '@mister-guiiug/dev-pwa-config/react';
 import { prefetchDashboardChunk } from '../utils/prefetchDashboard';
 import { reportError } from '../utils/reportError';
 

@@ -1,4 +1,4 @@
-# CI déléguée au reusable workflow famille (dev-wpa-config).
+# CI déléguée au reusable workflow famille (dev-pwa-config).
 # Le build client exige des VITE_FIREBASE_* → injectés via `build-env` (factices).
 # Le backend `server/` est type-checké via `server-dir`.
 name: CI
@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   ci:
-    uses: mister-guiiug/dev-wpa-config/.github/workflows/pwa-ci.yml@v3
+    uses: mister-guiiug/dev-pwa-config/.github/workflows/pwa-ci.yml@v4
     secrets: inherit
     with:
       run-e2e: true

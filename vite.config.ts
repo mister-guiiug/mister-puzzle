@@ -7,8 +7,8 @@ import { readFileSync } from 'node:fs';
 import {
   pwaSeoPlugin,
   resolveSeoPublicUrls,
-} from '@mister-guiiug/dev-wpa-config/vite-pwa-base';
-import { cspPlugin } from '@mister-guiiug/dev-wpa-config/vite-csp';
+} from '@mister-guiiug/dev-pwa-config/vite-pwa-base';
+import { cspPlugin } from '@mister-guiiug/dev-pwa-config/vite-csp';
 
 const { version } = JSON.parse(readFileSync('./package.json', 'utf-8')) as {
   version: string;
