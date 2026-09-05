@@ -1,4 +1,4 @@
-import { IMAGE_ACCEPTED_TYPES } from '@mister-guiiug/dev-wpa-config/image';
+import { IMAGE_ACCEPTED_TYPES } from '@mister-guiiug/dev-pwa-config/image';
 
 /** TTL pour considérer un membre « en ligne » (heartbeat). */
 export const MEMBER_TTL_MS = 5 * 60 * 1000;

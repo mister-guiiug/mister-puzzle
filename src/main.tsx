@@ -1,12 +1,12 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ErrorBoundary } from '@mister-guiiug/dev-wpa-config/react';
+import { ErrorBoundary } from '@mister-guiiug/dev-pwa-config/react';
 import {
   installErrorReporter,
   initSentry,
   recordError,
-} from '@mister-guiiug/dev-wpa-config/react/observability';
-import { initWebVitals } from '@mister-guiiug/dev-wpa-config/web-vitals';
+} from '@mister-guiiug/dev-pwa-config/react/observability';
+import { initWebVitals } from '@mister-guiiug/dev-pwa-config/web-vitals';
 import './index.css';
 import App from './App.tsx';
 import { I18nProvider } from './i18n/I18nContext';

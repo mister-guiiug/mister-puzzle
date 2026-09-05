@@ -1,4 +1,4 @@
-import { getDefaultLocale } from '@mister-guiiug/dev-wpa-config/format';
+import { getDefaultLocale } from '@mister-guiiug/dev-pwa-config/format';
 export type ExportBarMode = 'placed' | 'remaining';
 
 type ExportOpts = {

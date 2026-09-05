@@ -2,7 +2,7 @@ import {
   compressImageToMaxBytes,
   stripImageMetadata,
   validateImageFile,
-} from '@mister-guiiug/dev-wpa-config/image';
+} from '@mister-guiiug/dev-pwa-config/image';
 import {
   MAX_PHOTO_DATA_URL_CHARS,
   MAX_UPLOAD_BYTES,

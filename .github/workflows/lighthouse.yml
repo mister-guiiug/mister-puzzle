@@ -1,4 +1,4 @@
-# Lighthouse délégué au reusable workflow famille (dev-wpa-config).
+# Lighthouse délégué au reusable workflow famille (dev-pwa-config).
 # Le build mesuré est fait avec VITE_BASE_PATH=/ (défaut) pour servir dist/ à la
 # racine. `build-env` fournit des VITE_FIREBASE_* factices : `src/firebase.ts`
 # appelle `getFirebaseWebConfig()` au chargement du module, qui lève si une
@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   lighthouse:
-    uses: mister-guiiug/dev-wpa-config/.github/workflows/pwa-lighthouse.yml@v3
+    uses: mister-guiiug/dev-pwa-config/.github/workflows/pwa-lighthouse.yml@v4
     secrets: inherit
     with:
       # Mêmes valeurs factices que ci.yml (jamais des secrets) : Lighthouse

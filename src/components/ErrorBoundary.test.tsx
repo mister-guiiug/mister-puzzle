@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ErrorBoundary } from '@mister-guiiug/dev-wpa-config/react';
+import { ErrorBoundary } from '@mister-guiiug/dev-pwa-config/react';
 
 /**
  * L'écran de secours de l'app est celui du socle (monté dans main.tsx), et son
