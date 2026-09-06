@@ -1,3 +1,8 @@
+import {
+  SPONSOR_URL,
+  repoUrl,
+} from '@mister-guiiug/dev-pwa-config/apps-catalog';
+
 /**
  * Les deux liens de la règle famille — code source et soutien — rendus par la
  * COQUILLE (`App.tsx`), donc sur l'accueil comme sur le puzzle ouvert.
@@ -7,15 +12,19 @@
  * l'accueil n'est plus rendu — le code source disparaissait avec lui, et c'est
  * l'écran où l'on passe tout son temps.
  *
- * Le SVG GitHub et l'URL de soutien (`__BMAC_URL__`, défini par Vite) sont
- * déplacés tels quels : cette application dessine ses icônes en ligne, elle ne
- * déclare pas de bibliothèque d'icônes.
+ * Le SVG GitHub est dessiné en ligne : cette application ne déclare pas de
+ * bibliothèque d'icônes.
+ *
+ * LES DEUX URL VIENNENT DU CATALOGUE, plus d'un `define` Vite ni d'une chaîne
+ * recopiée. L'adresse de soutien est la même pour toute la famille : recopiée
+ * dans chaque app, elle finit par diverger, et une adresse de don périmée ne
+ * se voit pas.
  */
 export function FamilyLinks() {
   return (
     <div className="flex items-center justify-center gap-4 pb-6 text-xs">
       <a
-        href="https://github.com/mister-guiiug/mister-puzzle"
+        href={repoUrl('mister-puzzle')}
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center gap-1 text-fg-muted transition hover:text-fg-muted dark:text-fg-faint dark:hover:text-fg"
@@ -26,7 +35,7 @@ export function FamilyLinks() {
         Code source
       </a>
       <a
-        href={__BMAC_URL__}
+        href={SPONSOR_URL}
         target="_blank"
         rel="noopener noreferrer"
         className="bg-yellow-400 text-yellow-900 font-bold px-3 py-1 rounded-full hover:bg-yellow-300 transition text-xs"
