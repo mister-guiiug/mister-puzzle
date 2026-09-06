@@ -1,19 +1,20 @@
-# Déploiement GitHub Pages, délégué au réutilisable de la famille.
+# Déploiement GitHub Pages — écrit à la main, et le commentaire dit pourquoi.
 #
-# CE FICHIER ÉTAIT ÉCRIT À LA MAIN jusqu'au 06/09/2026 — et il lui manquait
-# ce que le réutilisable pose : le repli SPA `404.html` (un lien profond
-# servait la page 404 de GitHub, relevé d'AMELIORATIONS.md) et `VITE_BASE_PATH`
-# déduit du nom du dépôt. Lint, tests et type-check du serveur vivent dans
-# `ci.yml` (`server-dir`), pas dans un déploiement.
+# LE RÉUTILISABLE `pwa-deploy.yml` NE PEUT PAS ÊTRE APPELÉ ICI TANT QUE LES
+# `VITE_FIREBASE_*` VIVENT DANS `secrets` : le bloc `with:` d'un job `uses:`
+# n'a pas accès au contexte `secrets` — GitHub refuse le fichier entier avant de
+# créer un seul job (« .github/workflows/deploy.yml : failure », relevé du
+# 06/09/2026, première tentative de conversion). Ces valeurs sont PUBLIQUES par
+# construction — Vite les copie dans le bundle, le secret ne masque que les
+# journaux (`pwa-doctor` : vite-en-secret). Le jour où elles passent en `vars`
+# (un geste sur le dépôt : `gh variable set`, puis `gh secret delete`), ce
+# fichier se réduit à un appel de `pwa-deploy.yml@v4` avec `build-env` en
+# `vars`, comme mister-doc.
 #
-# PAS DE `concurrency` ICI : le réutilisable déclare déjà le sien (`group:
-# pages`). Redoublé dans l'appelant, GitHub refuse le fichier AVANT de créer un
-# seul job, sans autre message que « workflow file issue ».
-#
-# LES VITE_FIREBASE_* SONT LUES DANS `secrets`, ET C'EST UNE DETTE CONNUE
-# (`pwa-doctor` : vite-en-secret) : Vite les copie dans le bundle, le secret ne
-# masque que les journaux. Les passer en `vars` est un geste sur le dépôt, pas
-# dans ce fichier — il ne change rien à ce que le navigateur voit.
+# EN ATTENDANT, IL FAIT CE QUE LE RÉUTILISABLE FERAIT ET QUE LA VERSION D'AVANT
+# NE FAISAIT PAS : `VITE_BASE_PATH` posé, et le repli SPA `404.html` — sans
+# lui, un lien profond servait la page 404 de GitHub (AMELIORATIONS.md). Lint,
+# tests et type-check du serveur vivent dans `ci.yml`, pas ici.
 name: Build & Deploy Mister Puzzle
 
 on:
@@ -27,37 +28,62 @@ permissions:
   id-token: write
   packages: read
 
-jobs:
-  deploy:
-    uses: mister-guiiug/dev-pwa-config/.github/workflows/pwa-deploy.yml@v4
-    with:
-      use-base-path: true
-      build-env: |
-        VITE_PUBLIC_SITE_ORIGIN=https://${{ github.repository_owner }}.github.io
-        VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
-        VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-        VITE_FIREBASE_DATABASE_URL=${{ secrets.VITE_FIREBASE_DATABASE_URL }}
-        VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-        VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-        VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-        VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
-  # Les règles de la Realtime Database restent HORS du réutilisable : il
-  # n'authentifie Firebase que par compte de service, et ce dépôt n'a qu'un
-  # jeton (`FIREBASE_TOKEN`, que Firebase déprécie). Le jour où un secret
-  # `FIREBASE_SERVICE_ACCOUNT_KEY` existe, ce job disparaît au profit de
-  # `firebase-project` + `firebase-only: database` sur le job ci-dessus.
-  rules:
-    name: Règles Firebase (Realtime Database)
-    needs: deploy
+jobs:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
 
-      - uses: mister-guiiug/dev-pwa-config/.github/actions/firebase-deploy@v4
+      - uses: mister-guiiug/dev-pwa-config/.github/actions/setup-pwa@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build client
+        env:
+          VITE_BASE_PATH: /mister-puzzle/
+          VITE_PUBLIC_SITE_ORIGIN: https://${{ github.repository_owner }}.github.io
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_DATABASE_URL: ${{ secrets.VITE_FIREBASE_DATABASE_URL }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+        run: npm run build
+
+      # Le repli SPA que le réutilisable pose au déploiement : GitHub Pages sert
+      # `404.html` sur tout chemin inconnu, la coquille démarre, le routeur lit
+      # l'URL. Sans effet si le build l'a déjà émis.
+      - name: SPA fallback (404.html)
+        run: |
+          if [ -f dist/index.html ] && [ ! -f dist/404.html ]; then
+            cp dist/index.html dist/404.html
+            echo "::notice::404.html copié depuis index.html — repli SPA GitHub Pages."
+          fi
+
+      - name: Deploy Firebase Database Rules
+        uses: mister-guiiug/dev-pwa-config/.github/actions/firebase-deploy@v4
         with:
           project-id: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
           only: database
           token: ${{ secrets.FIREBASE_TOKEN }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
