@@ -14,6 +14,8 @@ export const messages: Record<Locale, MsgValue> = {
       pieces: 'pièces',
       errorModalTitle: 'Oups ! Une erreur est survenue',
       errorModalClose: "J'ai compris",
+      footerSource: 'Code source',
+      footerIssues: 'Signaler un problème',
     },
     home: {
       tagline: 'Suivez votre progression en équipe',
@@ -208,6 +210,8 @@ export const messages: Record<Locale, MsgValue> = {
         'Les dimensions de la grille doivent être supérieures à 0.',
       errorGridUpdate: 'Impossible de mettre à jour la grille.',
       errorDelete: 'Impossible de supprimer le puzzle.',
+      errorNotOwner:
+        'Seul le créateur de cette salle peut la renommer, la supprimer ou en changer les réglages. Vous pouvez toujours poser des pièces, ajouter des photos et cocher des jalons.',
       errorPhoto:
         "Impossible d'ajouter la photo. Vérifiez la taille ou votre connexion.",
       errorPhotoSize: 'Fichier trop volumineux (max. 12 Mo).',
@@ -331,6 +335,8 @@ export const messages: Record<Locale, MsgValue> = {
       pieces: 'pieces',
       errorModalTitle: 'Something went wrong',
       errorModalClose: 'Got it',
+      footerSource: 'Source code',
+      footerIssues: 'Report a problem',
     },
     home: {
       tagline: 'Track progress together',
@@ -513,6 +519,8 @@ export const messages: Record<Locale, MsgValue> = {
       errorGridDims: 'Grid dimensions must be greater than 0.',
       errorGridUpdate: 'Could not update grid.',
       errorDelete: 'Could not delete puzzle.',
+      errorNotOwner:
+        'Only the person who created this room can rename it, delete it or change its settings. You can still place pieces, add photos and tick milestones.',
       errorPhoto: 'Could not add photo. Check size or connection.',
       errorPhotoSize: 'File too large (max 12 MB).',
       errorPhotoType: 'This file is not a recognised image.',

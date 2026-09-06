@@ -108,6 +108,7 @@ export function normalizePuzzleFromFirebase(data: unknown): PuzzleState {
     passwordHash:
       typeof raw.passwordHash === 'string' ? raw.passwordHash : undefined,
     createdBy: typeof raw.createdBy === 'string' ? raw.createdBy : undefined,
+    ownerUid: typeof raw.ownerUid === 'string' ? raw.ownerUid : undefined,
     rows: typeof raw.rows === 'number' ? raw.rows : undefined,
     cols: typeof raw.cols === 'number' ? raw.cols : undefined,
     totalPieces: typeof raw.totalPieces === 'number' ? raw.totalPieces : 0,

@@ -71,6 +71,30 @@ export default defineConfig(({ command }) => ({
           ) {
             return 'react-vendor';
           }
+          /**
+           * `firebase/auth` À PART, et avant la règle générale ci-dessous :
+           * il n'est chargé qu'en `import()` (`src/auth.ts`), pour la connexion
+           * anonyme, et RIEN n'en a besoin avant le premier rendu. Fondu dans
+           * le chunk `firebase`, il redevient synchrone et repasse devant la
+           * première peinture — 24 kB gzip pour une propriété que personne ne
+           * voit.
+           *
+           * LES DEUX CHEMINS COMPTENT, et c'est le piège. La règle générale
+           * ci-dessous attrape `/firebase/` : elle épinglait le réexport
+           * `node_modules/firebase/auth/…` dans le chunk `firebase`, et
+           * `@firebase/auth`, dont c'était le seul importateur, y était ramené
+           * avec lui — aucun chunk `firebase-auth` n'était émis, malgré la
+           * règle. Mesuré au build : avec le seul `/@firebase/auth`,
+           * `firebase` = 73,5 kB gzip et rien d'asynchrone ; avec les deux,
+           * `firebase` = 49,7 kB (comme avant) et `firebase-auth` = 24,6 kB,
+           * chargé après le premier rendu.
+           */
+          if (
+            norm.includes('/@firebase/auth') ||
+            norm.includes('/firebase/auth/')
+          ) {
+            return 'firebase-auth';
+          }
           /** Un seul chunk Firebase : le paquet `firebase` ne fait souvent que réexporter `@firebase/*` (~quelques octets) ; les fusionner évite une requête réseau inutile. */
           if (norm.includes('/@firebase/') || norm.includes('/firebase/'))
             return 'firebase';
