@@ -9,6 +9,7 @@ import {
   resolveSeoPublicUrls,
 } from '@mister-guiiug/dev-pwa-config/vite-pwa-base';
 import { cspPlugin } from '@mister-guiiug/dev-pwa-config/vite-csp';
+import { versionPlugin } from '@mister-guiiug/dev-pwa-config/vite-version';
 
 const { version } = JSON.parse(readFileSync('./package.json', 'utf-8')) as {
   version: string;
@@ -84,6 +85,9 @@ export default defineConfig(({ command }) => ({
     },
   },
   plugins: [
+    // AVANT cspPlugin : il pose un script inline dans le <head>, que la
+    // CSP doit hacher après coup ; et il écrit version.json au build.
+    versionPlugin({ manifest: true }),
     pwaSeoPlugin({
       // Deux <meta name="theme-color"> par schéma : la barre du navigateur suit
       // le mode sombre dès le premier rendu (relevé du 02/09/2026 : 5 apps sur 16).
