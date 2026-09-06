@@ -161,7 +161,15 @@ test.describe('mister-puzzle - Fonctionnalités critiques @critical', () => {
 });
 
 test.describe('mister-puzzle - Collaboratif', () => {
-  test('affichage tableau de bord puzzle', async ({ page }) => {
+  // fixme : comme ses trois voisins ci-dessus, ce test exige une configuration
+  // Firebase. Ouvrir une salle appelle `usePuzzle`, donc `getDb()`, donc
+  // `getFirebaseWebConfig()` — qui LÈVE tant qu'une `VITE_FIREBASE_*` manque
+  // (c'est voulu : cf. `src/firebase.ts`, l'init est paresseuse pour que
+  // l'ErrorBoundary puisse afficher l'erreur au lieu d'un écran blanc). En
+  // local sans `.env`, `#TEST` rend donc l'écran de secours et il n'y a plus
+  // de `<main>` : le test échouait sur `main` introuvable, ce qui ne disait
+  // rien de l'app. À rejouer contre l'émulateur.
+  test.fixme('affichage tableau de bord puzzle', async ({ page }) => {
     // Naviguer vers une room de test
     await page.goto('/#TEST');
     await page.waitForLoadState('networkidle');
@@ -175,12 +183,25 @@ test.describe('mister-puzzle - Collaboratif', () => {
   test('indicateur offline visible', async ({ page }) => {
     await page.goto('/');
 
+    // `[data-dwc="connection-banner"]` est le crochet stable du composant du
+    // socle. Le sélecteur d'origine était faux DEUX fois : le moteur `text=`
+    // avale tout ce qui suit, donc `'text=offline, text=Hors ligne,
+    // [role="alert"]'` cherchait le TEXTE littéral « offline, text=Hors ligne,
+    // [role="alert"] » ; et le bandeau annonce `role="status"` (poli) depuis la
+    // reprise du composant du socle, plus `role="alert"`.
+    const banner = page.locator('[data-dwc="connection-banner"]');
+    await expect(banner).toBeHidden();
+
     // Simuler offline
     await page.context().setOffline(true);
 
-    // Vérifier l'indicateur offline
-    await expect(
-      page.locator('text=offline, text=Hors ligne, [role="alert"]').first()
-    ).toBeVisible();
+    // Vérifier l'indicateur offline. Le socle attend 1,5 s HORS LIGNE CONTINU
+    // avant d'afficher (anti-clignotement) : lui laisser ce délai.
+    await expect(banner).toBeVisible({ timeout: 5_000 });
+    await expect(banner).toHaveAttribute('role', 'status');
+
+    // Et il se retire au retour du réseau.
+    await page.context().setOffline(false);
+    await expect(banner).toBeHidden();
   });
 });
