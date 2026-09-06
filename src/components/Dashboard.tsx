@@ -66,6 +66,7 @@ import { ProgressChart } from './ProgressChart';
 import { exportProgressPng } from '../utils/exportProgressCard';
 import { reportError } from '../utils/reportError';
 import { useNetworkGuard } from '../hooks/useNetworkGuard';
+import { useCurrentUid } from '../hooks/useCurrentUid';
 import { notifySaveSuccess } from '../utils/haptic';
 import {
   downloadHistoryCsv,
@@ -107,6 +108,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const lastServerPlacedRef = useRef(puzzle.placedPieces);
   const [remoteConflict, setRemoteConflict] = useState(false);
   const [readOnly, setReadOnlyState] = useState(getReadOnlyMode);
+  const currentUid = useCurrentUid();
   const guard = useNetworkGuard();
   // LECTURE SEULE ET HORS LIGNE BLOQUENT LES MÊMES COMMANDES, À UNE EXCEPTION.
   // Toutes les écritures de ce tableau de bord partent dans Firebase et n'ont
@@ -251,14 +253,32 @@ const Dashboard: React.FC<DashboardProps> = ({
     );
   }, [puzzle.members]);
 
+  /**
+   * Qui peut renommer, redimensionner, changer la visibilité ou le mot de
+   * passe, et supprimer — la MÊME condition que les règles de la base, pour
+   * que l'écran dise ce que le serveur fera :
+   *  - un puzzle avec `ownerUid` : son créateur seul ;
+   *  - un puzzle SANS `ownerUid` (ceux d'avant la connexion anonyme) : tout le
+   *    monde, comme avant. Ne pas les rendre orphelins était la condition.
+   */
+  const canManage = useMemo(
+    () => !puzzle.ownerUid || puzzle.ownerUid === currentUid,
+    [puzzle.ownerUid, currentUid]
+  );
+
+  // Le bandeau « vous avez créé cette salle ». Sur un puzzle possédé, l'uid
+  // tranche ; sur les anciens, on garde la comparaison de pseudos — c'est tout
+  // ce qu'ils portent.
   const isOrganizer = useMemo(
     () =>
-      Boolean(
-        puzzle.createdBy &&
-        pseudo.trim() &&
-        pseudo.trim() === puzzle.createdBy.trim()
-      ),
-    [puzzle.createdBy, pseudo]
+      puzzle.ownerUid
+        ? puzzle.ownerUid === currentUid
+        : Boolean(
+            puzzle.createdBy &&
+            pseudo.trim() &&
+            pseudo.trim() === puzzle.createdBy.trim()
+          ),
+    [puzzle.ownerUid, puzzle.createdBy, pseudo, currentUid]
   );
 
   const maxPlacedEver = useMemo(() => {
@@ -617,6 +637,10 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   const handleChangePassword = async () => {
     if (remoteLocked) return;
+    if (!canManage) {
+      setPwMessage({ type: 'error', text: t('dashboard.errorNotOwner') });
+      return;
+    }
     setPwMessage(null);
     if (puzzle.passwordHash) {
       if (!currentPwd) {
@@ -647,6 +671,10 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   const handleUpdateVisibility = async (newIsPublic: boolean) => {
     if (remoteLocked) return;
+    if (!canManage) {
+      setError(t('dashboard.errorNotOwner'));
+      return;
+    }
     try {
       await updateVisibility(puzzle.id, newIsPublic);
     } catch (err) {
@@ -660,6 +688,12 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   const handleRename = async () => {
     if (remoteLocked) return;
+    if (!canManage) {
+      setError(t('dashboard.errorNotOwner'));
+      setNameInput(puzzle.name);
+      setEditingName(false);
+      return;
+    }
     const trimmed = nameInput.trim();
     if (!trimmed || trimmed === puzzle.name) {
       setEditingName(false);
@@ -679,6 +713,10 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   const handleGridUpdate = async () => {
     if (remoteLocked) return;
+    if (!canManage) {
+      setError(t('dashboard.errorNotOwner'));
+      return;
+    }
     if (gridRows <= 0 || gridCols <= 0) {
       setError(t('dashboard.errorGridDims'));
       return;
@@ -694,6 +732,10 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   const handleDelete = async () => {
     if (remoteLocked) return;
+    if (!canManage) {
+      setError(t('dashboard.errorNotOwner'));
+      return;
+    }
     try {
       await deletePuzzle(puzzle.id);
       onBack();

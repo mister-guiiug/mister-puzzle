@@ -1,22 +1,90 @@
 {
+  // Règles de la Realtime Database — un propriétaire par puzzle, la progression
+  // ouverte à tous.
+  //
+  // AVANT (relevé du 06/09/2026) : `puzzles/.read: true` rendait TOUT l'arbre
+  // lisible sans compte — les quatre puzzles en base, y compris celui marqué
+  // privé, avec tous leurs champs ; et `$roomCode/.write` valait
+  // « !data.exists() || newData.val() === null », c'est-à-dire création ET
+  // SUPPRESSION sans aucune condition, par quiconque. Des mois de progression
+  // et de photos disparaissaient parce qu'un inconnu avait lu le code dans la
+  // liste publique du tiroir.
+  //
+  // APRÈS, trois changements et un seul principe : le code de salle reste la
+  // clé d'entrée (personne ne s'inscrit — c'est l'argument du README), mais
+  // ce qui DÉTRUIT ou RESTRUCTURE un puzzle demande d'en être le créateur.
+  //
+  //  1. Lecture. `puzzles` n'est plus lisible en bloc : seule la REQUÊTE de la
+  //     liste publique passe (`orderByChild('isPublic').equalTo(true)`), et un
+  //     puzzle privé n'y figure pas, par construction. Un puzzle reste lisible
+  //     par son code (`$roomCode/.read`) : c'est le produit.
+  //     Pourquoi cette voie plutôt qu'un index `publicPuzzles/$roomCode` : un
+  //     index est une PROJECTION, et le seul acteur capable de la tenir à jour
+  //     est justement celui à qui l'on ne fait pas confiance ; il faudrait le
+  //     réécrire à chaque pièce posée, à chaque renommage, et MIGRER les
+  //     quatre puzzles existants — dont la liste publique resterait vide en
+  //     attendant. La règle par requête obtient la même restriction de lecture
+  //     sans seconde source de vérité et sans migration. (Les règles, elles,
+  //     n'écrivent jamais : « un index tenu par les règles » n'existe pas.)
+  //
+  //  2. Écriture. `ownerUid` porte l'`auth.uid` de la connexion ANONYME
+  //     (`signInAnonymously`) — aucune inscription, aucun écran de connexion.
+  //     Il est posé UNE FOIS, à la création, et ne vaut que soi-même.
+  //     `createdBy` reste ce qu'il a toujours été : le PSEUDO affiché
+  //     (« Créé par … » dans le tableau de bord) ; lui donner l'uid aurait
+  //     affiché « Créé par hqBBPMe1c5… » à l'écran.
+  //     Suppression du puzzle et champs structurants (`name`, `rows`, `cols`,
+  //     `totalPieces`, `isPublic`, `passwordHash`) : le créateur.
+  //     Progression (`placedPieces`, `history`, `photos`, `checkpoints`,
+  //     `members`) : tout le monde, comme avant — c'est le produit.
+  //
+  //  3. MIGRATION — LE VERROU NE S'APPLIQUE QU'AUX PUZZLES QUI ONT UN
+  //     `ownerUid`. Les quatre puzzles en base au 06/09/2026 n'en ont pas (un
+  //     seul porte un `createdBy`, et c'est un pseudo) : ils restent
+  //     EXACTEMENT dans le comportement d'aujourd'hui — modifiables et
+  //     supprimables par quiconque connaît le code. Un verrou qui rend
+  //     orphelins les puzzles existants serait pire que le trou qu'il bouche.
+  //     `ownerUid` n'est pas revendicable après coup (`.write` interdit dès
+  //     que le puzzle existe) : sans cela, un inconnu s'approprierait un
+  //     puzzle ancien et en fermerait la porte à son vrai propriétaire.
+  //
+  //  4. DÉGRADATION. Si la connexion anonyme n'est pas activée dans la console
+  //     Firebase, le client ne reçoit pas d'uid, n'écrit pas `ownerUid`, et
+  //     crée un puzzle du régime d'avant : l'application continue de marcher,
+  //     sans propriétaire. Rien ici n'exige `auth != null` pour créer, poser
+  //     une pièce ou lire.
+  //
+  // La suite de tests `rules-tests/database.rules.test.ts` (émulateur RTDB,
+  // `npm run test:rules`) verrouille chacun de ces points.
   "rules": {
     "puzzles": {
       ".indexOn": ["isPublic"],
-      ".read": true,
+
+      // Plus de `.read: true` : seule la requête de la liste publique est
+      // servie sur le nœud parent. Une lecture globale sans requête, ou une
+      // requête sur un autre champ, est refusée — donc plus d'énumération des
+      // puzzles privés.
+      ".read": "query.orderByChild === 'isPublic' && query.equalTo === true",
+
       "$roomCode": {
         ".read": true,
-        ".write": "!data.exists() || newData.val() === null",
 
-        "isPublic": {
-          ".write": "data.parent().exists()",
-          ".validate": "newData.isBoolean()"
+        // Création : libre (avec ou sans connexion anonyme).
+        // Suppression : le créateur — ou n'importe qui si le puzzle n'a pas de
+        // `ownerUid` (les puzzles d'avant ce changement, cf. § 3).
+        // Modification : refusée ici, accordée champ par champ ci-dessous.
+        ".write": "!data.exists() || (newData.val() === null && (!data.child('ownerUid').exists() || (auth != null && data.child('ownerUid').val() === auth.uid)))",
+
+        // ————— Propriété —————
+
+        // Posé une seule fois, dans l'écriture qui CRÉE le puzzle
+        // (`!data.parent().exists()`), et jamais revendiqué ensuite.
+        "ownerUid": {
+          ".write": "!data.parent().exists()",
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 128 && auth != null && newData.val() === auth.uid"
         },
 
-        "passwordHash": {
-          ".write": "data.parent().exists()",
-          ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0 && newData.val().length <= 128)"
-        },
-
+        // Le pseudo affiché. Inchangé : ce n'est pas une identité.
         "createdBy": {
           ".write": "!data.exists()",
           ".validate": "newData.isString() && newData.val().length < 100"
@@ -27,25 +95,39 @@
           ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 99"
         },
 
+        // ————— Champs structurants : le créateur (ou régime d'avant) —————
+
+        "isPublic": {
+          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
+          ".validate": "newData.isBoolean()"
+        },
+
+        "passwordHash": {
+          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0 && newData.val().length <= 128)"
+        },
+
         "name": {
-          ".write": "data.parent().exists()",
+          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
           ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 200"
         },
 
         "rows": {
-          ".write": "data.parent().exists()",
+          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
           ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 5000"
         },
 
         "cols": {
-          ".write": "data.parent().exists()",
+          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
           ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 5000"
         },
 
         "totalPieces": {
-          ".write": "data.parent().exists()",
+          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
           ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 25000000"
         },
+
+        // ————— Progression : ouverte à tous, c'est le produit —————
 
         "placedPieces": {
           ".write": "data.parent().exists()",

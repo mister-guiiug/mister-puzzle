@@ -14,6 +14,7 @@ import {
   onDisconnect,
 } from 'firebase/database';
 import { getDb } from '../firebase';
+import { ensureAnonymousAuth } from '../auth';
 import { normalizePuzzleFromFirebase } from '../utils/puzzleNormalize';
 import { reportError } from '../utils/reportError';
 import { PUZZLE_SCHEMA_VERSION } from '../constants/schema';
@@ -59,7 +60,14 @@ export interface PuzzleState {
   schemaVersion?: number;
   isPublic: boolean;
   passwordHash?: string;
+  /** Le pseudo affiché (« Créé par … ») — pas une identité. */
   createdBy?: string;
+  /**
+   * L'`auth.uid` de la connexion anonyme du créateur, posé à la création et
+   * jamais modifié. ABSENT sur les puzzles d'avant ce changement : ceux-là
+   * restent modifiables et supprimables par quiconque a le code, comme avant.
+   */
+  ownerUid?: string;
   totalPieces: number;
   placedPieces: number;
   rows?: number;
@@ -145,6 +153,10 @@ export const createPuzzle = async (
   pseudo: string
 ): Promise<string> => {
   const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+  // Le seul endroit où la propriété se pose. `ensureAnonymousAuth()` ne rejette
+  // jamais : sans connexion anonyme activée dans la console, elle rend `null`,
+  // `ownerUid` est omis, et le puzzle naît dans le régime d'avant — ouvert.
+  const ownerUid = await ensureAnonymousAuth();
   await set(ref(getDb(), `puzzles/${roomCode}`), {
     id: roomCode,
     schemaVersion: PUZZLE_SCHEMA_VERSION,
@@ -152,6 +164,7 @@ export const createPuzzle = async (
     isPublic,
     ...(passwordHash ? { passwordHash } : {}),
     ...(pseudo ? { createdBy: pseudo } : {}),
+    ...(ownerUid ? { ownerUid } : {}),
     rows,
     cols,
     totalPieces: rows * cols,
@@ -181,28 +194,32 @@ export const joinPuzzle = async (
   return normalizePuzzle(snapshot.val());
 };
 
-/** Fetch all public puzzles. */
+/**
+ * La liste publique du tiroir.
+ *
+ * CETTE REQUÊTE EST DÉSORMAIS LE SEUL ACCÈS AU NŒUD `puzzles` : les règles ne
+ * servent plus qu'elle (`query.orderByChild === 'isPublic' && query.equalTo ===
+ * true`), et un puzzle privé n'y figure pas — par construction, plus par
+ * filtrage côté client. Le repli d'avant lisait TOUT l'arbre quand l'index
+ * manquait ; c'était exactement le trou (les puzzles privés rendus avec tous
+ * leurs champs), et il est retiré : un tel appel est maintenant refusé par le
+ * serveur.
+ *
+ * Conséquence assumée : un puzzle SANS champ `isPublic` n'apparaît plus dans la
+ * liste. `createPuzzle` l'écrit toujours, et les quatre puzzles en base au
+ * 06/09/2026 l'ont tous (sondage en clés seulement).
+ */
 export const getPublicPuzzles = async (): Promise<PuzzleState[]> => {
-  // Try indexed query first; fall back to full fetch+filter if index not yet deployed
-  try {
-    const publicQuery = query(
-      ref(getDb(), 'puzzles'),
-      orderByChild('isPublic'),
-      equalTo(true)
-    );
-    const snapshot = await get(publicQuery);
-    if (!snapshot.exists()) return [];
-    return Object.values(snapshot.val() as Record<string, unknown>)
-      .map(normalizePuzzle)
-      .filter(p => !p.passwordHash); // never show password-protected puzzles in search
-  } catch (e) {
-    reportError('getPublicPuzzles_indexed', e, {});
-    const snapshot = await get(ref(getDb(), 'puzzles'));
-    if (!snapshot.exists()) return [];
-    return Object.values(snapshot.val() as Record<string, unknown>)
-      .map(normalizePuzzle)
-      .filter(p => p.isPublic !== false && !p.passwordHash);
-  }
+  const publicQuery = query(
+    ref(getDb(), 'puzzles'),
+    orderByChild('isPublic'),
+    equalTo(true)
+  );
+  const snapshot = await get(publicQuery);
+  if (!snapshot.exists()) return [];
+  return Object.values(snapshot.val() as Record<string, unknown>)
+    .map(normalizePuzzle)
+    .filter(p => !p.passwordHash); // never show password-protected puzzles in search
 };
 
 /** Register the current session as an active member. Uses onDisconnect to auto-remove. */
