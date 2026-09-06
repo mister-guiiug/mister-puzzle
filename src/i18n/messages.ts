@@ -14,6 +14,8 @@ export const messages: Record<Locale, MsgValue> = {
       pieces: 'pièces',
       errorModalTitle: 'Oups ! Une erreur est survenue',
       errorModalClose: "J'ai compris",
+      footerSource: 'Code source',
+      footerIssues: 'Signaler un problème',
     },
     home: {
       tagline: 'Suivez votre progression en équipe',
@@ -333,6 +335,8 @@ export const messages: Record<Locale, MsgValue> = {
       pieces: 'pieces',
       errorModalTitle: 'Something went wrong',
       errorModalClose: 'Got it',
+      footerSource: 'Source code',
+      footerIssues: 'Report a problem',
     },
     home: {
       tagline: 'Track progress together',
