@@ -1,5 +1,19 @@
-# Deploy custom (client + server check + Firebase database rules + GitHub Pages).
-# Utilise la composite action setup-pwa pour le boilerplate Node/install.
+# Déploiement GitHub Pages, délégué au réutilisable de la famille.
+#
+# CE FICHIER ÉTAIT ÉCRIT À LA MAIN jusqu'au 06/09/2026 — et il lui manquait
+# ce que le réutilisable pose : le repli SPA `404.html` (un lien profond
+# servait la page 404 de GitHub, relevé d'AMELIORATIONS.md) et `VITE_BASE_PATH`
+# déduit du nom du dépôt. Lint, tests et type-check du serveur vivent dans
+# `ci.yml` (`server-dir`), pas dans un déploiement.
+#
+# PAS DE `concurrency` ICI : le réutilisable déclare déjà le sien (`group:
+# pages`). Redoublé dans l'appelant, GitHub refuse le fichier AVANT de créer un
+# seul job, sans autre message que « workflow file issue ».
+#
+# LES VITE_FIREBASE_* SONT LUES DANS `secrets`, ET C'EST UNE DETTE CONNUE
+# (`pwa-doctor` : vite-en-secret) : Vite les copie dans le bundle, le secret ne
+# masque que les journaux. Les passer en `vars` est un geste sur le dépôt, pas
+# dans ce fichier — il ne change rien à ce que le navigateur voit.
 name: Build & Deploy Mister Puzzle
 
 on:
@@ -13,53 +27,37 @@ permissions:
   id-token: write
   packages: read
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
-  build:
+  deploy:
+    uses: mister-guiiug/dev-pwa-config/.github/workflows/pwa-deploy.yml@v4
+    with:
+      use-base-path: true
+      build-env: |
+        VITE_PUBLIC_SITE_ORIGIN=https://${{ github.repository_owner }}.github.io
+        VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
+        VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+        VITE_FIREBASE_DATABASE_URL=${{ secrets.VITE_FIREBASE_DATABASE_URL }}
+        VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+        VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+        VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+        VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}
+
+  # Les règles de la Realtime Database restent HORS du réutilisable : il
+  # n'authentifie Firebase que par compte de service, et ce dépôt n'a qu'un
+  # jeton (`FIREBASE_TOKEN`, que Firebase déprécie). Le jour où un secret
+  # `FIREBASE_SERVICE_ACCOUNT_KEY` existe, ce job disparaît au profit de
+  # `firebase-project` + `firebase-only: database` sur le job ci-dessus.
+  rules:
+    name: Règles Firebase (Realtime Database)
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-
-      - uses: mister-guiiug/dev-pwa-config/.github/actions/setup-pwa@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Lint & tests (client)
-        run: npm run lint && npm run test
-
-      - name: Build client
-        env:
-          VITE_PUBLIC_SITE_ORIGIN: https://${{ github.repository_owner }}.github.io
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-          VITE_FIREBASE_DATABASE_URL: ${{ secrets.VITE_FIREBASE_DATABASE_URL }}
-          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
-        run: npm run build
-
-      - name: Vérification TypeScript (server)
-        run: cd server && npm ci && npx tsc --noEmit
-
-      - name: Deploy Firebase Database Rules
-        run: |
-          npm install -g firebase-tools
-          firebase deploy --only database --project ${{ secrets.VITE_FIREBASE_PROJECT_ID }} --token ${{ secrets.FIREBASE_TOKEN }}
-
-      - uses: actions/upload-pages-artifact@v3
+      - uses: mister-guiiug/dev-pwa-config/.github/actions/firebase-deploy@v4
         with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/deploy-pages@v4
-        id: deployment
+          project-id: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          only: database
+          token: ${{ secrets.FIREBASE_TOKEN }}
