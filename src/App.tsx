@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { usePuzzle } from './hooks/useSocket';
 import Home from './components/Home';
+import { FamilyLinks } from './components/FamilyLinks';
 
 const Dashboard = lazy(() => import('./components/Dashboard'));
 import { Navbar } from './components/Navbar';
@@ -204,6 +205,10 @@ function App() {
           <Home onJoin={handleJoin} pseudo={pseudo} />
         )}
       </main>
+      {/* HORS de la bascule d'écran : le code source et le soutien sont ainsi
+          sur l'accueil comme sur un puzzle ouvert — la règle famille. Rendus
+          par `Home`, ils disparaissaient dès qu'une partie s'ouvrait. */}
+      <FamilyLinks />
     </>
   );
 }
