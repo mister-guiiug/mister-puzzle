@@ -17,13 +17,21 @@
     </script>
     <meta charset="UTF-8" />
     __ANALYTICS_HEAD__
-    <link rel="icon" type="image/svg+xml" href="/logo.svg__PWA_ICON_QS__" />
+    <!--
+      CHEMINS RELATIFS, PAS ABSOLUS. Un href commençant par « / » vise la racine
+      du DOMAINE — `mister-guiiug.github.io/logo.svg` — alors que l'application
+      est servie sous `/mister-puzzle/`. Les trois liens rendaient donc 404 en
+      production, sans que rien ne le signale : le manifeste, lui, déclare ses
+      icônes en relatif et les trouvait. Un chemin relatif se résout contre le
+      chemin de base, quel qu'il soit.
+    -->
+    <link rel="icon" type="image/svg+xml" href="logo.svg__PWA_ICON_QS__" />
     <link
       rel="alternate icon"
       type="image/png"
-      href="/pwa-192x192.png__PWA_ICON_QS__"
+      href="pwa-192x192.png__PWA_ICON_QS__"
     />
-    <link rel="apple-touch-icon" href="/pwa-192x192.png__PWA_ICON_QS__" />
+    <link rel="apple-touch-icon" href="pwa-192x192.png__PWA_ICON_QS__" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
