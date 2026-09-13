@@ -70,6 +70,7 @@ export function UpdateBanner() {
 
   return (
     <UpdatePromptBanner
+      checkEvery="1h"
       registerSW={registerSW}
       snoozeHours={24}
       className="puzzle-update-banner sticky top-0 z-[60] w-full justify-center gap-2 sm:gap-3 px-3 py-3 sm:py-3.5 bg-gradient-to-r from-primary-soft via-surface to-primary-soft shadow-md backdrop-blur-sm pt-[max(0.75rem,env(safe-area-inset-top,0px))]"
