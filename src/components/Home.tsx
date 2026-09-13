@@ -21,6 +21,7 @@ import {
   type PuzzleState,
 } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
+import { PwaInstallPrompt } from '@mister-guiiug/dev-pwa-config/react/pwa-install-prompt';
 import { useNetworkGuard } from '../hooks/useNetworkGuard';
 import {
   getHistory,
@@ -781,6 +782,15 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
           />
         </div>
       </section>
+
+      {/* SUR L'ACCUEIL, ET PAS DANS LA COQUILLE : `App` rend soit cet écran,
+          soit le tableau de bord d'un puzzle ouvert. Un bandeau global
+          paraîtrait donc par-dessus une partie en cours ; ici, le joueur n'a
+          pas encore rejoint de salle. Ne rend rien tant qu'une installation
+          n'est pas possible, ni une fois l'application installée — et sur iOS,
+          où l'événement natif n'existe pas, donne la marche à suivre. Cadence
+          du socle : au premier lancement, puis une fois par mois, trois fois. */}
+      <PwaInstallPrompt />
 
       {/* Footer */}
       <footer className="mt-12 flex flex-col items-center gap-3 text-fg-faint text-xs">
