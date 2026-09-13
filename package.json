@@ -21,26 +21,26 @@
     "type-check": "tsc -b"
   },
   "bundleBudget": {
-    "_pourquoi": "Relevé de 320 à 340 le 06/09/2026 : `firebase/auth` (connexion anonyme, VALEUR.md V3) ajoute 24,6 kB gzip dans un chunk asynchrone, et le budget compte TOUT le JS émis, pas seulement le chemin critique. Mesuré : 291,8 kB avant, 319,7 kB après — 0,3 kB de marge sous 320, soit une CI rouge à la prochaine montée de dépendance. 340 rend la marge qu'il y avait (≈ 28 kB).",
-    "totalGzipKb": 340
+    "_pourquoi": "Relevé de 320 à 340 le 06/09/2026 : `firebase/auth` (connexion anonyme, VALEUR.md V3) ajoute 24,6 kB gzip dans un chunk asynchrone, et le budget compte TOUT le JS émis, pas seulement le chemin critique. Mesuré : 291,8 kB avant, 319,7 kB après — 0,3 kB de marge sous 320, soit une CI rouge à la prochaine montée de dépendance. 340 rend la marge qu'il y avait (≈ 28 kB). Relevé de 340 à 400 le 13/09/2026 par trois montées majeures prises ENSEMBLE : web-vitals 4→6, firebase 11→12 et @sentry/react 8→10. Mesuré sur quatre installations propres — main 323,9 kB, tout monté 360,7 kB, soit +36,8 kB (+11,4 %). Les deux majeurs se RECOUVRENT : Sentry 10 seul coûte +37,7 kB, plus cher que Sentry 10 ET firebase 12 réunis (+36,8). 400 rend une marge de ~39 kB, celle qu il y avait sous 340.",
+    "totalGzipKb": 400
   },
   "dependencies": {
-    "@sentry/react": "^8.45.0",
+    "@sentry/react": "^10.74.0",
     "@tailwindcss/vite": "^4.3.3",
     "date-fns": "^4.4.0",
-    "firebase": "^11.0.0",
+    "firebase": "^12.19.0",
     "lucide-react": "^1.45.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "tailwindcss": "^4.3.3",
-    "web-vitals": "^4.2.0",
+    "web-vitals": "^6.2.1",
     "zod": "^4.6.4",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^10.0.1",
-    "@firebase/rules-unit-testing": "^4.0.1",
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@mister-guiiug/dev-pwa-config": "^4.14.0",
     "@playwright/test": "^1.63.0",
     "@sentry/vite-plugin": "^5.4.0",
