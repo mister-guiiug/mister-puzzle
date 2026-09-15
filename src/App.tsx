@@ -7,6 +7,8 @@ import {
   lazy,
   Suspense,
 } from 'react';
+import { ConsentBanner } from '@mister-guiiug/dev-pwa-config/react/consent-banner';
+import { usePageViews } from '@mister-guiiug/dev-pwa-config/react/use-page-views';
 import { usePuzzle } from './hooks/useSocket';
 import Home from './components/Home';
 import { FamilyLinks } from './components/FamilyLinks';
@@ -37,6 +39,23 @@ function App() {
   const { puzzle, loading, loadError } = usePuzzle(roomCode);
   useDocumentRoomTitle(puzzle ?? undefined, loading);
   const savedRef = useRef<string | null>(null);
+
+  /*
+   * DEUX VUES, ET LE CODE DE SALLE N'EN FAIT PAS PARTIE.
+   *
+   * Cette app navigue par le hash : un code de salle, ou rien. Envoyer ce code
+   * à Google en guise de chemin lui livrerait un identifiant que les
+   * participants se partagent — une donnée qui n'a rien à faire dans un
+   * rapport d'audience. Les deux états sont donc nommés, pas transmis.
+   *
+   * GA4 n'envoie `page_view` qu'au chargement du document, et `initAnalytics`
+   * pose `send_page_view: false` pour que la première vue passe par ce hook :
+   * sans lui, la propriété resterait vide. Le hook dédoublonne sur le chemin,
+   * donc rouvrir la même salle ne recompte rien.
+   *
+   * Ne fait rien tant que le consentement n'est pas accordé.
+   */
+  usePageViews(roomCode ? '/salle' : '/');
 
   const [pseudo, setPseudo] = useState(() => getPseudo());
   const [pseudoLocked, setPseudoLocked] = useState(() => isPseudoLocked());
@@ -209,6 +228,14 @@ function App() {
           sur l'accueil comme sur un puzzle ouvert — la règle famille. Rendus
           par `Home`, ils disparaissaient dès qu'une partie s'ouvrait. */}
       <FamilyLinks />
+      {/* Une `region`, pas une boîte modale : elle ne recouvre rien et ne
+          piège pas le focus — un bandeau posé sur un puzzle en cours serait
+          exactement le « dark pattern » que le RGPD nomme. Ne rend RIEN tant
+          que `VITE_GA_MEASUREMENT_ID` n'est pas posée. */}
+      <ConsentBanner
+        gtmContainerId={import.meta.env.VITE_GTM_CONTAINER_ID}
+        gaMeasurementId={import.meta.env.VITE_GA_MEASUREMENT_ID}
+      />
     </>
   );
 }
