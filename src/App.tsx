@@ -232,10 +232,7 @@ function App() {
           piège pas le focus — un bandeau posé sur un puzzle en cours serait
           exactement le « dark pattern » que le RGPD nomme. Ne rend RIEN tant
           que `VITE_GA_MEASUREMENT_ID` n'est pas posée. */}
-      <ConsentBanner
-        gtmContainerId={import.meta.env.VITE_GTM_CONTAINER_ID}
-        gaMeasurementId={import.meta.env.VITE_GA_MEASUREMENT_ID}
-      />
+      <ConsentBanner gaMeasurementId={import.meta.env.VITE_GA_MEASUREMENT_ID} />
     </>
   );
 }
