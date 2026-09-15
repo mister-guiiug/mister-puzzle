@@ -8,9 +8,7 @@ interface ImportMetaEnv {
   readonly VITE_PUBLIC_SITE_ORIGIN?: string;
   /** Suffixe `?v=…` (version package) pour bust du cache favicon / logo PWA — défini au build dans vite.config */
   readonly VITE_PWA_ICON_QS: string;
-  /** Conteneur Google Tag Manager (injecté dans index.html au build si présent) */
-  readonly VITE_GTM_CONTAINER_ID?: string;
-  /** ID de mesure GA4 sans GTM (injecté au build si présent et sans GTM) */
+  /** ID de mesure GA4 — injecté par `ConsentBanner`, APRÈS accord, jamais au build */
   readonly VITE_GA_MEASUREMENT_ID?: string;
   /** URL HTTPS (POST JSON) pour recevoir les rapports d’erreur produits par `reportError` */
   readonly VITE_ERROR_INGEST_URL?: string;
