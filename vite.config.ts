@@ -63,6 +63,21 @@ export default defineConfig(({ command }) => ({
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
           const norm = id.replace(/\\/g, '/');
+          /*
+           * SENTRY DANS SON PROPRE MORCEAU, ET C'EST UNE CORRECTION.
+           *
+           * `react/observability` du socle charge `@sentry/react` par un
+           * `import()` DYNAMIQUE : il ne doit partir que si un DSN existe. Mais
+           * `manualChunks` a le dernier mot sur Rollup, et la règle générale
+           * plus bas attrapait Sentry au passage — dans un morceau STATIQUE,
+           * préchargé par `index.html`.
+           *
+           * Or ce dépôt n'a AUCUN `VITE_SENTRY_DSN`, ni en secret ni en
+           * variable : `initSentry` sort sur `if (!dsn) return null` sans
+           * jamais toucher au SDK. Ces kilo-octets partaient à chaque visite
+           * pour un Sentry qui ne s'allume jamais.
+           */
+          if (norm.includes('/@sentry/')) return 'sentry';
           // Cache navigateur : React change moins souvent que le code applicatif.
           if (
             norm.includes('/react-dom/') ||
