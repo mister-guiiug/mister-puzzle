@@ -3,7 +3,6 @@ import {
   repoUrl,
 } from '@mister-guiiug/dev-pwa-config/apps-catalog';
 import { currentIssueReportUrl } from '@mister-guiiug/dev-pwa-config/issue-report';
-import { AppVersion } from '@mister-guiiug/dev-pwa-config/react/app-version';
 import { useI18n } from '../i18n/I18nContext';
 
 const REPO_URL = repoUrl('mister-puzzle');
@@ -95,15 +94,10 @@ export function FamilyLinks() {
       >
         ☕ Buy me a coffee
       </a>
-      {/* LE NUMÉRO DE BUILD, à côté du lien de signalement — c'est pour lui
-          qu'il existe. `versionPlugin({ manifest: true })` écrit `version.json`
-          au build depuis toujours et rien ne le lisait : quand quelqu'un
-          signale un comportement, personne ne pouvait dire sur quelle version
-          il était.
-          `updates` fait sonder ce fichier au montage : cette coquille est
-          rendue sur l'accueil COMME sur un puzzle ouvert, donc l'annonce
-          atteint l'écran où l'on passe son temps. */}
-      <AppVersion repoUrl={REPO_URL} updates />
+      {/* PLUS DE NUMÉRO DE VERSION. Il portait un lien vers
+          `…/releases/tag/vX.Y.Z` — aucune app du parc ne pose de tag git, le
+          lien répondait 404. Le numéro voyage toujours dans le rapport de bug,
+          prérempli par `currentIssueReportUrl` : c'est là qu'il servait. */}
     </div>
   );
 }
