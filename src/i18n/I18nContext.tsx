@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { LabelsProvider } from '@mister-guiiug/dev-pwa-config/react/labels';
 import type { Locale } from './localeStorage';
 import { getLocalePref, setLocalePref } from './localeStorage';
 import { translate } from './messages';
@@ -36,7 +37,18 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [locale, setLocale, t, numberLocale]
   );
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+  // LES LIBELLÉS DU SOCLE SUIVENT LA LANGUE DE L'APP, et rien de plus.
+  //
+  // Sans ce provider, les composants partagés retombent sur le FRANÇAIS :
+  // le « Mise à jour… » transitoire du bandeau, la croix d'une feuille, les
+  // boutons d'une confirmation. Chaque écran le contournait en passant ses
+  // propres libellés — six composants du socle sont montés ici, et seul
+  // celui de la mise à jour était couvert.
+  return (
+    <I18nContext.Provider value={value}>
+      <LabelsProvider locale={locale}>{children}</LabelsProvider>
+    </I18nContext.Provider>
+  );
 }
 
 /** Hook consommateur du provider i18n. */

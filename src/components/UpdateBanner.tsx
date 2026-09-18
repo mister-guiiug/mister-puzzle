@@ -1,6 +1,5 @@
 import { registerSW } from 'virtual:pwa-register';
 import { UpdatePromptBanner } from '@mister-guiiug/dev-pwa-config/react/update-prompt-banner';
-import { useI18n } from '../i18n/I18nContext';
 
 /**
  * Bandeau « nouvelle version disponible », rendu par le socle
@@ -66,21 +65,12 @@ function adoptLegacySnooze(): void {
 adoptLegacySnooze();
 
 export function UpdateBanner() {
-  const { t } = useI18n();
-
   return (
     <UpdatePromptBanner
       checkEvery="1h"
       registerSW={registerSW}
       snoozeHours={24}
       className="puzzle-update-banner sticky top-0 z-[60] w-full justify-center gap-2 sm:gap-3 px-3 py-3 sm:py-3.5 bg-gradient-to-r from-primary-soft via-surface to-primary-soft shadow-md backdrop-blur-sm pt-[max(0.75rem,env(safe-area-inset-top,0px))]"
-      title={t('nav.updateBannerTitle')}
-      updateLabel={t('nav.updateBannerCta')}
-      // Le i18n de l'app est écrit à la main (pas `createI18n`), donc AUCUN
-      // `LabelsProvider` n'est monté : sans ce libellé, l'état transitoire du
-      // socle resterait en français pour tout le monde.
-      updatingLabel={t('nav.updateBannerUpdating')}
-      snoozeLabel={t('nav.updateBannerSnooze')}
     />
   );
 }
