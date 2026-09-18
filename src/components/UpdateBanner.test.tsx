@@ -82,9 +82,7 @@ describe('UpdateBanner', () => {
 
     const node = screen.getByRole('status');
     expect(node).toHaveAttribute('data-dwc', 'update-banner');
-    expect(node).toHaveTextContent(
-      'Une nouvelle version de l’application est disponible.'
-    );
+    expect(node).toHaveTextContent('Mise à jour disponible');
     expect(
       screen.getByRole('button', { name: 'Mettre à jour' })
     ).toBeInTheDocument();
