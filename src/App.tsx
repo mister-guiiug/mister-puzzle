@@ -44,14 +44,15 @@ function App() {
    * DEUX VUES, ET LE CODE DE SALLE N'EN FAIT PAS PARTIE.
    *
    * Cette app navigue par le hash : un code de salle, ou rien. Envoyer ce code
-   * à Google en guise de chemin lui livrerait un identifiant que les
+   * à l'outil de mesure en guise de chemin lui livrerait un identifiant que les
    * participants se partagent — une donnée qui n'a rien à faire dans un
    * rapport d'audience. Les deux états sont donc nommés, pas transmis.
    *
-   * GA4 n'envoie `page_view` qu'au chargement du document, et `initAnalytics`
-   * pose `send_page_view: false` pour que la première vue passe par ce hook :
-   * sans lui, la propriété resterait vide. Le hook dédoublonne sur le chemin,
-   * donc rouvrir la même salle ne recompte rien.
+   * `initAnalytics` pose `capture_pageview: false` pour que la première vue
+   * passe par ce hook : sans lui, le projet resterait vide — et si on laissait
+   * PostHog compter seul, il enverrait en prime l'URL COMPLÈTE, code de salle
+   * inclus, ce que tout ce commentaire cherche à éviter. Le hook dédoublonne
+   * sur le chemin, donc rouvrir la même salle ne recompte rien.
    *
    * Ne fait rien tant que le consentement n'est pas accordé.
    */
@@ -231,8 +232,11 @@ function App() {
       {/* Une `region`, pas une boîte modale : elle ne recouvre rien et ne
           piège pas le focus — un bandeau posé sur un puzzle en cours serait
           exactement le « dark pattern » que le RGPD nomme. Ne rend RIEN tant
-          que `VITE_GA_MEASUREMENT_ID` n'est pas posée. */}
-      <ConsentBanner gaMeasurementId={import.meta.env.VITE_GA_MEASUREMENT_ID} />
+          que `VITE_POSTHOG_KEY` n'est pas posée. */}
+      <ConsentBanner
+        posthogKey={import.meta.env.VITE_POSTHOG_KEY}
+        loader={() => import('posthog-js/dist/module.slim.js')}
+      />
     </>
   );
 }
