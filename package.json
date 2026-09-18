@@ -21,8 +21,8 @@
     "type-check": "tsc -b"
   },
   "bundleBudget": {
-    "_pourquoi": "Relevé de 320 à 340 le 06/09/2026 : `firebase/auth` (connexion anonyme, VALEUR.md V3) ajoute 24,6 kB gzip dans un chunk asynchrone, et le budget compte TOUT le JS émis, pas seulement le chemin critique. Mesuré : 291,8 kB avant, 319,7 kB après — 0,3 kB de marge sous 320, soit une CI rouge à la prochaine montée de dépendance. 340 rend la marge qu'il y avait (≈ 28 kB). Relevé de 340 à 400 le 13/09/2026 par trois montées majeures prises ENSEMBLE : web-vitals 4→6, firebase 11→12 et @sentry/react 8→10. Mesuré sur quatre installations propres — main 323,9 kB, tout monté 360,7 kB, soit +36,8 kB (+11,4 %). Les deux majeurs se RECOUVRENT : Sentry 10 seul coûte +37,7 kB, plus cher que Sentry 10 ET firebase 12 réunis (+36,8). 400 rend une marge de ~39 kB, celle qu il y avait sous 340.",
-    "totalGzipKb": 400,
+    "_pourquoi": "Relevé de 320 à 340 le 06/09/2026 : `firebase/auth` (connexion anonyme, VALEUR.md V3) ajoute 24,6 kB gzip dans un chunk asynchrone, et le budget compte TOUT le JS émis, pas seulement le chemin critique. Mesuré : 291,8 kB avant, 319,7 kB après — 0,3 kB de marge sous 320, soit une CI rouge à la prochaine montée de dépendance. 340 rend la marge qu'il y avait (≈ 28 kB). Relevé de 340 à 400 le 13/09/2026 par trois montées majeures prises ENSEMBLE : web-vitals 4→6, firebase 11→12 et @sentry/react 8→10. Mesuré sur quatre installations propres — main 323,9 kB, tout monté 360,7 kB, soit +36,8 kB (+11,4 %). Les deux majeurs se RECOUVRENT : Sentry 10 seul coûte +37,7 kB, plus cher que Sentry 10 ET firebase 12 réunis (+36,8). 400 rend une marge de ~39 kB, celle qu il y avait sous 340. — RELEVÉ DE 400 À 463 LE 19/09/2026 : `posthog-js` entre avec l'ADR 0012, le parc quittant GA4 pour PostHog en Europe. 420,6 kB mesurés, 463 = mesure + 10 % (la formule du cliquet du socle). LE MORCEAU EST DIFFÉRÉ ET LE RESTE : il n'est chargé qu'APRÈS l'accord, et un visiteur qui refuse ne le télécharge jamais — c'est `preloadGzipKb`, inchangé par ce commit, qui garde le chemin critique. Le `loader` vise `posthog-js/dist/module.slim.js` : 48,9 kB gzip au lieu de 97,6 pour l'entrée par défaut, en laissant dehors l'enregistrement de session, l'autocapture, les sondages et la barre d'outils — que l'ADR 0012 coupe de toute façon. MESURER EN CI, PAS EN LOCAL.",
+    "totalGzipKb": 463,
     "_pourquoiPreload": "Posé le 16/09/2026, socle 4.18.0. Le total gzip ne dit rien du chemin critique : il compte TOUS les morceaux, asynchrones compris. Cette borne compte ce que dist/index.html référence — c'est elle qui aurait vu Sentry revenir dans vendor. Mesuré 191,5 kB, budget à +10 %.",
     "preloadGzipKb": 211
   },
@@ -32,6 +32,7 @@
     "date-fns": "^4.4.0",
     "firebase": "^12.19.0",
     "lucide-react": "^1.47.0",
+    "posthog-js": "^1.434.2",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "tailwindcss": "^4.3.3",
@@ -43,7 +44,7 @@
     "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^10.0.1",
     "@firebase/rules-unit-testing": "^5.0.2",
-    "@mister-guiiug/dev-pwa-config": "^4.21.3",
+    "@mister-guiiug/dev-pwa-config": "^6.0.1",
     "@playwright/test": "^1.63.0",
     "@sentry/vite-plugin": "^5.4.0",
     "@testing-library/jest-dom": "^7.0.1",
