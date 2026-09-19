@@ -30,13 +30,23 @@ jobs:
       # en jouant `--strict` pour de vrai sur ce dépôt : le docteur rend
       # « 0 défaut(s), 4 dette(s) », et `--strict` échoue sur une dette
       # (pwa-doctor.mjs:1631). Ce qui bloque aujourd'hui :
-      #   · e2e/basic.spec.ts : aucun titre ne correspond au filtre, jamais joué en CI
       #   · les VITE_FIREBASE_* en secret alors que Vite les copie dans le bundle
       #   · .env.example ne documente pas VITE_ERROR_INGEST_URL, VITE_PWA_ICON_QS
       #   · code source + soutien sur tous les écrans, rendus par la coquille
       # Le mode strict s'active quand cette liste est vide. Pas avant : une CI
       # rouge sur une dette connue et non traitée n'apprend rien à personne.
       run-e2e: true
+      # `.*` : TOUTE la suite. Le docteur le disait en dette — « e2e/basic.spec.ts :
+      # aucun titre ne correspond au filtre @critical|@a11y, jamais joué en CI ».
+      # Playwright rend « No tests found » avec un code 0 pour une spec qu'il
+      # ignore : le job sortait vert sans avoir joué ce fichier.
+      #
+      # Mesuré le 19/09/2026 avec la commande exacte du réutilisable : 8 tests sous
+      # le défaut du socle, 24 sous `.*`, tous verts — et 17,7 s au lieu de 9,5.
+      # Huit secondes pour seize tests de plus, dans un job qui en dépense une
+      # soixantaine en installation. Un filtre qui coûte de la couverture et ne
+      # rend rien, on ne le garde pas (cf. miss-badminton).
+      e2e-grep: '.*'
       server-dir: server
       build-env: |
         VITE_PUBLIC_SITE_ORIGIN=https://example.github.io
