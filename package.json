@@ -26,6 +26,11 @@
     "_pourquoiPreload": "Posé le 16/09/2026, socle 4.18.0. Le total gzip ne dit rien du chemin critique : il compte TOUS les morceaux, asynchrones compris. Cette borne compte ce que dist/index.html référence — c'est elle qui aurait vu Sentry revenir dans vendor. Mesuré 191,5 kB, budget à +10 %.",
     "preloadGzipKb": 211
   },
+  "pwaDoctor": {
+    "refus": {
+      "e2e-hors-filtre": "e2e/basic.spec.ts est VOLONTAIREMENT sans étiquette : hygiène locale (chargement, a11y de base, PWA, hors ligne, sécurité), pas la porte de la CI — son en-tête le dit, et `npm run test:e2e` la joue sans filtre. Décision du 06/09/2026, quand ce fichier a cessé d’être un gabarit inadapté ; confirmée le 19/09/2026. Le filtre de la CI reste le défaut du socle, qui couvre puzzle-critical.spec.ts, entree.spec.ts et a11y.spec.ts."
+    }
+  },
   "dependencies": {
     "@sentry/react": "^10.75.0",
     "@tailwindcss/vite": "^4.3.3",
