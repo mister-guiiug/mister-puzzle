@@ -21,6 +21,7 @@ import {
   type PuzzleState,
 } from '../hooks/useSocket';
 import ErrorModal from './ErrorModal';
+import { GESTES, trackEvent } from '@mister-guiiug/dev-pwa-config/analytics';
 import { PwaInstallPrompt } from '@mister-guiiug/dev-pwa-config/react/pwa-install-prompt';
 import { useNetworkGuard } from '../hooks/useNetworkGuard';
 import {
@@ -191,6 +192,20 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         pwHash,
         pseudo.trim()
       );
+      /*
+       * CRÉER UN PUZZLE — le geste qui fonde tout le reste : sans salle, il n'y
+       * a rien à rejoindre, rien à partager, rien à suivre.
+       *
+       * APRÈS `createPuzzle`, QUI LÈVE si Firebase refuse. Compter le clic
+       * gonflerait le chiffre de créations qui n'ont jamais abouti.
+       *
+       * NI LE NOM, NI LE CODE, NI LA TAILLE DE LA GRILLE. Le code de salle est
+       * l'identifiant que les participants se passent — celui-là même que
+       * `App.tsx` refuse déjà d'envoyer comme chemin de page. `prive` ne dit que
+       * ceci : un mot de passe protège-t-il la salle ? Un booléen ne désigne
+       * personne, et il répond à la seule question ouverte sur cette option.
+       */
+      trackEvent(GESTES.CREATION, { objet: 'puzzle', prive: !isPublic });
       saveToHistory(code, name.trim());
       onJoin(code);
     } catch (err) {
@@ -218,8 +233,22 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         return;
       }
       if (puzzle.passwordHash) {
+        // Rien encore : la salle demande un mot de passe, l'entrée se joue dans
+        // `handleVerifyPassword`.
         setPendingPuzzle(puzzle);
       } else {
+        /*
+         * REJOINDRE UN PUZZLE EXISTANT — la moitié de la promesse de l'app :
+         * un code se partage, et on saura enfin s'il est suivi.
+         *
+         * SEULEMENT PAR LE CODE. Rouvrir un puzzle depuis l'historique du
+         * tiroir ne passe PAS ici (`App.handleJoin` navigue directement) :
+         * revenir sur sa propre salle chaque matin ne gonfle donc rien.
+         *
+         * Ni le code, ni le nom de la salle, ni le pseudo — le `role` dit
+         * seulement de quel côté de l'invitation on se trouve.
+         */
+        trackEvent(GESTES.PARTIE, { etape: 'demarree', role: 'invite' });
         saveToHistory(puzzle.id, puzzle.name);
         onJoin(puzzle.id);
       }
@@ -237,6 +266,9 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
     try {
       const hash = await hashPassword(joinPassword);
       if (hash === pendingPuzzle.passwordHash) {
+        // Même geste, autre porte : une salle protégée n'est rejointe qu'ici,
+        // une fois le mot de passe reconnu. Un essai raté ne compte pas.
+        trackEvent(GESTES.PARTIE, { etape: 'demarree', role: 'invite' });
         saveToHistory(pendingPuzzle.id, pendingPuzzle.name);
         onJoin(pendingPuzzle.id);
       } else {
