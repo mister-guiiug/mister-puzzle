@@ -64,6 +64,7 @@ import { getReadOnlyMode, setReadOnlyMode } from '../utils/prefs';
 import { useI18n } from '../i18n/I18nContext';
 import { ProgressChart } from './ProgressChart';
 import { exportProgressPng } from '../utils/exportProgressCard';
+import { GESTES, trackEvent } from '@mister-guiiug/dev-pwa-config/analytics';
 import { reportError } from '../utils/reportError';
 import { useNetworkGuard } from '../hooks/useNetworkGuard';
 import { useCurrentUid } from '../hooks/useCurrentUid';
@@ -750,6 +751,19 @@ const Dashboard: React.FC<DashboardProps> = ({
     const inviteUrl = `${base}?join=${encodeURIComponent(puzzle.id)}`;
     const hashUrl = `${base}#${puzzle.id}`;
     const text = `${t('dashboard.shareText')} "${puzzle.name}" ${t('dashboard.shareOn')} ${puzzle.id}\n${t('dashboard.shareInvite')}: ${inviteUrl}\n${t('dashboard.shareDirect')}: ${hashUrl}`;
+    /*
+     * PARTAGER LE CODE, ET CE QUE LE PARTAGE A DONNÉ. Cette app n'a de sens
+     * qu'à plusieurs : savoir combien d'invitations partent — et par quelle
+     * voie — dit si le code circule vraiment.
+     *
+     * MÊME VOCABULAIRE QUE LE SOCLE (`shared` / `copied` / `cancelled`), pour
+     * que les partages de toutes les apps de la famille se lisent ensemble.
+     * Le `catch` de la feuille native ne sait pas distinguer un refus d'une
+     * panne : l'API ne le dit pas, et on ne l'invente pas — `cancelled`
+     * couvre les deux, comme dans le socle.
+     *
+     * NI LE TEXTE, NI L'URL : ils portent le nom de la salle et son code.
+     */
     if (navigator.share) {
       try {
         await navigator.share({
@@ -757,15 +771,30 @@ const Dashboard: React.FC<DashboardProps> = ({
           text,
           url: inviteUrl,
         });
+        trackEvent(GESTES.PARTAGE, { resultat: 'shared' });
       } catch {
         // user cancelled
+        trackEvent(GESTES.PARTAGE, { resultat: 'cancelled' });
       }
     } else {
       await navigator.clipboard.writeText(text);
+      trackEvent(GESTES.PARTAGE, { resultat: 'copied' });
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  /*
+   * LES EXPORTS, PAR CE QU'ILS SORTENT ET DANS QUEL FORMAT. Cinq boutons
+   * produisent un fichier ici, dont deux images de statistiques taillées pour
+   * les réseaux — beaucoup de code pour des gestes dont personne ne sait s'ils
+   * servent. `format` et `objet` sont deux listes fermées, écrites en clair
+   * juste en dessous ; rien du contenu exporté ne part avec.
+   */
+  const trackExport = (
+    format: 'csv' | 'json' | 'png',
+    objet: 'historique' | 'progression' | 'stats'
+  ) => trackEvent(GESTES.EXPORT, { format, objet });
 
   const handleExportPng = () => {
     const url = `${window.location.origin}${window.location.pathname}#${puzzle.id}`;
@@ -780,6 +809,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       rows: puzzle.rows,
       cols: puzzle.cols,
     });
+    trackExport('png', 'progression');
   };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1818,9 +1848,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={() =>
-                      downloadHistoryCsv(puzzle.history, historyExportBase)
-                    }
+                    onClick={() => {
+                      downloadHistoryCsv(puzzle.history, historyExportBase);
+                      trackExport('csv', 'historique');
+                    }}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                   >
                     <FileSpreadsheet size={14} aria-hidden />
@@ -1828,9 +1859,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() =>
-                      downloadHistoryJson(puzzle.history, historyExportBase)
-                    }
+                    onClick={() => {
+                      downloadHistoryJson(puzzle.history, historyExportBase);
+                      trackExport('json', 'historique');
+                    }}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                   >
                     <Download size={14} aria-hidden />
@@ -1957,7 +1989,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
                         downloadPseudoStatsCsv(
                           pseudoStatRows,
                           historyExportBase,
@@ -1969,8 +2001,9 @@ const Dashboard: React.FC<DashboardProps> = ({
                             updates: t('dashboard.statsColUpdates'),
                           },
                           t('dashboard.statsAnon')
-                        )
-                      }
+                        );
+                        trackExport('csv', 'stats');
+                      }}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                     >
                       <FileSpreadsheet size={14} aria-hidden />
@@ -1978,7 +2011,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
                         exportStatsImage(
                           pseudoStatRows,
                           puzzle.name,
@@ -1996,8 +2029,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                           'square',
                           t('dashboard.statsAnon'),
                           numberLocale
-                        )
-                      }
+                        );
+                        // Le cadrage (carré / horizontal) ne part PAS : deux
+                        // boutons pour une même image, la distinction n'apprend
+                        // rien que le nombre d'exports ne dise déjà.
+                        trackExport('png', 'stats');
+                      }}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                       title="Instagram (carré)"
                     >
@@ -2006,7 +2043,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </button>
                     <button
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
                         exportStatsImage(
                           pseudoStatRows,
                           puzzle.name,
@@ -2024,8 +2061,9 @@ const Dashboard: React.FC<DashboardProps> = ({
                           'horizontal',
                           t('dashboard.statsAnon'),
                           numberLocale
-                        )
-                      }
+                        );
+                        trackExport('png', 'stats');
+                      }}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border-ui bg-surface px-2.5 py-1.5 text-xs font-semibold text-fg-muted hover:bg-surface-muted dark:border-border-ui dark:bg-surface-muted dark:text-fg dark:hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                       title="Twitter (horizontal)"
                     >
