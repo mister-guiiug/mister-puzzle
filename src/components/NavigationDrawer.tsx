@@ -31,7 +31,8 @@ import {
 } from '../utils/history';
 import { useI18n } from '../i18n/I18nContext';
 import { reportError } from '../utils/reportError';
-import { prefetchDashboardChunk } from '../utils/prefetchDashboard';
+import { usePrefetch } from '@mister-guiiug/dev-pwa-config/react/use-prefetch';
+import { loadDashboard } from '../utils/loadDashboard';
 import { useNetworkGuard } from '../hooks/useNetworkGuard';
 
 export type NavigationDrawerProps = {
@@ -72,6 +73,10 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   // de s'afficher hors ligne, ce sont seulement ses entrées qui deviennent
   // inertes — voir la salle qu'on a visitée vaut mieux qu'une liste vide.
   const guard = useNetworkGuard();
+  // Chaque entrée de l'historique et de la liste publique ouvre le tableau de
+  // bord : son morceau part à l'approche de l'entrée — pointeur, focus ou
+  // doigt — et une seule fois pour toutes.
+  const dashboard = usePrefetch(loadDashboard);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const refreshHistory = useCallback(() => setHistory(getHistory()), []);
@@ -331,7 +336,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                       type="button"
                       disabled={joining}
                       {...guard.disabledProps}
-                      onMouseEnter={prefetchDashboardChunk}
+                      {...dashboard.linkProps}
                       onClick={guard.wrap(() => tryJoin(item.code))}
                       className="flex-1 min-h-12 text-left px-3 py-2.5 rounded-xl hover:bg-surface-muted dark:hover:bg-surface-muted border border-transparent hover:border-border-ui dark:hover:border-border-ui active:bg-surface-muted dark:active:bg-surface-muted transition disabled:opacity-50 aria-disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
                     >
@@ -494,7 +499,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                           type="button"
                           disabled={joining}
                           {...guard.disabledProps}
-                          onMouseEnter={prefetchDashboardChunk}
+                          {...dashboard.linkProps}
                           onClick={guard.wrap(() => tryJoin(p.id))}
                           className="w-full flex items-center justify-between gap-3 min-h-12 px-3 py-2.5 rounded-xl hover:bg-success-row-hover active:bg-success-row-active text-left border border-transparent hover:border-success-row-border transition disabled:opacity-50 aria-disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
                         >

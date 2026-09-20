@@ -38,7 +38,8 @@ import {
 } from '../utils/pseudo';
 import { useI18n } from '../i18n/I18nContext';
 import { FamilyApps } from '@mister-guiiug/dev-pwa-config/react';
-import { prefetchDashboardChunk } from '../utils/prefetchDashboard';
+import { usePrefetch } from '@mister-guiiug/dev-pwa-config/react/use-prefetch';
+import { loadDashboard } from '../utils/loadDashboard';
 import { reportError } from '../utils/reportError';
 
 interface HomeProps {
@@ -52,6 +53,12 @@ const logoSrc = `${import.meta.env.BASE_URL}logo.svg${import.meta.env.VITE_PWA_I
 
 const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
   const { t, numberLocale, locale, setLocale } = useI18n();
+  // Le morceau du tableau de bord part à l'APPROCHE de la carte « rejoindre »
+  // — pointeur, focus ou doigt — et pas au montage : c'est là que se décide le
+  // prochain écran. Un seul point d'étalement suffit : le focus d'un champ
+  // remonte jusqu'à la carte (`focusin`), et le pointeur comme le doigt y
+  // entrent avant d'atteindre le bouton.
+  const dashboard = usePrefetch(loadDashboard);
   const [name, setName] = useState('');
   const [rows, setRows] = useState(() => getSavedGrid()?.rows ?? 20);
   const [cols, setCols] = useState(() => getSavedGrid()?.cols ?? 50);
@@ -692,7 +699,7 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
         <div
           id="home-join"
           className="bg-surface p-6 rounded-xl shadow-md w-full border border-divide scroll-mt-24"
-          onMouseEnter={prefetchDashboardChunk}
+          {...dashboard.linkProps}
         >
           <h2 className="text-xl font-semibold mb-4 text-fg">
             {t('home.joinTitle')}
@@ -711,7 +718,6 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
                 className="w-full pl-8 p-2 border border-border-ui rounded uppercase tracking-widest font-mono bg-surface-muted text-fg"
                 value={roomCode}
                 onChange={e => setRoomCode(e.target.value.toUpperCase())}
-                onFocus={prefetchDashboardChunk}
                 onKeyDown={e =>
                   e.key === 'Enter' && !pendingPuzzle && handleJoin()
                 }
@@ -721,7 +727,6 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               type="button"
               {...guard.disabledProps}
               onClick={guard.wrap(() => handleJoin())}
-              onMouseEnter={prefetchDashboardChunk}
               disabled={loading || !!pendingPuzzle}
               className="bg-success-fill text-white px-4 py-2 rounded font-bold hover:bg-success-hover transition disabled:opacity-50 disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:cursor-not-allowed flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
               aria-label={t('home.joinBtn')}
