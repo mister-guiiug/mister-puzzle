@@ -9,11 +9,13 @@ import {
 } from 'react';
 import { ConsentBanner } from '@mister-guiiug/dev-pwa-config/react/consent-banner';
 import { usePageViews } from '@mister-guiiug/dev-pwa-config/react/use-page-views';
+import { usePrefetch } from '@mister-guiiug/dev-pwa-config/react/use-prefetch';
 import { usePuzzle } from './hooks/useSocket';
 import Home from './components/Home';
 import { FamilyLinks } from './components/FamilyLinks';
+import { loadDashboard } from './utils/loadDashboard';
 
-const Dashboard = lazy(() => import('./components/Dashboard'));
+const Dashboard = lazy(loadDashboard);
 import { Navbar } from './components/Navbar';
 import { UpdateBanner } from './components/UpdateBanner';
 import { ConnectionBanner } from './components/ConnectionBanner';
@@ -24,7 +26,6 @@ import { useI18n } from './i18n/I18nContext';
 import { getPseudo, isPseudoLocked } from './utils/pseudo';
 import { useDocumentRoomTitle } from './hooks/useDocumentRoomTitle';
 import { classifyFirebaseError } from './utils/classifyFirebaseError';
-import { prefetchDashboardChunk } from './utils/prefetchDashboard';
 import { flushOfflinePieceQueue } from './utils/offlinePieceQueue';
 import { updatePieces } from './hooks/useSocket';
 
@@ -77,10 +78,14 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  /** Précharge le chunk du tableau de bord dès qu’une salle est ciblée (pendant le chargement Firebase). */
+  // Précharge le morceau du tableau de bord dès qu'une salle est ciblée, pendant
+  // le chargement Firebase. Par le socle : une seule exécution par chargeur,
+  // rejet avalé, et rien ne part sous `saveData` ou en 2G — `lazy()` le
+  // chargera alors quand le puzzle arrive, comme avant ce préchargement.
+  const { prefetch: prefetchDashboard } = usePrefetch(loadDashboard);
   useEffect(() => {
-    if (roomCode) prefetchDashboardChunk();
-  }, [roomCode]);
+    if (roomCode) prefetchDashboard();
+  }, [roomCode, prefetchDashboard]);
 
   // L'AFFICHAGE est parti dans `ConnectionBanner` (composant du socle, avec sa
   // temporisation) ; ce qui reste ici est la VIDANGE de la file de pièces au
