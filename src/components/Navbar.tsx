@@ -11,13 +11,12 @@ import {
   Check,
 } from 'lucide-react';
 import { useI18n } from '../i18n/I18nContext';
-import { useTheme } from '../theme/ThemeContext';
+import { useTheme, type ThemePreference } from '../theme/ThemeContext';
 import { NavigationDrawer } from './NavigationDrawer';
 import {
   setPseudo as savePseudoToStorage,
   setPseudoLocked as savePseudoLockedToStorage,
 } from '../utils/pseudo';
-import type { ThemePreference } from '../theme/themeStorage';
 
 const logoSrc = `${import.meta.env.BASE_URL}logo.svg${import.meta.env.VITE_PWA_ICON_QS}`;
 
@@ -45,7 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   puzzleProgress,
 }) => {
   const { t } = useI18n();
-  const { preference, effective, setPreference } = useTheme();
+  const { theme, resolved, setTheme } = useTheme();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
@@ -72,7 +71,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const pickTheme = (value: ThemePreference) => {
-    setPreference(value);
+    setTheme(value);
     setThemeOpen(false);
     setProfileOpen(false);
   };
@@ -192,9 +191,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   aria-label={t('nav.themeMenu')}
                   title={t('nav.themeMenu')}
                 >
-                  {preference === 'system' ? (
+                  {theme === 'system' ? (
                     <SunMoon size={20} strokeWidth={2} aria-hidden />
-                  ) : effective === 'dark' ? (
+                  ) : resolved === 'dark' ? (
                     <Moon size={20} strokeWidth={2} aria-hidden />
                   ) : (
                     <Sun size={20} strokeWidth={2} aria-hidden />
@@ -239,7 +238,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           {value === 'dark' && t('nav.themeDark')}
                           {value === 'system' && t('nav.themeSystem')}
                         </span>
-                        {preference === value && (
+                        {theme === value && (
                           <Check
                             size={16}
                             className="shrink-0 text-primary"
