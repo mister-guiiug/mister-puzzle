@@ -53,3 +53,8 @@ jobs:
         VITE_FIREBASE_STORAGE_BUCKET=dummy.appspot.com
         VITE_FIREBASE_MESSAGING_SENDER_ID=000000000000
         VITE_FIREBASE_APP_ID=1:000000000000:web:0000000000000000000000
+      # Second avis TypeScript 7, NON BLOQUANT. La 6 reste la référence : c'est
+      # elle que typescript-eslint résout, et il refuse la 7.0 par une assertion
+      # à l'import. Le jour où typescript-eslint#10940 se ferme, cette entrée
+      # et l'alias `typescript-7` disparaissent ensemble.
+      run-type-check-7: true
