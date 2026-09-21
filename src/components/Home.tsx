@@ -808,6 +808,13 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             currentAppId="mister-puzzle"
             showSource={false}
             showSponsor={false}
+            // Une colonne, et pas de <h3> : le <h2> ci-dessus annonce déjà la
+            // section. Deux props, là où l'app posait deux règles CSS.
+            layout="list"
+            showTitle={false}
+            // Dix-neuf cartes d'affilée faisaient un mur au bas de l'accueil.
+            // Repliées par catégorie, il en reste sept lignes.
+            groupBy="category"
             labels={{
               otherApps: t('home.otherApps'),
               maturity: {
