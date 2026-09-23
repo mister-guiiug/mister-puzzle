@@ -164,7 +164,7 @@ export default defineConfig(({ command }) => ({
       themeColor: { light: '#f9fafb', dark: '#0f1014' },
       siteName: 'Mister Puzzle',
       basePath: base,
-      logoPath: '/logo.svg',
+      logoPath: '/pwa-512x512.png',
       iconQuery: pwaIconQs,
       llms: LLMS_TXT,
     }),
