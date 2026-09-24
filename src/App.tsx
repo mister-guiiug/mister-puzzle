@@ -12,7 +12,6 @@ import { usePageViews } from '@mister-guiiug/dev-pwa-config/react/use-page-views
 import { usePrefetch } from '@mister-guiiug/dev-pwa-config/react/use-prefetch';
 import { usePuzzle } from './hooks/useSocket';
 import Home from './components/Home';
-import { FamilyLinks } from './components/FamilyLinks';
 import { loadDashboard } from './utils/loadDashboard';
 
 const Dashboard = lazy(loadDashboard);
@@ -230,10 +229,6 @@ function App() {
           <Home onJoin={handleJoin} pseudo={pseudo} />
         )}
       </main>
-      {/* HORS de la bascule d'écran : le code source et le soutien sont ainsi
-          sur l'accueil comme sur un puzzle ouvert — la règle famille. Rendus
-          par `Home`, ils disparaissaient dès qu'une partie s'ouvrait. */}
-      <FamilyLinks />
       {/* Une `region`, pas une boîte modale : elle ne recouvre rien et ne
           piège pas le focus — un bandeau posé sur un puzzle en cours serait
           exactement le « dark pattern » que le RGPD nomme. Ne rend RIEN tant

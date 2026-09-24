@@ -41,6 +41,7 @@ import { FamilyApps } from '@mister-guiiug/dev-pwa-config/react';
 import { usePrefetch } from '@mister-guiiug/dev-pwa-config/react/use-prefetch';
 import { loadDashboard } from '../utils/loadDashboard';
 import { reportError } from '../utils/reportError';
+import { FamilyLinks } from './FamilyLinks';
 
 interface HomeProps {
   onJoin: (roomCode: string) => void;
@@ -855,9 +856,12 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             {t('home.langEn')}
           </button>
         </div>
-        {/* Les deux liens de la règle famille sont partis dans la coquille
-            (`App.tsx`) : ils étaient ici, et cet écran disparaît dès qu'un
-            puzzle est ouvert — c'est-à-dire là où l'on passe tout son temps. */}
+        {/* LES LIENS DE LA FAMILLE REVIENNENT ICI, et seulement ici. Rendus
+            par la coquille, ils suivaient la partie ouverte : trois liens
+            sortants sous un plateau de jeu, ce que la règle du 06/09/2026
+            appelle du bruit. L'app n'a pas d'écran Réglages ni À propos où
+            poser la seconde moitié de la règle : voir `pwaDoctor.refus`. */}
+        <FamilyLinks />
         <p>
           {t('common.appName')} © {new Date().getFullYear()}
         </p>
