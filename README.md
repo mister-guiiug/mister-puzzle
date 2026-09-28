@@ -47,7 +47,7 @@ Mais les membres de la famille qui ne sont PAS là sont frustrés :
 - **Historique visuel** : voir l'évolution sans redemander
 - **Partage externe** : les absents suivent en temps réel comme un spectacle
 
-**Le petit plus fun ? Les stats !** Qui a posé le plus de pièces cette semaine ? Vitesse de progression ? Top contributeurs ? Pour le défi et les conversations de famille.
+**Le petit plus fun ? Les stats !** Qui a posé le plus de pièces sur les dernières 24 heures, les 7 derniers jours ou depuis le début ? Qui tient la plus longue série ? La courbe, elle, montre le rythme. Pour le défi et les conversations de famille.
 
 ## Exemples concrets d'utilisation
 
@@ -93,11 +93,11 @@ Un seul puzzleur qui utilise plusieurs appareils :
 | Fonctionnalité | Bénéfice |
 |----------------|----------|
 | **Collaboration live** | Voyez qui ajoute des pièces en temps réel |
-| **Historique visuel** | Courbe de progression + export PNG pour voir l'évolution |
+| **Historique visuel** | Courbe de progression ; historique exportable en CSV ou JSON, carte d'avancement et classement des contributeurs en image PNG |
 | **Galerie photos** | Capturez les étapes, réordonnez, faites pivoter |
 | **Checkpoints** | Marquez les étapes (bordures finies, zones difficiles) |
 | **Partage simplifié** | Un code à communiquer, rien de plus |
-| **Mode hors ligne** | PWA installable, fonctionne sans internet |
+| **Hors connexion** | PWA installable ; sans réseau, le compteur de pièces est gardé sur l'appareil et envoyé au retour de la connexion, les autres actions attendent le réseau |
 | **Multi-appareils** | Synchronisation automatique entre tous vos appareils |
 | **Thème clair/sombre** | S'adapte à vos préférences |
 | **Internationalisation** | Français et anglais |
@@ -123,7 +123,7 @@ Installez Mister Puzzle sur votre téléphone ou ordinateur pour un accès rapid
 ### Identité (titre & icône)
 
 - **Nom affiché** : *Mister Puzzle* (barre de navigation, partage, pied de page)
-- **Titre de l'onglet** : *Mister Puzzle — progression collaborative* (`index.html`)
+- **Titre de l'onglet** : `index.html` porte *Mister Puzzle - suivi collaboratif de progression de puzzle* ; une fois l'app chargée, `src/hooks/useDocumentRoomTitle.ts` le remplace par son titre par défaut, précédé du nom de la salle quand une salle est ouverte
 - **Icône principale** : `public/logo.svg` — marque vectorielle (grille 3×3 sur dégradé indigo / violet)
 - **PWA** : le manifeste référence `logo.svg` ainsi que les PNG `pwa-192x192.png` et `pwa-512x512.png` à la racine de `public/`
 
@@ -139,28 +139,29 @@ Installez Mister Puzzle sur votre téléphone ou ordinateur pour un accès rapid
 | Couche | Technologie |
 |---|---|
 | Framework | [React 19](https://react.dev/) |
-| Build | [Vite 7](https://vitejs.dev/) (cible ES2025, TypeScript strict avec `verbatimModuleSyntax` + `erasableSyntaxOnly`) |
+| Build | [Vite 8](https://vitejs.dev/) (cible ES2025, TypeScript strict avec `verbatimModuleSyntax` + `erasableSyntaxOnly`) |
 | Style | [Tailwind CSS 4](https://tailwindcss.com/) |
-| State | [Zustand 5](https://zustand-demo.pmnd.rs/) |
-| Validation | [Zod 3](https://zod.dev/) |
-| Données | [Firebase Realtime Database](https://firebase.google.com/docs/database) (`firebase ^11`) |
+| State | état React et contextes (`I18nContext`, `ThemeContext`), sans bibliothèque |
+| Validation | fonctions maison (`src/utils/puzzleNormalize.ts`, `src/config/firebaseEnv.ts`) |
+| Données | [Firebase Realtime Database](https://firebase.google.com/docs/database) + connexion anonyme [Firebase Auth](https://firebase.google.com/docs/auth) (`firebase ^12`) |
 | Icônes UI | [Lucide React](https://lucide.dev/) |
 | Dates | [date-fns](https://date-fns.org/) |
-| Tests | [Vitest 3](https://vitest.dev/) (jsdom) + [Testing Library](https://testing-library.com/) + [Playwright](https://playwright.dev/) + [@axe-core/playwright](https://github.com/dequelabs/axe-core-npm) |
-| Monitoring | [@sentry/react](https://docs.sentry.io/platforms/javascript/guides/react/) + [web-vitals 4](https://web.dev/vitals/) |
+| Tests | [Vitest 5](https://vitest.dev/) (jsdom) + [Testing Library](https://testing-library.com/) + [Playwright](https://playwright.dev/) + [@axe-core/playwright](https://github.com/dequelabs/axe-core-npm) ; règles de la base testées sur l'émulateur (`npm run test:rules`) |
+| Mesure | [@sentry/react](https://docs.sentry.io/platforms/javascript/guides/react/) : Sentry (région UE) démarre à l'ouverture, sans consentement, et ne reçoit un rapport technique que lorsqu'une erreur survient. `posthog-js` : mesure d'audience PostHog (nuage européen), chargée seulement après accord dans le bandeau de consentement. [web-vitals 6](https://web.dev/vitals/) : journal en développement seulement |
 | Bundle analyzer | [`rollup-plugin-visualizer`](https://github.com/btd/rollup-plugin-visualizer) (`npm run build:analyze`) |
-| Configs partagées | [`@mister-guiiug/dev-pwa-config`](../dev-pwa-config/README.md) (ESLint, Prettier, TS, Vitest) |
+| Socle partagé | [`@mister-guiiug/dev-pwa-config`](https://github.com/mister-guiiug/dev-pwa-config) (GitHub Packages) : configs ESLint, Prettier, TS, Vitest, et modules exécutés dans l'app (observabilité, bandeau de consentement, images, CSP, SEO, mises à jour) |
 | Photos téléversées | `@mister-guiiug/dev-pwa-config/image` (contrôle, ré-encodage JPEG sans EXIF/GPS) — voir `src/utils/resizeJpegImage.ts` |
-| PWA | [`vite-plugin-pwa 1.2`](https://vite-pwa-org.netlify.app/) |
+| PWA | [`vite-plugin-pwa 1.3`](https://vite-pwa-org.netlify.app/) |
 
 ### Installation pour les développeurs
 
 1. Clonez le dépôt
-2. Installez les dépendances :
+2. Installez les dépendances. Le socle vient de GitHub Packages : un jeton GitHub avec le droit `read:packages` est exigé (cf. `.npmrc`) :
    ```bash
+   export NODE_AUTH_TOKEN=<jeton>
    npm install
    ```
-3. Configurez les variables d'environnement. Créez un fichier `.env.local` à partir de `.env.example` et renseignez les clés Firebase
+3. Configurez les variables d'environnement. Créez un fichier `.env.local` à partir de `.env.example` et renseignez les sept clés `VITE_FIREBASE_*`, dont `VITE_FIREBASE_DATABASE_URL`, absente du modèle ; laissez `VITE_SENTRY_DSN` vide en local
 4. Lancez le serveur de développement :
    ```bash
    npm run dev
@@ -168,7 +169,7 @@ Installez Mister Puzzle sur votre téléphone ou ordinateur pour un accès rapid
 
 ### Build local (Windows)
 
-Si `npm run build` échoue avec une erreur du type "Cannot find module @rollup/rollup-win32-x64-msvc", essayez une réinstallation propre : supprimez `node_modules` et `package-lock.json`, puis `npm install` à nouveau.
+Si `npm run build` échoue sous Windows sur un binaire natif manquant (`@rolldown/binding-win32-x64-msvc`, `@rollup/rollup-win32-x64-msvc`…), lancez `npx pwa-bindings` : il installe les binaires de ce poste aux versions du lockfile. Ne supprimez pas `package-lock.json` : régénéré sous Windows, il perd les dépendances optionnelles des autres plates-formes et la CI le refuse.
 
 ### Déploiement
 
@@ -178,7 +179,9 @@ Le chemin de base est configuré sur `/mister-puzzle/` (voir `vite.config.ts` : 
 
 ### Sécurité (Firebase)
 
-Les règles de la base sont dans `database.rules.json`. Le "mot de passe puzzle" est un hash côté client (SHA-256) : protection d'usage courant, pas un équivalent d'authentification serveur forte. Pour des exigences plus élevées, prévoir Firebase Auth et des règles basées sur l'identité.
+Les règles de la base sont dans `database.rules.json`. Une connexion anonyme Firebase, invisible et sans inscription, identifie le créateur d'une salle : lui seul peut la supprimer ou en changer le nom, la grille, la visibilité et le mot de passe. La progression, les photos et les jalons restent modifiables par quiconque a le code. Les salles créées avant le 06/09/2026 n'ont pas de propriétaire : elles restent modifiables et supprimables par quiconque a le code.
+
+Le « mot de passe » d'une salle privée n'est qu'un filtre d'interface : quiconque a le code peut lire la salle, photos comprises. Une salle privée ne figure simplement pas dans la liste publique.
 
 ---
 
