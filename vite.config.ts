@@ -4,10 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { readFileSync } from 'node:fs';
-import {
-  pwaSeoPlugin,
-  resolveSeoPublicUrls,
-} from '@mister-guiiug/dev-pwa-config/vite-pwa-base';
+import { pwaSeoPlugin } from '@mister-guiiug/dev-pwa-config/vite-pwa-base';
 import { cspPlugin } from '@mister-guiiug/dev-pwa-config/vite-csp';
 import { versionPlugin } from '@mister-guiiug/dev-pwa-config/vite-version';
 import { NAVIGATE_FALLBACK_DENY_FILES } from '@mister-guiiug/dev-pwa-config/vite-pwa';
@@ -24,29 +21,6 @@ const analyze = process.env.ANALYZE === '1';
 // Base path : honore VITE_BASE_PATH (Lighthouse CI build à `/`, deploy à
 // `/mister-puzzle/`). Défaut = base GitHub Pages du projet.
 const base = process.env.VITE_BASE_PATH ?? '/mister-puzzle/';
-
-const { homeUrl } = resolveSeoPublicUrls({ basePath: base });
-
-const LLMS_TXT = `# Mister Puzzle
-
-> PWA web pour suivre la progression d'un puzzle à plusieurs, en temps réel (FR/EN).
-
-## Résumé
-Mister Puzzle synchronise le nombre de pièces placées ou restantes, un historique graphique, des photos d'avancement, des checkpoints et une présence « en ligne » via un code de salle. Thème clair, sombre ou système. Mode lecture seule possible.
-
-## URL et code
-- **Application :** ${homeUrl}
-- **Dépôt source :** https://github.com/mister-guiiug/mister-puzzle
-- **Données :** Firebase Realtime Database ; pas de compte obligatoire (pseudo stocké localement).
-
-## Utilisation (aperçu)
-- Créer une salle : nom du puzzle, grille lignes × colonnes, visibilité publique ou privée (mot de passe optionnel hashé côté client).
-- Rejoindre : saisir le code affiché par l'hôte.
-- PWA : installation depuis le navigateur en HTTPS ; mises à jour proposées dans l'app.
-
-## Limites (à ne pas inférer)
-L'application ne fournit pas l'image du puzzle à assembler : uniquement compteurs, grille, médias ajoutés par les participants dans la salle.
-`;
 
 // https://vite.dev/config/
 export default defineConfig(({ command }) => ({
@@ -167,7 +141,6 @@ export default defineConfig(({ command }) => ({
       basePath: base,
       logoPath: '/pwa-512x512.png',
       iconQuery: pwaIconQs,
-      llms: LLMS_TXT,
     }),
     // CSP durcie : script-src par hash SHA-256 de l'IIFE anti-FOUC inline
     // (plus de 'unsafe-inline' en prod). Placé après pwaSeoPlugin pour hasher
