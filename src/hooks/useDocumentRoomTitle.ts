@@ -1,7 +1,11 @@
 import { useEffect, useRef } from 'react';
 import type { PuzzleState } from './useSocket';
 
-const DEFAULT_TITLE = 'Mister Puzzle — progression collaborative';
+// Le titre du HTML servi (≥ 50 caractères). Google et Bing indexent le titre
+// APRÈS rendu : un titre plus court que celui de `index.html` y est classé
+// comme défaut (« Title too short »).
+const DEFAULT_TITLE =
+  'Mister Puzzle - suivi collaboratif de progression de puzzle';
 
 /**
  * Met à jour le titre (et brièvement la meta description) quand une salle est ouverte,

@@ -1,6 +1,9 @@
 ---
 title: Faire un puzzle de 1000 pièces : méthode pas à pas
 description: Faire un puzzle de 1000 pièces sans s'y perdre : préparer la table, trier, poser le cadre, finir les zones difficiles et s'organiser à plusieurs.
+date: 2026-09-25
+updated: 2026-09-29
+answer: Pour faire un puzzle de 1000 pièces, retournez toutes les pièces, isolez les coins et les bords, posez le cadre, puis assemblez les zones faciles avant les grandes surfaces unies. Sur un 1000 pièces Ravensburger, la grille de 36 pièces sur 28 donne 124 pièces de bord, dont 4 coins.
 ---
 
 # Faire un puzzle de 1000 pièces : la méthode, seul ou à plusieurs
@@ -9,7 +12,7 @@ Un puzzle de 1000 pièces se fait souvent en plusieurs séances, parfois à plus
 
 ## Préparer la surface
 
-Choisissez une table plane, assez grande pour le puzzle terminé, plus une marge sur les côtés pour trier les pièces. Les dimensions du puzzle fini sont généralement indiquées sur la boîte.
+Choisissez une table plane, assez grande pour le puzzle terminé, plus une marge sur les côtés pour trier les pièces. Les dimensions du puzzle fini sont indiquées sur la boîte, mais elles restent approximatives : prévoyez un peu de marge.
 
 Si la table doit servir entre deux séances, travaillez sur un plateau rigide ou un tapis à puzzle que vous pourrez déplacer ou rouler. Prévoyez une bonne lumière : sous un éclairage faible, deux bleus proches se confondent.
 
@@ -25,13 +28,13 @@ En les retournant, faites déjà trois tas :
 2. **les bords**, avec un seul côté droit ;
 3. **tout le reste**.
 
-Triez ensuite le reste par couleur, par motif ou par texture : le ciel, l'eau, le texte, les visages, les zones très contrastées. De petites boîtes ou des couvercles aident à garder les tas séparés.
+Triez ensuite le reste par couleur, par motif ou par texture : le ciel, l'eau, le texte, les visages, les zones très contrastées. De petites boîtes ou des couvercles aident à garder les tas séparés. Les méthodes de tri sont détaillées dans notre page pour [trier les pièces d'un puzzle](trier-les-pieces-d-un-puzzle.html).
 
 ## Étape 2 : poser le cadre
 
 Le cadre donne les dimensions réelles du puzzle et des repères pour placer tout le reste.
 
-Sur une découpe classique en grille, le nombre de pièces de bord se calcule : deux fois le nombre de lignes, plus deux fois le nombre de colonnes, moins 4 (les coins sont comptés deux fois). Pour une grille de 25 lignes et 40 colonnes, soit 1000 pièces : 50 + 80 - 4 = **126 pièces de bord**.
+Sur une découpe classique en grille, le nombre de pièces de bord se calcule : deux fois le nombre de lignes, plus deux fois le nombre de colonnes, moins 4 (les coins sont comptés deux fois). Pour une grille de 25 lignes et 40 colonnes, soit 1000 pièces : 50 + 80 - 4 = **126 pièces de bord**. Chez Ravensburger, la grille d'un 1000 pièces compte 36 pièces sur le grand côté et 28 sur le petit : 1 008 pièces, dont 72 + 56 - 4 = **124 pièces de bord**.
 
 Si votre cadre ne se ferme pas, cherchez d'abord une pièce de bord égarée dans les autres tas. Et sachez que certaines découpes n'ont pas un nombre de pièces tout rond : comptez les pièces d'un grand côté et d'un petit côté pour retrouver la grille exacte.
 
@@ -61,7 +64,7 @@ Compter les pièces posées de temps en temps est motivant, et utile pour savoir
 
 [Mister Puzzle](https://mister-guiiug.github.io/mister-puzzle/) ne fournit pas de puzzle à l'écran : il sert à suivre l'avancée de **votre** puzzle, celui qui est sur la table.
 
-- **Une salle par puzzle.** Vous indiquez son nom et sa grille (lignes et colonnes, le total se calcule), public ou privé, avec un mot de passe si vous le souhaitez.
+- **Une salle par puzzle.** Vous indiquez son nom et sa grille (lignes et colonnes, le total se calcule). Une salle publique figure dans la liste des puzzles publics ; une salle privée n'y apparaît pas, et un mot de passe peut en filtrer l'accès dans l'app. Quiconque a le code peut toutefois lire la salle, photos comprises.
 - **Un code à partager.** Les autres rejoignent la salle avec ce code ou un lien, sur téléphone, tablette ou ordinateur, sans créer de compte, et voient la progression en temps réel.
 - **Un compteur rapide.** Pièces placées ou restantes, boutons de plus ou moins 1 et 10 pièces, pourcentage terminé et paliers de 25, 50, 75 et 100 %.
 - **Des checkpoints** tout prêts (« Contour fini », « Ciel / fond », « Personnages / détails ») ou à votre libellé, et des **photos** des étapes.
@@ -72,7 +75,7 @@ Compter les pièces posées de temps en temps est motivant, et utile pour savoir
 
 ### Combien y a-t-il de pièces de bord dans un puzzle de 1000 pièces ?
 
-Cela dépend de la grille. Pour 25 lignes sur 40 colonnes, on compte 126 pièces de bord, dont 4 coins. La formule : deux fois les lignes, plus deux fois les colonnes, moins 4.
+Cela dépend de la grille. Sur un 1000 pièces Ravensburger, découpé en 36 sur 28, on compte 124 pièces de bord, dont 4 coins ; pour 25 lignes sur 40 colonnes, 126. La formule : deux fois les lignes, plus deux fois les colonnes, moins 4.
 
 ### Par quoi faut-il commencer un puzzle ?
 
@@ -85,3 +88,9 @@ Répartissez les zones ou les couleurs, et installez chacun sur un côté de la 
 ### Combien de temps faut-il pour faire un puzzle de 1000 pièces ?
 
 Il n'y a pas de durée type : l'image, la découpe, l'expérience et le nombre de joueurs changent tout. En notant les pièces posées à chaque séance, vous connaîtrez votre propre rythme.
+
+## Sources
+
+- [Ravensburger : questions fréquentes sur les puzzles, dont la grille d'un 1000 pièces](https://www.ravensburger.fr/fr-FR/service/faq/faq-puzzles)
+- [Wikipédia : Puzzle, et sa méthode de résolution](https://fr.wikipedia.org/wiki/Puzzle)
+- [Wikipedia, en anglais : Jigsaw puzzle](https://en.wikipedia.org/wiki/Jigsaw_puzzle)
