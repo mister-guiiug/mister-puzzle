@@ -498,8 +498,7 @@ button,
    La mise en page (bande collante, dégradé, ombre, flou, zone sûre) reste en
    utilitaires Tailwind sur la prop `className` ; ne sont repris ici que les
    traits que `components.css` impose et que l'app ne veut pas — une carte
-   arrondie et cerclée là où il faut une bande bord à bord — plus la teinte de
-   l'action principale, que le socle laisse neutre.
+   arrondie et cerclée là où il faut une bande bord à bord.
    Non « layered » : ces règles gagnent sur `@layer components` ET sur les
    utilitaires, d'où le raccourci `border` plutôt qu'un `border-b` de plus. */
 .puzzle-update-banner {
@@ -515,17 +514,19 @@ button,
   color: var(--fg);
 }
 
+/* L'encre de « Mettre à jour » vient du socle depuis la 6.21.0 : la paire
+   `--dwc-primary` / `--dwc-primary-contrast`, que `html.dark` inverse. Le
+   blanc posé ici sur `--primary-fill` ne tenait en sombre que 4,47:1, et
+   2,98:1 au survol. Reste la graisse. */
 .puzzle-update-banner [data-dwc='update-banner-update'] {
-  border-color: var(--primary-fill);
-  background: var(--primary-fill);
-  color: #ffffff;
   font-weight: 700;
-  transition: background-color 150ms ease;
 }
 
-.puzzle-update-banner [data-dwc='update-banner-update']:hover {
-  border-color: var(--primary-fill-hover);
-  background: var(--primary-fill-hover);
+/* Les gestes, groupés par le socle depuis la 6.21.0, restent au centre avec le
+   titre (`justify-center`) : le groupe prendrait sinon toute la place restante
+   et pousserait les boutons à droite. */
+.puzzle-update-banner [data-dwc='update-banner-actions'] {
+  flex: 0 1 auto;
 }
 
 /* Bandeau hors-ligne (composant partagé ConnectionBanner). L'habillage du socle
