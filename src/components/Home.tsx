@@ -38,6 +38,7 @@ import {
 } from '../utils/pseudo';
 import { useI18n } from '../i18n/I18nContext';
 import { FamilyApps } from '@mister-guiiug/dev-pwa-config/react';
+import { ConsentSection } from '@mister-guiiug/dev-pwa-config/react/consent-section';
 import { usePrefetch } from '@mister-guiiug/dev-pwa-config/react/use-prefetch';
 import { loadDashboard } from '../utils/loadDashboard';
 import { reportError } from '../utils/reportError';
@@ -856,6 +857,16 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
             {t('home.langEn')}
           </button>
         </div>
+        {/* Revenir sur son choix de mesure d'audience : le retrait se fait
+            ici, en un clic (RGPD, art. 7.3). Mêmes clé et chargeur que le
+            bandeau. Dans le pied de l'accueil, faute d'écran Réglages : c'est
+            là que vivent déjà la langue et les liens de la famille. */}
+        <ConsentSection
+          posthogKey={import.meta.env.VITE_POSTHOG_KEY}
+          loader={() => import('posthog-js/dist/module.slim.js')}
+          className="flex max-w-md flex-col items-center text-center text-sm text-fg-muted"
+          titleClassName="text-sm font-semibold text-fg-heading"
+        />
         {/* LES LIENS DE LA FAMILLE REVIENNENT ICI, et seulement ici. Rendus
             par la coquille, ils suivaient la partie ouverte : trois liens
             sortants sous un plateau de jeu, ce que la règle du 06/09/2026
