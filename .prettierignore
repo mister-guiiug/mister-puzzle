@@ -6,3 +6,5 @@ coverage
 *.min.js
 agent-transcripts
 *.md
+# Maquettes de conception (DESIGN.md) : des références figées, pas du code livré.
+docs/maquettes
