@@ -8,27 +8,6 @@ import { normRoom, validateCreate } from './validation';
 
 const DB_FILE = path.join(__dirname, 'puzzles.json');
 
-const parseOrigins = (): string[] | null => {
-  const raw = process.env.CORS_ORIGINS?.trim();
-  if (!raw) return null;
-
-  const list = raw
-    .split(',')
-    .map(s => s.trim())
-    .filter(Boolean)
-    .filter(origin => {
-      try {
-        // Only allow explicit HTTP(S) origins, no wildcard/pattern input from env.
-        const u = new URL(origin);
-        return (u.protocol === 'http:' || u.protocol === 'https:') && !!u.host;
-      } catch {
-        return false;
-      }
-    });
-
-  return list.length ? list : null;
-};
-
 /**
  * Sans `CORS_ORIGINS`, le serveur acceptait TOUTE origine (`cors({})` et
  * `origin: true` pour Socket.IO) : n'importe quel site pouvait lire et écrire
@@ -41,7 +20,28 @@ const DEFAULT_ORIGINS: (string | RegExp)[] = [
   'https://mister-guiiug.github.io',
   /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
 ];
-const allowedOrigins: (string | RegExp)[] = parseOrigins() ?? DEFAULT_ORIGINS;
+
+/**
+ * Rend toujours une liste, jamais `null` : pour `cors`, une origine absente
+ * vaut `*`, toute origine. Le repli `?? DEFAULT_ORIGINS` l'empêchait, mais
+ * CodeQL suivait le `null` jusqu'à `cors({ origin })` sans le voir.
+ */
+const parseOrigins = (raw: string | undefined): (string | RegExp)[] => {
+  const list = (raw ?? '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(origin => {
+      // Des origines HTTP(S) explicites seulement : ni joker ni motif.
+      try {
+        const u = new URL(origin);
+        return (u.protocol === 'http:' || u.protocol === 'https:') && !!u.host;
+      } catch {
+        return false;
+      }
+    });
+  return list.length > 0 ? list : DEFAULT_ORIGINS;
+};
+const allowedOrigins = parseOrigins(process.env.CORS_ORIGINS);
 
 const app = express();
 app.use(cors({ origin: allowedOrigins }));
