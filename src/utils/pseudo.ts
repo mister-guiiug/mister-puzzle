@@ -1,3 +1,5 @@
+import { generateSecureId } from '@mister-guiiug/dev-pwa-config/security';
+
 const PSEUDO_KEY = 'mister_puzzle_pseudo';
 const PSEUDO_LOCKED_KEY = 'mister_puzzle_pseudo_locked';
 const GRID_LOCKED_KEY = 'mister_puzzle_grid_locked';
@@ -80,11 +82,18 @@ export const setInputModePreference = (
   localStorage.setItem(INPUT_MODES_BY_PSEUDO_KEY, JSON.stringify(byPseudo));
 };
 
-/** Unique per-browser-tab ID used for member presence tracking. */
+/**
+ * Unique per-browser-tab ID used for member presence tracking.
+ *
+ * IMPRÉVISIBLE, pas seulement unique : c'est la clé `members/<id>` d'un
+ * puzzle, que tout client peut écrire ou effacer. Un `Math.random()` se devine
+ * (CodeQL js/insecure-randomness) ; `generateSecureId` du socle tire 128 bits
+ * par `getRandomValues`, disponible aussi hors contexte sécurisé.
+ */
 export const getSessionId = (): string => {
   let id = sessionStorage.getItem(SESSION_KEY);
   if (!id) {
-    id = Math.random().toString(36).substring(2, 12);
+    id = generateSecureId();
     sessionStorage.setItem(SESSION_KEY, id);
   }
   return id;

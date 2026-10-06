@@ -11,28 +11,46 @@ const DB_FILE = path.join(__dirname, 'puzzles.json');
 const parseOrigins = (): string[] | null => {
   const raw = process.env.CORS_ORIGINS?.trim();
   if (!raw) return null;
+
   const list = raw
     .split(',')
     .map(s => s.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter(origin => {
+      try {
+        // Only allow explicit HTTP(S) origins, no wildcard/pattern input from env.
+        const u = new URL(origin);
+        return (u.protocol === 'http:' || u.protocol === 'https:') && !!u.host;
+      } catch {
+        return false;
+      }
+    });
+
   return list.length ? list : null;
 };
 
-const allowedOrigins = parseOrigins();
-const corsOriginOption: boolean | string[] = allowedOrigins
-  ? allowedOrigins
-  : true;
+/**
+ * Sans `CORS_ORIGINS`, le serveur acceptait TOUTE origine (`cors({})` et
+ * `origin: true` pour Socket.IO) : n'importe quel site pouvait lire et écrire
+ * les puzzles depuis le navigateur d'un visiteur (CodeQL
+ * js/cors-permissive-configuration). Le défaut est désormais le site de la
+ * famille et le développement local ; `CORS_ORIGINS` (liste séparée par des
+ * virgules) le remplace.
+ */
+const DEFAULT_ORIGINS: (string | RegExp)[] = [
+  'https://mister-guiiug.github.io',
+  /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
+];
+const allowedOrigins: (string | RegExp)[] = parseOrigins() ?? DEFAULT_ORIGINS;
 
 const app = express();
-app.use(
-  cors(typeof corsOriginOption === 'boolean' ? {} : { origin: allowedOrigins! })
-);
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: '50mb' }));
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: corsOriginOption,
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
   },
   maxHttpBufferSize: 1e8, // 100MB to handle multiple photos
