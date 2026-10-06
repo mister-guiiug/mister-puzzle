@@ -11,10 +11,21 @@ const DB_FILE = path.join(__dirname, 'puzzles.json');
 const parseOrigins = (): string[] | null => {
   const raw = process.env.CORS_ORIGINS?.trim();
   if (!raw) return null;
+
   const list = raw
     .split(',')
     .map(s => s.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter(origin => {
+      try {
+        // Only allow explicit HTTP(S) origins, no wildcard/pattern input from env.
+        const u = new URL(origin);
+        return (u.protocol === 'http:' || u.protocol === 'https:') && !!u.host;
+      } catch {
+        return false;
+      }
+    });
+
   return list.length ? list : null;
 };
 
