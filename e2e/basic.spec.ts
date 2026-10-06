@@ -116,9 +116,22 @@ test.describe('Performance', () => {
     // load … because it does not appear in the img-src directive » pour
     // WebKit), et une expression calquée sur l'une d'elles ne verrait pas
     // l'autre.
+    //
+    // L'URL est reconnue par son ORIGINE, extraite du message : un simple
+    // `includes` laisserait passer `https://ailleurs.example/?https://mister-guiiug.github.io/`
+    // (CodeQL js/incomplete-url-substring-sanitization).
+    const urlsOf = (message: string) =>
+      (message.match(/https?:\/\/[^\s'"<>]+/g) ?? []).flatMap(u => {
+        try {
+          return [new URL(u)];
+        } catch {
+          return [];
+        }
+      });
     const catalogueIconBlocked = (message: string) =>
-      message.includes('https://mister-guiiug.github.io/') &&
-      /content security policy/i.test(message);
+      urlsOf(message).some(
+        u => u.origin === 'https://mister-guiiug.github.io'
+      ) && /content security policy/i.test(message);
     const unexpected = errors.filter(e => !catalogueIconBlocked(e));
 
     expect(unexpected).toEqual([]);
