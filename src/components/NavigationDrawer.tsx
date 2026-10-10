@@ -34,6 +34,7 @@ import { reportError } from '../utils/reportError';
 import { usePrefetch } from '@mister-guiiug/dev-pwa-config/react/use-prefetch';
 import { loadDashboard } from '../utils/loadDashboard';
 import { useNetworkGuard } from '../hooks/useNetworkGuard';
+import { isDemoRoomCode } from '../constants/demo';
 
 export type NavigationDrawerProps = {
   open: boolean;
@@ -262,6 +263,10 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
     const pct = (p: (typeof arr)[0]) =>
       p.totalPieces > 0 ? p.placedPieces / p.totalPieces : 0;
     arr.sort((a, b) => {
+      // La démo figée reste en tête de la liste publique.
+      const demoA = isDemoRoomCode(a.id) ? 0 : 1;
+      const demoB = isDemoRoomCode(b.id) ? 0 : 1;
+      if (demoA !== demoB) return demoA - demoB;
       switch (publicSort) {
         case 'nameAsc':
           return a.name.localeCompare(b.name, undefined, {
@@ -504,8 +509,13 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
                           className="w-full flex items-center justify-between gap-3 min-h-12 px-3 py-2.5 rounded-xl hover:bg-success-row-hover active:bg-success-row-active text-left border border-transparent hover:border-success-row-border transition disabled:opacity-50 aria-disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-success-ring"
                         >
                           <div className="min-w-0">
-                            <p className="font-semibold text-fg-heading text-sm truncate">
-                              {p.name}
+                            <p className="font-semibold text-fg-heading text-sm truncate flex items-center gap-2">
+                              <span className="truncate">{p.name}</span>
+                              {isDemoRoomCode(p.id) && (
+                                <span className="shrink-0 rounded bg-primary-soft px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-strong">
+                                  {t('dashboard.demoBadge')}
+                                </span>
+                              )}
                             </p>
                             <p className="text-xs text-fg-faint">
                               {p.placedPieces.toLocaleString(numberLocale)} /{' '}

@@ -321,6 +321,22 @@ describe('migration — les puzzles d’avant gardent leur comportement', () => 
   });
 });
 
+describe('démo figée — TJNGN6 refuse toute écriture', () => {
+  it('lecture OK, pièces / suppression / renommage refusés', async () => {
+    await seedLegacy('TJNGN6', {
+      name: 'Louane 1 000 🧩',
+      totalPieces: 1008,
+      placedPieces: 922,
+      isPublic: true,
+    });
+    await assertSucceeds(get(ref(db(null), 'puzzles/TJNGN6')));
+    await assertFails(placePiece(db(null), 'TJNGN6', 923, 'h-demo'));
+    await assertFails(set(ref(db(null), 'puzzles/TJNGN6/name'), 'Autre'));
+    await assertFails(remove(ref(db(STRANGER), 'puzzles/TJNGN6')));
+    await assertFails(remove(ref(db(OWNER), 'puzzles/TJNGN6')));
+  });
+});
+
 describe('création — et la dégradation si la connexion anonyme est absente', () => {
   it('un client connecté crée un puzzle qui lui appartient', async () => {
     await assertSucceeds(

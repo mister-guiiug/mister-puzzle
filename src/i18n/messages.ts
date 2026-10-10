@@ -68,6 +68,9 @@ export const messages: Record<Locale, MsgValue> = {
       joinTitle: 'Rejoindre un puzzle',
       codePh: 'Code (ex: AB12CD)',
       joinBtn: 'Rejoindre',
+      tryDemo: 'Voir la démo — Louane 1 000 🧩',
+      tryDemoHint:
+        'Puzzle figé en vitrine : progression, photos et historique en lecture seule.',
       publicPuzzles: 'Puzzles publics',
       searchPh: 'Rechercher un puzzle...',
       noPublic: 'Aucun puzzle public pour le moment.',
@@ -171,6 +174,9 @@ export const messages: Record<Locale, MsgValue> = {
       moveRight: 'Déplacer à droite',
       readOnlyBanner:
         'Mode lecture seule : les modifications sont désactivées.',
+      demoBanner:
+        'Démo figée — « Louane 1 000 🧩 ». Lecture seule : rien ne s’enregistre.',
+      demoBadge: 'démo',
       readOnlyToggle: 'Mode lecture seule (observateur)',
       readOnlyHint: 'Utile pour suivre sans risquer de modifier le puzzle.',
       remoteConflict:
@@ -379,6 +385,9 @@ export const messages: Record<Locale, MsgValue> = {
       joinTitle: 'Join a puzzle',
       codePh: 'Code (e.g. AB12CD)',
       joinBtn: 'Join',
+      tryDemo: 'Try the demo — Louane 1 000 🧩',
+      tryDemoHint:
+        'Frozen showcase puzzle: progress, photos and history in read-only mode.',
       publicPuzzles: 'Public puzzles',
       searchPh: 'Search puzzles...',
       noPublic: 'No public puzzles yet.',
@@ -480,6 +489,9 @@ export const messages: Record<Locale, MsgValue> = {
       moveLeft: 'Move left',
       moveRight: 'Move right',
       readOnlyBanner: 'Read-only mode: editing is disabled.',
+      demoBanner:
+        'Frozen demo — “Louane 1 000 🧩”. Read-only: nothing is saved.',
+      demoBadge: 'demo',
       readOnlyToggle: 'Read-only (observer) mode',
       readOnlyHint: 'Follow along without changing the puzzle.',
       remoteConflict:
