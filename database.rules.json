@@ -54,6 +54,12 @@
   //     sans propriétaire. Rien ici n'exige `auth != null` pour créer, poser
   //     une pièce ou lire.
   //
+  //  5. DÉMO FIGÉE. La salle `TJNGN6` (« Louane 1 000 🧩 ») est la vitrine :
+  //     lecture publique, aucune écriture (ni progression, ni suppression).
+  //     Constant côté client : `src/constants/demo.ts`. Les règles enfants
+  //     doivent aussi refuser — un `.write: false` sur le parent ne bloque
+  //     pas un enfant qui s'accorde `.write: true`.
+  //
   // La suite de tests `rules-tests/database.rules.test.ts` (émulateur RTDB,
   // `npm run test:rules`) verrouille chacun de ces points.
   "rules": {
@@ -73,70 +79,71 @@
         // Suppression : le créateur — ou n'importe qui si le puzzle n'a pas de
         // `ownerUid` (les puzzles d'avant ce changement, cf. § 3).
         // Modification : refusée ici, accordée champ par champ ci-dessous.
-        ".write": "!data.exists() || (newData.val() === null && (!data.child('ownerUid').exists() || (auth != null && data.child('ownerUid').val() === auth.uid)))",
+        // Démo figée : aucune écriture sur `TJNGN6`.
+        ".write": "$roomCode !== 'TJNGN6' && (!data.exists() || (newData.val() === null && (!data.child('ownerUid').exists() || (auth != null && data.child('ownerUid').val() === auth.uid))))",
 
         // ————— Propriété —————
 
         // Posé une seule fois, dans l'écriture qui CRÉE le puzzle
         // (`!data.parent().exists()`), et jamais revendiqué ensuite.
         "ownerUid": {
-          ".write": "!data.parent().exists()",
+          ".write": "$roomCode !== 'TJNGN6' && !data.parent().exists()",
           ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 128 && auth != null && newData.val() === auth.uid"
         },
 
         // Le pseudo affiché. Inchangé : ce n'est pas une identité.
         "createdBy": {
-          ".write": "!data.exists()",
+          ".write": "$roomCode !== 'TJNGN6' && !data.exists()",
           ".validate": "newData.isString() && newData.val().length < 100"
         },
 
         "schemaVersion": {
-          ".write": "!data.exists()",
+          ".write": "$roomCode !== 'TJNGN6' && !data.exists()",
           ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 99"
         },
 
         // ————— Champs structurants : le créateur (ou régime d'avant) —————
 
         "isPublic": {
-          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
+          ".write": "$roomCode !== 'TJNGN6' && data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
           ".validate": "newData.isBoolean()"
         },
 
         "passwordHash": {
-          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
+          ".write": "$roomCode !== 'TJNGN6' && data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
           ".validate": "!newData.exists() || (newData.isString() && newData.val().length > 0 && newData.val().length <= 128)"
         },
 
         "name": {
-          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
+          ".write": "$roomCode !== 'TJNGN6' && data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
           ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 200"
         },
 
         "rows": {
-          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
+          ".write": "$roomCode !== 'TJNGN6' && data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
           ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 5000"
         },
 
         "cols": {
-          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
+          ".write": "$roomCode !== 'TJNGN6' && data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
           ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 5000"
         },
 
         "totalPieces": {
-          ".write": "data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
+          ".write": "$roomCode !== 'TJNGN6' && data.parent().exists() && (!data.parent().child('ownerUid').exists() || (auth != null && data.parent().child('ownerUid').val() === auth.uid))",
           ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= 25000000"
         },
 
         // ————— Progression : ouverte à tous, c'est le produit —————
 
         "placedPieces": {
-          ".write": "data.parent().exists()",
+          ".write": "$roomCode !== 'TJNGN6' && data.parent().exists()",
           ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= newData.parent().child('totalPieces').val()"
         },
 
         "checkpoints": {
           "$checkpointId": {
-            ".write": "data.parent().parent().exists()",
+            ".write": "$roomCode !== 'TJNGN6' && data.parent().parent().exists()",
             ".validate": "!newData.exists() || (newData.hasChildren(['id', 'name', 'completed']) && newData.child('id').isString() && newData.child('name').isString() && newData.child('name').val().length > 0 && newData.child('name').val().length < 100 && newData.child('completed').isBoolean())",
             "completed": {
               ".validate": "newData.isBoolean()"
@@ -155,21 +162,21 @@
 
         "history": {
           "$entry": {
-            ".write": "data.parent().parent().exists()",
+            ".write": "$roomCode !== 'TJNGN6' && data.parent().parent().exists()",
             ".validate": "newData.hasChildren(['timestamp', 'placedPieces']) && newData.child('timestamp').isNumber() && newData.child('placedPieces').isNumber() && (!newData.child('pseudo').exists() || (newData.child('pseudo').isString() && newData.child('pseudo').val().length < 100))"
           }
         },
 
         "photos": {
           "$photoId": {
-            ".write": "data.parent().parent().exists()",
+            ".write": "$roomCode !== 'TJNGN6' && data.parent().parent().exists()",
             ".validate": "!newData.exists() || (newData.child('data').isString() && newData.child('data').val().length < 2000000 && newData.child('rotation').isNumber() && (!newData.child('caption').exists() || (newData.child('caption').isString() && newData.child('caption').val().length < 500)) && (!newData.child('addedAt').exists() || newData.child('addedAt').isNumber()) && (!newData.child('sortOrder').exists() || newData.child('sortOrder').isNumber()))"
           }
         },
 
         "members": {
           "$sessionId": {
-            ".write": "data.parent().parent().exists()",
+            ".write": "$roomCode !== 'TJNGN6' && data.parent().parent().exists()",
             ".validate": "!newData.exists() || (newData.hasChildren(['pseudo', 'lastSeen']) && newData.child('pseudo').isString() && newData.child('lastSeen').isNumber())"
           }
         }

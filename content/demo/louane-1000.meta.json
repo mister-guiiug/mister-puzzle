@@ -1,0 +1,583 @@
+﻿{
+  "exportedAt": "2026-10-10T17:53:35.8810353Z",
+  "note": "Instantané figé en démo — photos conservées dans RTDB (salle TJNGN6).",
+  "id": "TJNGN6",
+  "name": "Louane 1 000 🧩",
+  "isPublic": true,
+  "rows": 28,
+  "cols": 36,
+  "totalPieces": 1008,
+  "placedPieces": 922,
+  "ownerUid": null,
+  "createdBy": null,
+  "schemaVersion": null,
+  "checkpoints": {
+    "-Oq86bPvkZC6qQE27deb": {
+      "completed": true,
+      "createdBy": "Guillaume",
+      "id": "-Oq86bPvkZC6qQE27deb",
+      "name": "Contour fini"
+    },
+    "-Oq89P4JhQzPvSIyHe8n": {
+      "completed": true,
+      "id": "-Oq89P4JhQzPvSIyHe8n",
+      "name": "Personnages / détails"
+    },
+    "-OqbLBAxcQ7Rbvne6Jri": {
+      "completed": false,
+      "createdBy": "Coralie",
+      "id": "-OqbLBAxcQ7Rbvne6Jri",
+      "name": "🚩 86% — 867"
+    }
+  },
+  "history": {
+    "-Oq7GsL4SyKpJKu3Qlth": {
+      "placedPieces": 495,
+      "timestamp": 1776107881598
+    },
+    "-Oq7Gy12fDdhlYE1xaAD": {
+      "placedPieces": 658,
+      "timestamp": 1776107904994
+    },
+    "-Oq7H-RC0EIPOXGhJRLN": {
+      "placedPieces": 659,
+      "timestamp": 1776107914757
+    },
+    "-Oq7Hw1rP7qQ9qGoBgot": {
+      "placedPieces": 683,
+      "timestamp": 1776108158998
+    },
+    "-Oq7PWuu-h-Cado0TTfI": {
+      "placedPieces": 683,
+      "pseudo": "Timeo",
+      "timestamp": 1776110149545
+    },
+    "-Oq7PaFjhxI4BW23JKb0": {
+      "placedPieces": 683,
+      "pseudo": "Timeo",
+      "timestamp": 1776110167338
+    },
+    "-Oq7PaR9YnXm1VW1-E_F": {
+      "placedPieces": 683,
+      "pseudo": "Timeo",
+      "timestamp": 1776110168069
+    },
+    "-Oq7PaZtmB1eS7SR2_EK": {
+      "placedPieces": 683,
+      "pseudo": "Timeo",
+      "timestamp": 1776110168628
+    },
+    "-Oq7R-Llw2rJ4FiinWvY": {
+      "placedPieces": 684,
+      "pseudo": "Timeo",
+      "timestamp": 1776110536351
+    },
+    "-Oq7SFsW61Bo19jToRCf": {
+      "placedPieces": 685,
+      "pseudo": "Timeo",
+      "timestamp": 1776110866194
+    },
+    "-Oq7TNrxxvkRnc05zLwX": {
+      "placedPieces": 686,
+      "pseudo": "Timeo",
+      "timestamp": 1776111161069
+    },
+    "-Oq7TTDvW62gxZG8Zcii": {
+      "placedPieces": 687,
+      "pseudo": "Timeo",
+      "timestamp": 1776111183019
+    },
+    "-Oq7iD2AngQ7mkag4u-c": {
+      "placedPieces": 687,
+      "pseudo": "Timeo",
+      "timestamp": 1776115311031
+    },
+    "-Oq7mb-iiQIeiDTyq2oY": {
+      "placedPieces": 688,
+      "pseudo": "Timeo",
+      "timestamp": 1776116461855
+    },
+    "-Oq7o1uUWlVDyN2wzcgm": {
+      "placedPieces": 689,
+      "pseudo": "Timeo",
+      "timestamp": 1776116838283
+    },
+    "-OqBpt50gyRRb5suUP0W": {
+      "placedPieces": 688,
+      "pseudo": "Guillaume",
+      "timestamp": 1776184430841
+    },
+    "-OqBpuEVicaO2gfMfwU3": {
+      "placedPieces": 689,
+      "pseudo": "Guillaume",
+      "timestamp": 1776184435544
+    },
+    "-OqFtK3HvI5916-uXZA3": {
+      "placedPieces": 690,
+      "pseudo": "Guillaume",
+      "timestamp": 1776252440761
+    },
+    "-OqMWynoPjYlh_OiXuOH": {
+      "placedPieces": 696,
+      "pseudo": "Timeo",
+      "timestamp": 1776363761604
+    },
+    "-OqMWyuTju8Cqr-onVLf": {
+      "placedPieces": 697,
+      "pseudo": "Timeo",
+      "timestamp": 1776363762031
+    },
+    "-OqMX-YfsfNQ9wL8o5KY": {
+      "placedPieces": 700,
+      "pseudo": "Timeo",
+      "timestamp": 1776363768763
+    },
+    "-OqMX-pm1QhweeT8coY9": {
+      "placedPieces": 701,
+      "pseudo": "Timeo",
+      "timestamp": 1776363769922
+    },
+    "-OqMX0SLMnZrWnhR3JZd": {
+      "placedPieces": 702,
+      "pseudo": "Timeo",
+      "timestamp": 1776363772454
+    },
+    "-OqMX1iatFxbK6ABvTPJ": {
+      "placedPieces": 701,
+      "pseudo": "Timeo",
+      "timestamp": 1776363777654
+    },
+    "-OqMX1yh0rtttRl_c3_Z": {
+      "placedPieces": 702,
+      "pseudo": "Timeo",
+      "timestamp": 1776363778686
+    },
+    "-OqMX527_FCfG2NxG8fO": {
+      "placedPieces": 706,
+      "pseudo": "Timeo",
+      "timestamp": 1776363791257
+    },
+    "-OqMX5NoQ7VcV_knppWF": {
+      "placedPieces": 711,
+      "pseudo": "Timeo",
+      "timestamp": 1776363792644
+    },
+    "-OqRvtS0_g_fsrfmF8AV": {
+      "placedPieces": 782,
+      "pseudo": "Guillaume",
+      "timestamp": 1776454440752
+    },
+    "-OqS5YMYrgA-UWvDgVrK": {
+      "placedPieces": 783,
+      "pseudo": "Guillaume",
+      "timestamp": 1776457233870
+    },
+    "-OqSCCvTFe61K3fRYm07": {
+      "placedPieces": 784,
+      "pseudo": "Guillaume",
+      "timestamp": 1776458981065
+    },
+    "-OqSDCdvT6k9zYWqIjIc": {
+      "placedPieces": 785,
+      "pseudo": "Guillaume",
+      "timestamp": 1776459242087
+    },
+    "-OqV5DTugBpbJAScuHDQ": {
+      "placedPieces": 787,
+      "pseudo": "Guillaume",
+      "timestamp": 1776507480050
+    },
+    "-OqVId8dWk-nlxR8842c": {
+      "placedPieces": 788,
+      "pseudo": "Guillaume",
+      "timestamp": 1776510997146
+    },
+    "-OqbKamQA_rvCy7s-Dg1": {
+      "placedPieces": 798,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628952263
+    },
+    "-OqbKavhfWCrz-a3aGIJ": {
+      "placedPieces": 808,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628952857
+    },
+    "-OqbKb4GtMDf9viMyA9N": {
+      "placedPieces": 818,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628953468
+    },
+    "-OqbKbEUeQDeMEohkRmt": {
+      "placedPieces": 828,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628954122
+    },
+    "-OqbKbO0Hc8aa7nGQdML": {
+      "placedPieces": 838,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628954732
+    },
+    "-OqbKbX2GTn8-7HJpbdQ": {
+      "placedPieces": 848,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628955310
+    },
+    "-OqbKbgDtkJ1dD6o6xWv": {
+      "placedPieces": 858,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628955962
+    },
+    "-OqbKcKegBRvgHYwypV8": {
+      "placedPieces": 859,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628958613
+    },
+    "-OqbKcRNL40IEELWRUZG": {
+      "placedPieces": 860,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628959043
+    },
+    "-OqbKcZnJR1P1CDyEf-A": {
+      "placedPieces": 861,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628959582
+    },
+    "-OqbKchK7-mU95aW1QYD": {
+      "placedPieces": 862,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628960128
+    },
+    "-OqbKcpihSyODO7pIx4W": {
+      "placedPieces": 872,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628960665
+    },
+    "-OqbKcz4rLfdnXS0ljVi": {
+      "placedPieces": 873,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628961264
+    },
+    "-OqbKdIDgnUZhCxwpCvv": {
+      "placedPieces": 869,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628962554
+    },
+    "-OqbKdQf9F4H81Bb53p0": {
+      "placedPieces": 868,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628963094
+    },
+    "-OqbKdcdqDIuUw9jUiAw": {
+      "placedPieces": 867,
+      "pseudo": "Guillaume",
+      "timestamp": 1776628963924
+    },
+    "-OqbLBgquqcJBJFd_uYH": {
+      "placedPieces": 868,
+      "pseudo": "Coralie",
+      "timestamp": 1776629107256
+    },
+    "-OqbLC-4zzUtWJXmbcB0": {
+      "placedPieces": 867,
+      "pseudo": "Coralie",
+      "timestamp": 1776629108486
+    },
+    "-OqbLCUugiWet8KQ0niq": {
+      "placedPieces": 868,
+      "pseudo": "Coralie",
+      "timestamp": 1776629110523
+    },
+    "-OqbLCceYVniP-L--cbs": {
+      "placedPieces": 867,
+      "pseudo": "Coralie",
+      "timestamp": 1776629111083
+    },
+    "-OqbM0PNW-lpkQy1ZwaR": {
+      "placedPieces": 868,
+      "pseudo": "Coralie",
+      "timestamp": 1776629323161
+    },
+    "-OqbM3f5YTgv_jKXNEAc": {
+      "placedPieces": 968,
+      "pseudo": "Coralie",
+      "timestamp": 1776629336519
+    },
+    "-OqbM6RYT5dbtAHrNSaw": {
+      "placedPieces": 858,
+      "pseudo": "Coralie",
+      "timestamp": 1776629347875
+    },
+    "-OqbM6lpvy6Al-y4oBRm": {
+      "placedPieces": 848,
+      "pseudo": "Coralie",
+      "timestamp": 1776629349237
+    },
+    "-OqbM7GzcSK8AQ6t-K98": {
+      "placedPieces": 858,
+      "pseudo": "Coralie",
+      "timestamp": 1776629351295
+    },
+    "-OqbM7XAeMsBTTYH8vWw": {
+      "placedPieces": 868,
+      "pseudo": "Coralie",
+      "timestamp": 1776629352331
+    },
+    "-OqbMIOEx5jVbUrL8k22": {
+      "placedPieces": 867,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629396419
+    },
+    "-OqbMIxFV6o77NrMT76j": {
+      "placedPieces": 868,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629398723
+    },
+    "-OqbMLRZMaTmyUocXlUI": {
+      "placedPieces": 875,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629408919
+    },
+    "-OqbMLXomcsgYsf-aMZj": {
+      "placedPieces": 850,
+      "pseudo": "Coralie",
+      "timestamp": 1776629409717
+    },
+    "-OqbMLcxtgJue2OLH4mn": {
+      "placedPieces": 876,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629409713
+    },
+    "-OqbMLvnXZ2ymvVh26Uy": {
+      "placedPieces": 844,
+      "pseudo": "Coralie",
+      "timestamp": 1776629411315
+    },
+    "-OqbMMCdMykBUxW3vdtt": {
+      "placedPieces": 847,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629412060
+    },
+    "-OqbMMwuE7JvuOzmIDSx": {
+      "placedPieces": 848,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629415085
+    },
+    "-OqbMN35KGqihxXLuZn4": {
+      "placedPieces": 849,
+      "pseudo": "Coralie",
+      "timestamp": 1776629415943
+    },
+    "-OqbMNaBAbeeu1D_5oUq": {
+      "placedPieces": 850,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629417727
+    },
+    "-OqbMNek4bhz-ldKP9G0": {
+      "placedPieces": 899,
+      "pseudo": "Coralie",
+      "timestamp": 1776629418416
+    },
+    "-OqbMO4t8iXx-23oxCbi": {
+      "placedPieces": 874,
+      "pseudo": "Coralie",
+      "timestamp": 1776629420153
+    },
+    "-OqbMOAT2sURq248YtZG": {
+      "placedPieces": 900,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629420113
+    },
+    "-OqbMOakdoklaDFBGphX": {
+      "placedPieces": 890,
+      "pseudo": "Coralie",
+      "timestamp": 1776629422257
+    },
+    "-OqbMOxUq0WxvGMXfoN5": {
+      "placedPieces": 880,
+      "pseudo": "Coralie",
+      "timestamp": 1776629423711
+    },
+    "-OqbMPLRDCIaFtIRGulY": {
+      "placedPieces": 879,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629424911
+    },
+    "-OqbMPOiH1hTgnm5aItw": {
+      "placedPieces": 870,
+      "pseudo": "Coralie",
+      "timestamp": 1776629425519
+    },
+    "-OqbMPvrNa2wv2n7E_Kr": {
+      "placedPieces": 869,
+      "pseudo": "Coralie",
+      "timestamp": 1776629427703
+    },
+    "-OqbMQ308KS480a7VidJ": {
+      "placedPieces": 868,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629427828
+    },
+    "-OqbMVFovdZuf8TfZ4jP": {
+      "placedPieces": 867,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629449127
+    },
+    "-OqbMVqlsadMKp0nZOHy": {
+      "placedPieces": 868,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629451556
+    },
+    "-OqbMWd-1BOX6wLU2-dD": {
+      "placedPieces": 858,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629454771
+    },
+    "-OqbMXA3BTAI4Y9SCS4S": {
+      "placedPieces": 868,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629456951
+    },
+    "-OqbMtXP5T-d6cRkGCll": {
+      "placedPieces": 768,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629552653
+    },
+    "-OqbMu62Gd92TXJcuhvn": {
+      "placedPieces": 868,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629554999
+    },
+    "-OqbMvI5LPFljDeJt9ll": {
+      "placedPieces": 768,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629559865
+    },
+    "-OqbMvvP-HM4a1M3xXPP": {
+      "placedPieces": 668,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629562445
+    },
+    "-OqbMwRlI8uTMEiC9_Hb": {
+      "placedPieces": 768,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629564580
+    },
+    "-OqbMwlE9z_rwPSdTAcX": {
+      "placedPieces": 868,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629565890
+    },
+    "-OqbN9qse-Xf9UPJt6lm": {
+      "placedPieces": 869,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629623595
+    },
+    "-OqbNmLqOFfb6UDmMyiS": {
+      "placedPieces": 870,
+      "pseudo": "GuiiuG1",
+      "timestamp": 1776629785378
+    },
+    "-OqbNwlAfUMVRTPzY2Uv": {
+      "placedPieces": 871,
+      "pseudo": "timeo",
+      "timestamp": 1776629828024
+    },
+    "-OqbNxigklT871EjZ73f": {
+      "placedPieces": 870,
+      "pseudo": "timeo",
+      "timestamp": 1776629831960
+    },
+    "-OqbOo1QVPCupoqdu49l": {
+      "placedPieces": 871,
+      "pseudo": "Guillaume",
+      "timestamp": 1776630055114
+    },
+    "-OqbPlUCDR_C6qX-1Z6Z": {
+      "placedPieces": 872,
+      "pseudo": "Guillaume",
+      "timestamp": 1776630306812
+    },
+    "-OqbPuS8nl3rToU6OjsJ": {
+      "placedPieces": 873,
+      "pseudo": "Guillaume",
+      "timestamp": 1776630343544
+    },
+    "-OqePDhenAVD8kYttqKF": {
+      "placedPieces": 883,
+      "pseudo": "Guillaume",
+      "timestamp": 1776680496049
+    },
+    "-OqePDrEyI3pAMgGdtrG": {
+      "placedPieces": 893,
+      "pseudo": "Guillaume",
+      "timestamp": 1776680496661
+    },
+    "-OqePE2frBgNxtI3eDVP": {
+      "placedPieces": 903,
+      "pseudo": "Guillaume",
+      "timestamp": 1776680497458
+    },
+    "-OqePEEpwQEer5Wb8JNJ": {
+      "placedPieces": 913,
+      "pseudo": "Guillaume",
+      "timestamp": 1776680498236
+    },
+    "-OqePEhtWEPVUjwu6B4W": {
+      "placedPieces": 914,
+      "pseudo": "Guillaume",
+      "timestamp": 1776680500159
+    },
+    "-OqePEocjKA05FPqM9aT": {
+      "placedPieces": 915,
+      "pseudo": "Guillaume",
+      "timestamp": 1776680500590
+    },
+    "-OqePGb2bzc6kzsaZN9N": {
+      "placedPieces": 916,
+      "pseudo": "Guillaume",
+      "timestamp": 1776680507913
+    },
+    "-OqePcUnFdC-oI7I8R1h": {
+      "placedPieces": 917,
+      "pseudo": "Guillaume",
+      "timestamp": 1776680601657
+    },
+    "-OqeQD_gtf5hpJ5BaTfS": {
+      "placedPieces": 919,
+      "pseudo": "Guillaume",
+      "timestamp": 1776680757682
+    },
+    "-OqeQr6n8rzguOz2pkXX": {
+      "placedPieces": 920,
+      "pseudo": "Guillaume",
+      "timestamp": 1776680923705
+    },
+    "-OqeReScgOW_rvXKanA9": {
+      "placedPieces": 921,
+      "pseudo": "Guillaume",
+      "timestamp": 1776681133999
+    },
+    "-OqvIbC2cczVnOoFL7_G": {
+      "placedPieces": 920,
+      "pseudo": "Guillaume",
+      "timestamp": 1776963973636
+    },
+    "-OqvIbgjVNQJiaIbONtf": {
+      "placedPieces": 921,
+      "pseudo": "Guillaume",
+      "timestamp": 1776963975664
+    },
+    "-OsLmeF1m4658FrZae6Z": {
+      "placedPieces": 922,
+      "pseudo": "Guillaume",
+      "timestamp": 1778498839535
+    }
+  },
+  "photoIds": [
+    "-Oq86Rm7bZrJYd_9yV8h",
+    "-Oq86Ujyb33GQvMTTgCn",
+    "-OqFsjbsspIPysAS3B_V",
+    "-OqRv75y1hBwvPlwm8Xx",
+    "-OqbLmJk1D4SSuWaUws1"
+  ]
+}

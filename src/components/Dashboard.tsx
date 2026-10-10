@@ -61,6 +61,7 @@ import {
   setInputModePreference,
 } from '../utils/pseudo';
 import { getReadOnlyMode, setReadOnlyMode } from '../utils/prefs';
+import { isDemoRoomCode } from '../constants/demo';
 import { useI18n } from '../i18n/I18nContext';
 import { ProgressChart } from './ProgressChart';
 import { exportProgressPng } from '../utils/exportProgressCard';
@@ -108,7 +109,11 @@ const Dashboard: React.FC<DashboardProps> = ({
   const isDirtyRef = useRef(false);
   const lastServerPlacedRef = useRef(puzzle.placedPieces);
   const [remoteConflict, setRemoteConflict] = useState(false);
-  const [readOnly, setReadOnlyState] = useState(getReadOnlyMode);
+  const isDemo = isDemoRoomCode(puzzle.id);
+  const [readOnlyPref, setReadOnlyState] = useState(getReadOnlyMode);
+  // La démo figée force la lecture seule (règles RTDB + UI) ; le préférence
+  // locale ne peut pas la lever.
+  const readOnly = isDemo || readOnlyPref;
   const currentUid = useCurrentUid();
   const guard = useNetworkGuard();
   // LECTURE SEULE ET HORS LIGNE BLOQUENT LES MÊMES COMMANDES, À UNE EXCEPTION.
@@ -123,6 +128,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [dragPhotoId, setDragPhotoId] = useState<string | null>(null);
 
   const handleSetReadOnly = (next: boolean) => {
+    if (isDemo) return;
     setReadOnlyState(next);
     setReadOnlyMode(next);
     if (next) {
@@ -909,13 +915,22 @@ const Dashboard: React.FC<DashboardProps> = ({
       </p>
 
       <div className="max-w-4xl mx-auto">
-        {readOnly && (
+        {isDemo ? (
           <div
-            className="mb-4 p-3 rounded-xl bg-warning-soft border border-warning-border text-warning-fg text-sm font-medium text-center"
+            className="mb-4 p-3 rounded-xl bg-primary-soft border border-primary-border text-primary-strong text-sm font-medium text-center"
             role="status"
           >
-            {t('dashboard.readOnlyBanner')}
+            {t('dashboard.demoBanner')}
           </div>
+        ) : (
+          readOnly && (
+            <div
+              className="mb-4 p-3 rounded-xl bg-warning-soft border border-warning-border text-warning-fg text-sm font-medium text-center"
+              role="status"
+            >
+              {t('dashboard.readOnlyBanner')}
+            </div>
+          )
         )}
 
         {/* Le motif, au même endroit que la bannière « lecture seule » : les
@@ -995,10 +1010,15 @@ const Dashboard: React.FC<DashboardProps> = ({
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 group/name">
+                <div className="flex items-center gap-2 group/name flex-wrap">
                   <h1 className="text-3xl font-bold text-fg-heading">
                     {puzzle.name}
                   </h1>
+                  {isDemo && (
+                    <span className="rounded-md bg-primary-soft px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-primary-strong">
+                      {t('dashboard.demoBadge')}
+                    </span>
+                  )}
                   <button
                     type="button"
                     onClick={() => !remoteLocked && setEditingName(true)}
@@ -1184,22 +1204,24 @@ const Dashboard: React.FC<DashboardProps> = ({
                 </div>
               </div>
 
-              <div className="md:col-span-2 border-t border-divide pt-4">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={readOnly}
-                    onChange={e => handleSetReadOnly(e.target.checked)}
-                    className="rounded border-border-ui-strong text-primary focus:ring-primary-ring w-4 h-4"
-                  />
-                  <span className="text-sm font-medium text-fg-heading">
-                    {t('dashboard.readOnlyToggle')}
-                  </span>
-                </label>
-                <p className="text-xs text-fg-faint mt-1 ml-7">
-                  {t('dashboard.readOnlyHint')}
-                </p>
-              </div>
+              {!isDemo && (
+                <div className="md:col-span-2 border-t border-divide pt-4">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={readOnlyPref}
+                      onChange={e => handleSetReadOnly(e.target.checked)}
+                      className="rounded border-border-ui-strong text-primary focus:ring-primary-ring w-4 h-4"
+                    />
+                    <span className="text-sm font-medium text-fg-heading">
+                      {t('dashboard.readOnlyToggle')}
+                    </span>
+                  </label>
+                  <p className="text-xs text-fg-faint mt-1 ml-7">
+                    {t('dashboard.readOnlyHint')}
+                  </p>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-fg-muted mb-2">

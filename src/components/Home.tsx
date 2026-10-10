@@ -43,6 +43,7 @@ import { usePrefetch } from '@mister-guiiug/dev-pwa-config/react/use-prefetch';
 import { loadDashboard } from '../utils/loadDashboard';
 import { reportError } from '../utils/reportError';
 import { FamilyLinks } from './FamilyLinks';
+import { DEMO_ROOM_CODE } from '../constants/demo';
 
 interface HomeProps {
   onJoin: (roomCode: string) => void;
@@ -695,6 +696,21 @@ const Home: React.FC<HomeProps> = ({ onJoin, pseudo }) => {
               {guard.reason}
             </p>
           )}
+        </div>
+
+        <div className="bg-primary-soft/60 p-5 rounded-xl border border-primary-border w-full">
+          <button
+            type="button"
+            {...guard.disabledProps}
+            {...dashboard.linkProps}
+            onClick={guard.wrap(() => onJoin(DEMO_ROOM_CODE))}
+            className="w-full bg-primary-fill text-white p-2.5 rounded font-bold hover:bg-primary-fill-hover transition disabled:opacity-50 disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring"
+          >
+            {t('home.tryDemo')}
+          </button>
+          <p className="mt-2 text-sm text-primary-strong text-center">
+            {t('home.tryDemoHint')}
+          </p>
         </div>
 
         {/* Join */}
