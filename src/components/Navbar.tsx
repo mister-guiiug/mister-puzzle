@@ -266,11 +266,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`flex min-h-10 items-center gap-2 rounded-xl py-1 pl-1 pr-1.5 transition hover:bg-surface/90 hover:shadow-sm dark:hover:bg-surface-muted/90 sm:pr-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-ring/70 ${profileOpen ? 'bg-surface/95 shadow-sm dark:bg-surface-muted/95' : ''}`}
                   aria-expanded={profileOpen}
                   aria-haspopup="true"
-                  aria-label={t('nav.profileMenu')}
+                  // Le nom commence par ce que le bouton montre, l'initiale puis
+                  // le pseudo (WCAG 2.5.3 ; axe 4.14, le 29/10/2026).
+                  aria-label={`${initial} ${displayName}, ${t('nav.profileMenu')}`}
                 >
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-fill to-brand-via text-sm font-bold text-white shadow-sm ring-2 ring-surface dark:ring-canvas sm:size-8">
                     {initial}
-                  </span>
+                  </span>{' '}
                   <span className="hidden max-w-[100px] truncate text-sm font-medium text-fg min-[400px]:inline sm:max-w-[120px]">
                     {displayName}
                   </span>
