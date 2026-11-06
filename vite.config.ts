@@ -7,7 +7,13 @@ import { readFileSync } from 'node:fs';
 import { pwaSeoPlugin } from '@mister-guiiug/dev-pwa-config/vite-pwa-base';
 import { cspPlugin } from '@mister-guiiug/dev-pwa-config/vite-csp';
 import { versionPlugin } from '@mister-guiiug/dev-pwa-config/vite-version';
-import { NAVIGATE_FALLBACK_DENY_FILES } from '@mister-guiiug/dev-pwa-config/vite-pwa';
+import {
+  googleFontsCaching,
+  NAVIGATE_FALLBACK_DENY_FILES,
+  SENTRY_CHUNK,
+  sentryChunkFileNames,
+  sentryGlobIgnores,
+} from '@mister-guiiug/dev-pwa-config/vite-pwa';
 
 const { version } = JSON.parse(readFileSync('./package.json', 'utf-8')) as {
   version: string;
@@ -35,29 +41,8 @@ export default defineConfig(({ command }) => ({
     chunkSizeWarningLimit: 900,
     rollupOptions: {
       output: {
-        /*
-         * LE MORCEAU SENTRY GARDE SON NOM, SANS EMPREINTE — parce qu'il est
-         * exclu du précache (`globIgnores` plus bas) et qu'une URL empreintée
-         * y meurt à chaque déploiement.
-         *
-         * Le service worker sert la coquille précachée jusqu'à ce que
-         * l'utilisateur accepte la mise à jour ; cette coquille demande
-         * l'ANCIENNE empreinte, que le déploiement suivant a supprimée de
-         * `assets/`. Mesuré en production sur mister-qowa le 22/09/2026 :
-         * HTTP 404, « Échec du chargement pour le module » dans la console.
-         * `initSentry` avale l'échec (son `try/catch`), donc l'application ne
-         * casse pas — elle rapporte ses erreurs à personne, sans le dire.
-         *
-         * Rien n'est perdu au cache : GitHub Pages répond
-         * `Cache-Control: max-age=600` sur TOUS les fichiers, empreinte ou pas.
-         *
-         * `pwa-doctor` tient l'invariant depuis le socle 6.8.0
-         * (règle `chunk-hors-precache`).
-         */
-        chunkFileNames: chunk =>
-          chunk.name === 'sentry'
-            ? 'assets/sentry.js'
-            : 'assets/[name]-[hash].js',
+        // Le morceau Sentry, nom sans empreinte : socle (`vite-pwa`, 6.32.0).
+        chunkFileNames: sentryChunkFileNames,
         manualChunks(id) {
           if (!id.includes('node_modules')) return;
           const norm = id.replace(/\\/g, '/');
@@ -75,7 +60,7 @@ export default defineConfig(({ command }) => ({
            * jamais toucher au SDK. Ces kilo-octets partaient à chaque visite
            * pour un Sentry qui ne s'allume jamais.
            */
-          if (norm.includes('/@sentry/')) return 'sentry';
+          if (norm.includes('/@sentry/')) return SENTRY_CHUNK;
           // ET POSTHOG POUR LA MÊME RAISON, EN PLUS GRAVE. Sentry préchargé
           // coûtait du poids ; PostHog préchargé casse une PROMESSE : l'ADR
           // 0012 dit que rien n'est chargé avant l'accord, et le socle ne
@@ -178,34 +163,9 @@ export default defineConfig(({ command }) => ({
       workbox: {
         // Un fichier (sitemap.xml, llms.txt…) va au réseau, pas à index.html.
         navigateFallbackDenylist: [NAVIGATE_FALLBACK_DENY_FILES],
-        /*
-         * LE MORCEAU SENTRY HORS DU PRÉCACHE, ET C'EST TOUT L'INTÉRÊT DE
-         * L'AVOIR SORTI DE `vendor`.
-         *
-         * `manualChunks` le range dans son propre morceau, que le socle ne
-         * charge que si un DSN est posé — mais Workbox précache TOUT le JS
-         * émis, `import()` ou pas. Mesuré le 16/09/2026 sur la production :
-         * `sw.js` listait `sentry-C7dhFiz-.js`, 463 KiB bruts, téléchargés par
-         * chaque visiteur à l'installation du service worker, alors qu'aucune
-         * variable `VITE_SENTRY_DSN` n'est posée sur ce dépôt. Le découpage
-         * paresseux était vrai, et entièrement défait un cran plus loin.
-         *
-         * Hors précache, il est cherché sur le réseau à la première erreur —
-         * et jamais si l'observabilité reste éteinte. Ne pas l'avoir hors
-         * ligne est sans conséquence : rapporter une erreur demande le réseau.
-         */
-        globIgnores: ['**/sentry.js', '**/sentry-*.js'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: { maxEntries: 16, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
+        // Le morceau Sentry hors du précache : socle (`vite-pwa`, 6.32.0).
+        globIgnores: sentryGlobIgnores(),
+        runtimeCaching: googleFontsCaching(),
       },
       includeAssets: [
         'favicon.ico',
