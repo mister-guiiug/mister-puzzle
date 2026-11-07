@@ -27,6 +27,7 @@ const issueLink = () =>
 
 afterEach(() => {
   window.location.hash = '';
+  window.history.replaceState(null, '', '/');
 });
 
 describe('FamilyLinks — « Signaler un problème »', () => {
@@ -39,26 +40,31 @@ describe('FamilyLinks — « Signaler un problème »', () => {
     expect(href).toContain('template=bug.yml');
   });
 
-  it('préremplit l’environnement avec l’écran courant', () => {
+  it('préremplit l’environnement avec l’écran courant, sans le code de la partie', () => {
     window.location.hash = '#ABC123';
     renderFooter();
     const params = new URL(issueLink()?.href ?? '').searchParams;
-    expect(params.get('environnement')).toContain('écran ');
-    expect(params.get('environnement')).toContain('#ABC123');
+    expect(params.get('environnement')).toContain('écran /');
+    // Le code de partie est dans le fragment : publié dans une issue PUBLIQUE,
+    // il laisserait n'importe qui rejoindre la partie. Le socle (6.34.0) retire
+    // tout fragment qui n'est pas une route `#/…`.
+    expect(params.get('environnement')).not.toContain('ABC123');
   });
 
   it('recalcule l’URL au clic, sans nouveau rendu du pied de page', () => {
     renderFooter();
     const link = issueLink();
     expect(link).not.toBeNull();
-    // L'écran change SANS que React ne re-rende ce composant : c'est le cas
-    // réel (`window.location.hash = code` dans `App`).
-    window.location.hash = '#ZZZ999';
-    expect(link?.href ?? '').not.toContain('ZZZ999');
+    // L'adresse change SANS que React ne re-rende ce composant : c'est le cas
+    // réel (`window.location.hash = code` dans `App`, `replaceState` dans
+    // `Home`). Le code, lui, ne part jamais dans l'issue.
+    window.history.replaceState(null, '', '/partie#ZZZ999');
+    expect(link?.href ?? '').not.toContain('partie');
     link?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    expect(
-      new URL(link?.href ?? '').searchParams.get('environnement')
-    ).toContain('#ZZZ999');
+    const environnement =
+      new URL(link?.href ?? '').searchParams.get('environnement') ?? '';
+    expect(environnement).toContain('/partie');
+    expect(environnement).not.toContain('ZZZ999');
   });
 
   it('rend aussi le code source et le soutien', () => {
