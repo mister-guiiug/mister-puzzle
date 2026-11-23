@@ -8,6 +8,11 @@ Un site web pour suivre ensemble l'avancement d'un puzzle : pièces placées, hi
 
 Disponible sur **PC, tablette et mobile** — pas d'inscription, pas de compte, juste un code à partager.
 
+## Guides
+
+- [Faire un puzzle de 1000 pièces](https://mister-guiiug.github.io/mister-puzzle/faire-un-puzzle-de-1000-pieces.html)
+- [Trier les pièces d'un puzzle](https://mister-guiiug.github.io/mister-puzzle/trier-les-pieces-d-un-puzzle.html)
+
 ## Aperçu de l'application
 
 <table>
